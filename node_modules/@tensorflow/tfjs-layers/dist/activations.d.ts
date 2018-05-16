@@ -1,0 +1,17 @@
+import { Tensor } from '@tensorflow/tfjs-core';
+import { ConfigDictValue } from './types';
+export declare type ActivationFn = (tensor: Tensor, axis?: number) => Tensor;
+export declare type ActivationIdentifier = 'elu' | 'hardsigmoid' | 'linear' | 'relu' | 'relu6' | 'selu' | 'sigmoid' | 'softmax' | 'softplus' | 'softsign' | 'tanh' | string;
+export declare function getActivation(activationType: ActivationIdentifier): ActivationFn;
+export declare function elu(x: Tensor, alpha?: number): Tensor;
+export declare function selu(x: Tensor): Tensor;
+export declare function relu(x: Tensor): Tensor;
+export declare function relu6(x: Tensor): Tensor;
+export declare function linear(x: Tensor): Tensor;
+export declare function sigmoid(x: Tensor): Tensor;
+export declare function hardSigmoid(x: Tensor): Tensor;
+export declare function softplus(x: Tensor): Tensor;
+export declare function softsign(x: Tensor): Tensor;
+export declare function tanh(x: Tensor): Tensor;
+export declare function softmax(x: Tensor, axis?: number): Tensor;
+export declare function serializeActivation(activation: ActivationFn): ConfigDictValue;
