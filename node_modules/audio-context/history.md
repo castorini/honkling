@@ -1,0 +1,16 @@
+
+0.1.0 / 2014-07-29 
+==================
+
+ * ignore node_modules
+ * Merge pull request #4 from oncletom/bump-version
+ * v0.1.0
+ * Merge pull request #3 from oncletom/feature-offline-context
+ * `new` cannot be used for an OfflineAudioContext as specific arguments are required.
+ * `offlineAudioContext`
+ * Testing `audio-context/offline` export.
+ * `window` object is now an explicit dependency.
+ * Enabled `npm test`
+ * Merge pull request #1 from EvanHahn/patch-1
+ * Prioritize unprefixed AudioContext
+ * use testling
