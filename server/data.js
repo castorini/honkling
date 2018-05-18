@@ -1,8 +1,6 @@
 // const tf = require('@tensorflow/tfjs');
 const config = require('config');
-const AudioContext = require('web-audio-api').AudioContext;
-const audioLoader = require('audio-loader')
-
+//const audioLoader = require('audio-loader')
 
 function SpeechDataset() {
   this.dataConfig = config.get('Data');
@@ -21,7 +19,7 @@ SpeechDataset.prototype.preprocess = function(fileName, silence=false) {
 	// let tune = new Audio(fileName);
 	// let source = context.createMediaElementSource(tune);
 
-	//	let option = {
+	// 	let option = {
 	//   "audioContext":context, // required
 	//   "source":source, // required
 	//   "bufferSize": this.dataConfig.input_length, // required
@@ -35,7 +33,11 @@ SpeechDataset.prototype.preprocess = function(fileName, silence=false) {
 }
 
 SpeechDataset.prototype.load = async function() {
-	this.preprocess('test.wav');
+	if (this.dataConfig.mic) {
+
+	} else {
+		this.preprocess('test.wav');
+	}
 }
 
 SpeechDataset.prototype.nextTrainBatch = function(batchSize) {}
