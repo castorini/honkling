@@ -1,38 +1,26 @@
-function httpGetAsync(theUrl, callback, message)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("POST", theUrl, true); // true for asynchronous 
-    xmlHttp.setRequestHeader("Content-Type", "application/json");
-    xmlHttp.send(JSON.stringify({ mfcc: message }));
-}
-
-function callback(res) {
-    console.log(res);
-}
 function doSetTimeout(a, i) {
     setTimeout(function() {
         var features = null;
         features = a.get([
             'mfcc'
         ]);
-        console.log(features.mfcc)
-        httpGetAsync('http://127.0.0.1:80', callback, features.mfcc);
-    }, 500*i);
+        data.push(features.mfcc)
+        if (data.length == 100) {
+          console.log(data)
+          data = [];
+        }
+    }, 30 + 10*i);
 }  
 
 function extractFeature(a) {
     //console.log(a)
-    for (var i = 1; i <= 30; ++i) {
+    for (var i = 0; i < 100; ++i) {
         doSetTimeout(a, i);
     }
 }
 
 class Audio {
-    constructor(bufferSize) {
+    constructor() {
     that = this;
     if (window.hasOwnProperty('webkitAudioContext') &&
       !window.hasOwnProperty('AudioContext')) {
@@ -48,7 +36,8 @@ class Audio {
       }
 
     this.context = new AudioContext();
-    //console.log(this.context.sampleRate)
+    let mBufferSize = this.context.sampleRate / 1000 * 30;
+    mBufferSize = Math.pow(2, Math.round(Math.log(mBufferSize) / Math.log(2)));
 
     let elvis = document.getElementById('elvisSong');
     let stream = this.context.createMediaElementSource(elvis);
@@ -56,11 +45,8 @@ class Audio {
     this.meyda = Meyda.createMeydaAnalyzer({
       audioContext: this.context,
       source: stream,
-      bufferSize: bufferSize,
-      hopSize: 160,
-      callback: function(obj) {
-        alert("call back");
-      },
+      bufferSize: mBufferSize,
+      hopSize: mBufferSize,
     });
     this.initializeMicrophoneSampling();
   };
@@ -130,7 +116,6 @@ class Audio {
   }
 }
 
-const bufferSize = 1024;
 var that;
-let a = new Audio(bufferSize);;
-
+let a = new Audio();
+var data = [];
