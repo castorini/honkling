@@ -49,3 +49,13 @@ div#legend {
   text-align: center;
   vertical-align: middle;
 }
+
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}
+
+.row {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

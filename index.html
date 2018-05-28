@@ -4,6 +4,7 @@
     <title>Honkling</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <script type="text/javascript" src="meyda.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -22,12 +23,23 @@
         <div id="showcase" class="col">
           <div id="audioControl">
             <p>Allow microphone access or play this audio file to see a demo.</p>
-            <audio id="elvisSong" controls src="./data/test.wav"></audio>
+            <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/test.wav"></audio>
           </div>
         </div>
         <hr>
       </div>
+      <div class="row">
+        <div id="showcase" class="col">
+          <ul id="commandList" class="list-group">
+          </ul>
+        </div>
+        <hr>
+      </div>
+      <div class="row">
+        <button id="extractBtn" type="button" class="btn btn-primary col-centered" disabled>Extract</button>
+      </div>
     </div>
+    <script src="audio.js"></script>
     <script src="main.js"></script>
   </body>
 </html>
