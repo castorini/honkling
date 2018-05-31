@@ -40,27 +40,46 @@ class Audio {
     return this.meyda.get(features);
   };
 
-  doSetTimeout(i) {
-    setTimeout(function() {
-        var features = null;
-        features = that.get([
-            'mfcc'
-        ]);
-        that.data.push(features.mfcc)
-        if (that.data.length == 100) {
-          console.log(that.data);
-          that.data = [];
-        }
-    }, 30 + 10*i);
-  };
-
   extractFeature() {
-    if (!that.micSource) {
-      that.fallBackAudio[0].play();
-    }
+    var features = null;
+    features = that.get([
+        'mfcc'
+    ]);
+    that.data.push(features.mfcc)
+  }
 
-    for (var i = 0; i < 100; ++i) {
-      that.doSetTimeout(i);
+  processInput() {
+    // clear previous data
+    this.data = [];
+
+    if (that.micSource) {
+      // extract from mic
+      var intervalFunc = function() {
+        var iteration = 160;
+        var interval = setInterval(function() {
+          if (iteration < 1) {
+              clearInterval(interval);
+              console.log(that.data);
+              // TODO : trigger next processing logic
+              return;
+          }
+          that.extractFeature();
+          iteration--;
+        }, 10);
+      };
+      // wait for 30 milliseconds before extraction
+      setTimeout(intervalFunc, 30);
+    } else {
+      // extract from fall back audio
+      that.fallBackAudio[0].onplay = function() {
+        var interval = setInterval(that.extractFeature, 10);
+        that.fallBackAudio[0].onended = function() {
+          clearInterval(interval);
+          console.log(that.data);
+          // TODO : trigger next processing logic
+        };
+      };
+      that.fallBackAudio[0].play();
     }
   };
 

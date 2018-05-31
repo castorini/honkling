@@ -15,4 +15,4 @@ toggleCommand('command2');
 
 let audio = new Audio();
 
-$(document).on('click', '#extractBtn:enabled', audio.extractFeature);
+$(document).on('click', '#extractBtn:enabled', audio.processInput);
