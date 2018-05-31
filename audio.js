@@ -55,7 +55,7 @@ class Audio {
     if (that.micSource) {
       // extract from mic
       var intervalFunc = function() {
-        var iteration = 160;
+        var iteration = 100;
         var interval = setInterval(function() {
           if (iteration < 1) {
               clearInterval(interval);
