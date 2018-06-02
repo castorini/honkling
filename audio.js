@@ -40,11 +40,14 @@ class Audio {
     return this.meyda.get(features, data);
   };
 
+<<<<<<< HEAD
   getInput() {
     this.context.resume();
     return this.meyda.getInput();
   };
 
+=======
+>>>>>>> dropping silence at the beggining of audio file
   extractMicFeature() {
     var features = null;
     features = that.get([
