@@ -6,9 +6,9 @@ from argparse import ArgumentParser
 # Preprocessing logics of Honk
 # noise are off shifting is no longer random
 # usage :
-#     ./preprocessing.py -file "data/test.wav"
+#     ./preprocessing.py --file "data/test.wav"
 
-sampleRate = 16000
+sampleRate = 44100
 
 def timeshift_audio(config, data):
     shift = (sampleRate * config["timeshift_ms"]) // 1000
@@ -20,7 +20,7 @@ def timeshift_audio(config, data):
     return data[:len(data) - a] if a else data[b:]
 
 def preprocess_audio(data, n_mels, dct_filters):
-    data = librosa.feature.melspectrogram(data, sampleRate, n_mels=n_mels, hop_length=160, n_fft=480, fmin=20, fmax=4000)
+    data = librosa.feature.melspectrogram(data, sampleRate, n_mels=n_mels, hop_length=441, n_fft=1323, fmin=20, fmax=4000)
     print('melspectrogram data\n\r', data.shape, '\n\r', data, '\n\r')
     data[data > 0] = np.log(data[data > 0])
     data = [np.matmul(dct_filters, x) for x in np.split(data, data.shape[1], axis=1)]
@@ -63,7 +63,7 @@ def main():
     config = {
         "n_dct_filters" : 40,
         "n_mels" : 40,
-        "input_length" : 16000,
+        "input_length" : sampleRate,
         "timeshift_ms" : 100,
         "shift" : 800
     };
