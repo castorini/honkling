@@ -75,7 +75,7 @@ class Audio {
   processInput() {
     // clear previous data
     this.data = [];
-
+    
     if (that.micSource) {
       // extract from mic
       var intervalFunc = function() {
