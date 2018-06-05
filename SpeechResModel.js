@@ -39,13 +39,15 @@ class SpeechResModel {
 	}
 
 	predict(x) {
-		let x = tf.tensor(x);
-		input_x = x.reshape(this.config['input_shape'].unshift(-1));
-	    let output = this.model.predict(x);
+		if (!(x instanceof tf.Tensor)) {
+			x = tf.tensor(x);
+		}
+		let input_shape = this.config['input_shape'].slice();
+		input_shape.unshift(-1);
+	    let output = this.model.predict(x.reshape(input_shape));
 
 	    let axis = 1;
-	    console.log(output.dataSync());
 	    let predictions = output.argMax(axis).dataSync();
-	    console.log('prediction result : ', predictions)
+	    console.log('prediction result : ', predictions);
 	}
 }
