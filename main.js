@@ -14,5 +14,9 @@ function toggleCommand(command) {
 toggleCommand('command2');
 
 let audio = new Audio();
-
 $(document).on('click', '#extractBtn:enabled', audio.processInput);
+
+let model = new SpeechModel();
+model.compile();
+// trigger train for now as a verification of model construction
+model.train();

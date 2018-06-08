@@ -40,7 +40,7 @@ class Audio {
     return this.meyda.get(features);
   };
 
-  extractFeature() {
+  extractMicFeature() {
     var features = null;
     features = that.get([
         'mfcc'
@@ -48,10 +48,34 @@ class Audio {
     that.data.push(features.mfcc)
   }
 
+  isAllZero(arr) {
+    let flag = true;
+    for (var i = 0; i < arr.length; ++i) {
+      if (arr[i] != 0) {
+        flag = false;
+        break;
+      }
+    }
+    return flag;
+  }
+
+  extractMediaFeature() {
+    if (that.data.length == 100) return;
+    
+    var features = null;
+    features = that.get([
+        'mfcc'
+    ]);
+
+    if (that.isAllZero(features.mfcc) && that.data.length == 0) return;
+
+    that.data.push(features.mfcc);
+  }
+
   processInput() {
     // clear previous data
     this.data = [];
-
+    
     if (that.micSource) {
       // extract from mic
       var intervalFunc = function() {
@@ -63,7 +87,7 @@ class Audio {
               // TODO : trigger next processing logic
               return;
           }
-          that.extractFeature();
+          that.extractMicFeature();
           iteration--;
         }, 10);
       };
@@ -72,7 +96,7 @@ class Audio {
     } else {
       // extract from fall back audio
       that.fallBackAudio[0].onplay = function() {
-        var interval = setInterval(that.extractFeature, 10);
+        var interval = setInterval(that.extractMediaFeature, 10);
         that.fallBackAudio[0].onended = function() {
           clearInterval(interval);
           console.log(that.data);
