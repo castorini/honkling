@@ -1,10 +1,6 @@
-var speechResModel;
-
 class SpeechResModel {
 
 	constructor() {
-		speechResModel = this;
-
 		// this config is place holder (copied from RES8)
 		this.config = {
 			input_shape : [40, 100, 1],

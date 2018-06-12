@@ -1,10 +1,6 @@
-var speechModel;
-
 class SpeechModel {
 
 	constructor() {
-		speechModel = this;
-
 		// this config is place holder (copied from CNN_TRAD_POOL2)
 		this.config = {
 			input_shape : [40, 100, 1],
