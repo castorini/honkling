@@ -1,19 +1,13 @@
-var speechModel;
-
 class SpeechModel {
 
 	constructor() {
-		speechModel = this;
-		// for training
-		this.iteration = 5;
-
 		// this config is place holder (copied from CNN_TRAD_POOL2)
 		this.config = {
 			input_shape : [40, 100, 1],
+			n_labels : 10,
 			dropout_prob : 0.5,
 			height : 101,
 			width : 40,
-			n_labels : 4,
 			n_feature_maps1 : 64,
 		    n_feature_maps2 : 64,
 		    conv1_size : [20, 8],
@@ -120,7 +114,7 @@ class SpeechModel {
 		// TODO :: double checking following two lines are equal to nn.Linear operation
 
 		this.output = tf.layers.dense({
-			units: 10,
+			units: this.config['n_labels'],
 			activation: 'linear',
 			biasInitializer : tf.initializers.zeros()
 		})
@@ -135,7 +129,7 @@ class SpeechModel {
 		// self.dropout = nn.Dropout(dropout_prob)
 		this.dropout = tf.layers.dropout(this.config['dropout_prob'])
 
-		// flatten layer to be applied before dense layer		
+		// flatten layer to be applied before dense layer
 		this.flatten = tf.layers.flatten()
 
 		// ReLU layer
@@ -203,29 +197,25 @@ class SpeechModel {
 
 	// to be removed in the future
 	// simply used as code reference & verification of the model link
-	train() {
-		let batch_size = 20
+	async train() {
+		let batch_size = 20;
 
-		let batch_x = tf.truncatedNormal([batch_size, 40, 100, 1], 2, 0.5);
-		let raw_batch_y = [];
-		for (var i = 0; i < batch_size; i++) {
-			let item = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-			item[Math.floor((Math.random() * 10))] = 1;
-			raw_batch_y.push(item);
-		}
-		let batch_y = tf.tensor(raw_batch_y);
-
-		// for some reason, await model.fit() does not work
-
-		this.model.fit(batch_x, batch_y, {batchSize: batch_size}).catch(function (e) {
-			console.log(e);
-		}).then(function (result) {
-			console.log(speechModel.iteration, result.history);
-			if (speechModel.iteration > 0) {
-				speechModel.train();
-				speechModel.iteration -= 1;
+		for (var j = 0; j < 10; j++) {
+			let batch_x = tf.truncatedNormal([batch_size, 40, 100, 1], 2, 0.5);
+			let raw_batch_y = [];
+			for (var i = 0; i < batch_size; i++) {
+				let item = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+				item[Math.floor((Math.random() * 10))] = 1;
+				raw_batch_y.push(item);
 			}
-		})
+			let batch_y = tf.tensor(raw_batch_y);
+
+			await this.model.fit(batch_x, batch_y, {batchSize: batch_size});
+			console.log(j + 'th Model weights (normalized):',
+				this.model.trainableWeights); // access to weight of each layer
+				// to see actual numbers, you must dataSync()
+				// this.model.trainableWeights[0].read().dataSync()
+		}
 	}
 
 	predict(x) {

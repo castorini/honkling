@@ -16,7 +16,12 @@ toggleCommand('command2');
 let audio = new Audio();
 $(document).on('click', '#extractBtn:enabled', audio.processInput);
 
-let model = new SpeechModel();
-model.compile();
+// let speechModel = new SpeechModel();
+// speechModel.compile();
+// // trigger train for now as a verification of model construction
+// speechModel.train();
+
+let speechResModel = new SpeechResModel();
+speechResModel.compile();
 // trigger train for now as a verification of model construction
-model.train();
+speechResModel.train();
