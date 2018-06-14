@@ -116,8 +116,7 @@ class SpeechResModel {
 		let y, old_x;
 
 		// for i in range(self.n_layers + 1):
-		for (var i  = 0; i < 3; i++) {
-		// for (var i  = 0; i < (this.config['n_layers'] + 1); i++) {
+		for (var i  = 0; i < (this.config['n_layers'] + 1); i++) {
 			// y = F.relu(getattr(self, "conv{}".format(i))(x))
 			y = this['conv'+ i].apply(x);
 			y = this.relu.apply(y);
