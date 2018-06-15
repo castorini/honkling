@@ -20,8 +20,8 @@ class Audio {
     this.mfcc = [];
 
     this.context = new AudioContext();
-    let mBufferSize = this.context.sampleRate / 1000 * 30;
-    mBufferSize = Math.pow(2, Math.round(Math.log(mBufferSize) / Math.log(2)));
+    this.mBufferSize = this.context.sampleRate / 1000 * 30;
+    this.mBufferSize = Math.pow(2, Math.round(Math.log(this.mBufferSize) / Math.log(2)));
 
     this.fallBackAudio =  $('#fallBackAudio');
 
@@ -30,8 +30,7 @@ class Audio {
     this.meyda = Meyda.createMeydaAnalyzer({
       audioContext: this.context,
       source: this.audioSource,
-      bufferSize: mBufferSize,
-      hopSize: mBufferSize,
+      bufferSize: this.mBufferSize
     });
     this.init_mic();
   };
@@ -103,15 +102,15 @@ class Audio {
           clearInterval(interval);
           var flattened = [];
           for (let i = 0; i < that.data.length; i++) {
-             for (let j = 0; j < 1024; j++) {
+             for (let j = 0; j < that.mBufferSize; j++) {
                flattened.push(that.data[i][j]);
              }
           }
 
           let i = 0;
-          while (i + 1024 < flattened.length && that.mfcc.length < 100) {
-            let window = flattened.slice(i, i + 1024);
-            i += Math.floor(1024/3);
+          while (i + that.mBufferSize < flattened.length && that.mfcc.length < 100) {
+            let window = flattened.slice(i, i + that.mBufferSize);
+            i += Math.floor(that.mBufferSize/3);
             let curMfcc = that.get(['mfcc'], window);
             if (!that.isAllZero(curMfcc.mfcc) || that.mfcc.length > 0) {
               that.mfcc.push(curMfcc.mfcc);
