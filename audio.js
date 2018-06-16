@@ -17,10 +17,11 @@ class Audio {
       }
 
     this.data = [];
+    this.mfcc = [];
 
     this.context = new AudioContext();
-    let mBufferSize = this.context.sampleRate / 1000 * 30;
-    mBufferSize = Math.pow(2, Math.round(Math.log(mBufferSize) / Math.log(2)));
+    this.mBufferSize = this.context.sampleRate / 1000 * 30;
+    this.mBufferSize = Math.pow(2, Math.round(Math.log(this.mBufferSize) / Math.log(2)));
 
     this.fallBackAudio =  $('#fallBackAudio');
 
@@ -29,15 +30,19 @@ class Audio {
     this.meyda = Meyda.createMeydaAnalyzer({
       audioContext: this.context,
       source: this.audioSource,
-      bufferSize: mBufferSize,
-      hopSize: mBufferSize,
+      bufferSize: this.mBufferSize
     });
     this.init_mic();
   };
 
-  get(features) {
+  get(features, data) {
     this.context.resume();
-    return this.meyda.get(features);
+    return this.meyda.get(features, data);
+  };
+
+  getInput() {
+    this.context.resume();
+    return this.meyda.getInput();
   };
 
   extractMicFeature() {
@@ -61,20 +66,16 @@ class Audio {
 
   extractMediaFeature() {
     if (that.data.length == 100) return;
-    
-    var features = null;
-    features = that.get([
-        'mfcc'
-    ]);
 
-    if (that.isAllZero(features.mfcc) && that.data.length == 0) return;
+    var curInput = that.getInput();
 
-    that.data.push(features.mfcc);
+    that.data.push(curInput);
   }
 
   processInput() {
     // clear previous data
     this.data = [];
+    this.mfcc = [];
     
     if (that.micSource) {
       // extract from mic
@@ -96,10 +97,26 @@ class Audio {
     } else {
       // extract from fall back audio
       that.fallBackAudio[0].onplay = function() {
-        var interval = setInterval(that.extractMediaFeature, 10);
+        var interval = setInterval(that.extractMediaFeature, 30);
         that.fallBackAudio[0].onended = function() {
           clearInterval(interval);
-          console.log(that.data);
+          var flattened = [];
+          for (let i = 0; i < that.data.length; i++) {
+             for (let j = 0; j < that.mBufferSize; j++) {
+               flattened.push(that.data[i][j]);
+             }
+          }
+
+          let i = 0;
+          while (i + that.mBufferSize < flattened.length && that.mfcc.length < 100) {
+            let window = flattened.slice(i, i + that.mBufferSize);
+            i += Math.floor(that.mBufferSize/3);
+            let curMfcc = that.get(['mfcc'], window);
+            if (!that.isAllZero(curMfcc.mfcc) || that.mfcc.length > 0) {
+              that.mfcc.push(curMfcc.mfcc);
+            }
+          }
+          console.log(that.mfcc);
           // TODO : trigger next processing logic
         };
       };

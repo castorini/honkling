@@ -2355,10 +2355,18 @@ var MeydaAnalyzer = exports.MeydaAnalyzer = function () {
       source.connect(this._m.spn);
     }
   }, {
-    key: 'get',
-    value: function get(features) {
+    key: 'getInput',
+    value: function getInput() {
       if (this._m.inputData) {
-        return this._m.extract(features || this._featuresToExtract, this._m.inputData, this._m.previousInputData);
+        return this._m.inputData;
+      }
+    }
+  }, {
+    key: 'get',
+    value: function get(features, data) {
+      if (this._m.inputData) {
+        //console.log(this._m.inputData);
+        return this._m.extract(features || this._featuresToExtract, data, this._m.previousInputData);
       } else {
         return null;
       }
