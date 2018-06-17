@@ -1,18 +1,7 @@
 class SpeechResModel {
 
-	constructor() {
-		// this config is place holder (copied from RES8)
-		this.config = {
-			input_shape : [40, 100, 1],
-			n_labels : 10,
-			n_layers : 6,
-			n_feature_maps : 45,
-			conv_size : [3, 3],
-			res_pool : [3, 4],
-			conv_stride : [1, 1],
-			use_dilation : false
-		}
-
+	constructor(config) {
+		this.config = config;
 		// layer definition
 
         // self.conv0 = nn.Conv2d(1, n_maps, (3, 3), padding=(1, 1), bias=False)

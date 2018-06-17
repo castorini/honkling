@@ -1,23 +1,7 @@
 class SpeechModel {
 
-	constructor() {
-		// this config is place holder (copied from CNN_TRAD_POOL2)
-		this.config = {
-			input_shape : [40, 100, 1],
-			n_labels : 10,
-			dropout_prob : 0.5,
-			height : 101,
-			width : 40,
-			n_feature_maps1 : 64,
-		    n_feature_maps2 : 64,
-		    conv1_size : [20, 8],
-		    conv2_size : [10, 4],
-		    conv1_stride : [1, 1],
-		    conv2_stride : [1, 1],
-		    conv1_pool : [2, 2],
-		    conv2_pool : [1, 1],
-		    tf_variant : true
-		}
+	constructor(config) {
+		this.config = config;
 
 		// layer definition
 
@@ -106,12 +90,57 @@ class SpeechModel {
 			})
 		}
 
+
+		//if "dnn1_size" in config:
 		if (this.config['dnn1_size']) {
-			// to be implemented after verifying tfjs version of nn.Linear 
+
+			// dnn1_size = config["dnn1_size"]
+            // last_size = dnn1_size
+            // if tf_variant:
+            //     self.dnn1 = nn.Linear(conv_net_size, dnn1_size)
+            //     truncated_normal(self.dnn1.weight.data)
+            //     self.dnn1.bias.data.zero_()
+			// else:
+            //     self.dnn1 = nn.Linear(32, dnn1_size)
+
+			this.dnn1 = tf.layers.dense({
+				units: this.config["dnn1_size"],
+				activation: 'linear',
+				biasInitializer : tf.initializers.zeros()
+			})
+
+			if (this.config['tf_variant']) {
+				this.dnn1.kernelInitializer = tf.initializers.truncatedNormal({
+					std_dev: 0.01
+				});
+			} else {
+				this.dnn1.kernelInitializer = tf.initializers.zeros();
+			}
+
+			// if "dnn2_size" in config:
+            //     dnn2_size = config["dnn2_size"]
+            //     last_size = dnn2_size
+            //     self.dnn2 = nn.Linear(dnn1_size, dnn2_size)
+            //     if tf_variant:
+            //         truncated_normal(self.dnn2.weight.data)
+            //         self.dnn2.bias.data.zero_()
+   			if (this.config['dnn2_size']) {
+				this.dnn2 = tf.layers.dense({
+					units: this.config["dnn2_size"],
+					activation: 'linear',
+					biasInitializer : tf.initializers.zeros()
+				})
+				if (this.config['tf_variant']) {
+					this.dnn2.kernelInitializer = tf.initializers.truncatedNormal({
+						std_dev: 0.01
+					});
+				} else {
+					this.dnn2.kernelInitializer = tf.initializers.zeros();
+				}
+			}
 		}
 
 		// self.output = nn.Linear(last_size, n_labels)
-		// TODO :: double checking following two lines are equal to nn.Linear operation
 
 		this.output = tf.layers.dense({
 			units: this.config['n_labels'],
@@ -127,13 +156,17 @@ class SpeechModel {
 		}
 
 		// self.dropout = nn.Dropout(dropout_prob)
-		this.dropout = tf.layers.dropout(this.config['dropout_prob'])
+		this.dropout = tf.layers.dropout({
+			rate: this.config['dropout_prob']
+		})
 
 		// flatten layer to be applied before dense layer
 		this.flatten = tf.layers.flatten()
 
 		// ReLU layer
-		this.relu = tf.layers.leakyReLU({alpha:0});
+		this.relu = tf.layers.leakyReLU({
+			alpha:0
+		});
 	}
 
 
@@ -173,6 +206,11 @@ class SpeechModel {
         //     x = self.dropout(x)  
 
         if (this.dnn1) {
+        	this.model.add(this.dnn1);
+        	if (!this.config['tf_variant']) {
+				this.model.add(this.relu);
+        	}
+        	this.model.add(this.dropout);
         }
 
         // if hasattr(self, "dnn2"):
@@ -180,6 +218,8 @@ class SpeechModel {
         //     x = self.dropout(x)
 
         if (this.dnn2) {
+        	this.model.add(this.dnn2);
+        	this.model.add(this.dropout);
         }
 
 		// simply for verification of the model construction
