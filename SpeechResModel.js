@@ -2,6 +2,7 @@ class SpeechResModel {
 
 	constructor(config) {
 		this.config = config;
+		
 		// layer definition
 
         // self.conv0 = nn.Conv2d(1, n_maps, (3, 3), padding=(1, 1), bias=False)
