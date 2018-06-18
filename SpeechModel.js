@@ -90,7 +90,6 @@ class SpeechModel {
 			})
 		}
 
-
 		//if "dnn1_size" in config:
 		if (this.config['dnn1_size']) {
 
