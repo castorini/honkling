@@ -72,6 +72,19 @@ class Audio {
     that.data.push(curInput);
   }
 
+  download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
   processInput() {
     // clear previous data
     this.data = [];
@@ -97,7 +110,7 @@ class Audio {
     } else {
       // extract from fall back audio
       that.fallBackAudio[0].onplay = function() {
-        var interval = setInterval(that.extractMediaFeature, 30);
+        var interval = setInterval(that.extractMediaFeature, 23.3);
         that.fallBackAudio[0].onended = function() {
           clearInterval(interval);
           var flattened = [];
@@ -116,7 +129,14 @@ class Audio {
               that.mfcc.push(curMfcc.mfcc);
             }
           }
-          console.log(that.mfcc);
+          let mfccFlattened = '';
+          for (let i = 0; i < that.mfcc.length; i++) {
+            for (let j = 0; j < 40; j++) {
+              mfccFlattened += '' + that.mfcc[i][j] + ' ';
+            }
+         }
+          let fname = that.fallBackAudio[0].currentSrc.replace(/^.*[\\\/]/, '');
+          that.download(fname+'.txt', mfccFlattened);
           // TODO : trigger next processing logic
         };
       };
