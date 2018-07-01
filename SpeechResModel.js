@@ -110,7 +110,6 @@ class SpeechResModel {
 			// y = F.relu(getattr(self, "conv{}".format(i))(x))
 			y = this['conv'+ i].apply(x);
 			y = this.relu.apply(y);
-
 			// if i == 0:
             //     if hasattr(self, "pool"):
             //         y = self.pool(y)
@@ -153,12 +152,14 @@ class SpeechResModel {
 			inputs: input,
 			outputs: output,
 		});
+
 		this.model.summary();
 		const optimizer = tf.train.momentum({
 			learningRate: 0.1,
 			momentum: 0.9,
 			useNesterov: true
 		});
+
 		this.model.compile({
 		  optimizer: optimizer,
 		  loss: 'categoricalCrossentropy',

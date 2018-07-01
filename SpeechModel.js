@@ -248,13 +248,12 @@ class SpeechModel {
 			let raw_batch_y = [];
 			for (var i = 0; i < batch_size; i++) {
 				let item = Array.from(Array(n_labels), () => 0);
-                item[Math.floor((Math.random() * n_labels))] = 1;
+                item[0] = 1;
 				raw_batch_y.push(item);
 			}
 			let batch_y = tf.tensor(raw_batch_y);
-
 			await this.model.fit(batch_x, batch_y, {batchSize: batch_size});
-			console.log(j + 'th Model weights (normalized):',
+			console.log(j + 'th Model weights :',
 				this.model.trainableWeights); // access to weight of each layer
 				// to see actual numbers, you must dataSync()
 				// this.model.trainableWeights[0].read().dataSync()
