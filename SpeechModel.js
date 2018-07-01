@@ -224,9 +224,13 @@ class SpeechModel {
 		// simply for verification of the model construction
 		this.model.add(this.output);
 		this.model.add(this.dropout);
-
-		const LEARNING_RATE = 0.15;
-		const optimizer = tf.train.sgd(LEARNING_RATE);
+		
+		this.model.summary();
+		const optimizer = tf.train.momentum({
+			learningRate: 0.1,
+			momentum: 0.9,
+			useNesterov: true
+		});
 		this.model.compile({
 		  optimizer: optimizer,
 		  loss: 'categoricalCrossentropy',
@@ -238,13 +242,13 @@ class SpeechModel {
 	// simply used as code reference & verification of the model link
 	async train() {
 		let batch_size = 20;
-
+		let n_labels = this.config['n_labels']
 		for (var j = 0; j < 10; j++) {
 			let batch_x = tf.truncatedNormal([batch_size, 40, 100, 1], 2, 0.5);
 			let raw_batch_y = [];
 			for (var i = 0; i < batch_size; i++) {
-				let item = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-				item[Math.floor((Math.random() * 10))] = 1;
+				let item = Array.from(Array(n_labels), () => 0);
+                item[Math.floor((Math.random() * n_labels))] = 1;
 				raw_batch_y.push(item);
 			}
 			let batch_y = tf.tensor(raw_batch_y);
@@ -256,7 +260,7 @@ class SpeechModel {
 				// this.model.trainableWeights[0].read().dataSync()
 		}
 	}
-
+	
 	predict(x) {
 		if (!(x instanceof tf.Tensor)) {
 			x = tf.tensor(x);
