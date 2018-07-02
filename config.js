@@ -1,9 +1,9 @@
 const modelConfig = {
 	CNN_TRAD_POOL2 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 64,
 		n_feature_maps2 : 64,
@@ -16,10 +16,10 @@ const modelConfig = {
 		tf_variant : true
 	},
 	CNN_ONE_STRIDE1 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 186,
 		conv1_size : [100, 8],
@@ -30,10 +30,10 @@ const modelConfig = {
 		tf_variant : true
 	},
 	CNN_TSTRIDE2 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 78,
 		n_feature_maps2 : 78,
@@ -47,10 +47,10 @@ const modelConfig = {
 		dnn2_size : 128
 	},
 	CNN_TSTRIDE4 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 100,
 		n_feature_maps2 : 78,
@@ -64,10 +64,10 @@ const modelConfig = {
 		dnn2_size : 128
 	},
 	CNN_TSTRIDE8 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 126,
 		n_feature_maps2 : 78,
@@ -81,10 +81,10 @@ const modelConfig = {
 		dnn2_size : 128
 	},
 	CNN_TPOOL2 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 94,
 		n_feature_maps2 : 94, 
@@ -98,10 +98,10 @@ const modelConfig = {
 		dnn2_size : 128
 	},
 	CNN_TPOOL3 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 94,
 		n_feature_maps2 : 94,
@@ -115,10 +115,10 @@ const modelConfig = {
 		dnn2_size : 128
 	},
 	CNN_ONE_FPOOL3 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 54,
 		conv1_size : [100, 8],
@@ -128,10 +128,10 @@ const modelConfig = {
 		dnn2_size : 128
 	},
 	CNN_ONE_FSTRIDE4 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 186,
 		conv1_size : [101, 8],
@@ -141,10 +141,10 @@ const modelConfig = {
 		dnn2_size : 128
 	},
 	CNN_ONE_FSTRIDE8 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		dropout_prob : 0.5,
-		height : 40,
-		width : 100,
+		height : 100,
+		width : 40,
 		n_labels : 12,
 		n_feature_maps1 : 336,
 
@@ -158,7 +158,7 @@ const modelConfig = {
 	// ResNet Config
 
 	RES15 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		n_labels : 12,
 		use_dilation : true,
 		n_layers : 13,
@@ -167,17 +167,17 @@ const modelConfig = {
 		conv_stride : [1, 1],
 	},
 	RES8 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		n_labels : 12,
 		n_layers : 6,
 		n_feature_maps : 45,
-		res_pool : [3, 4],
+		res_pool : [4, 3],
 		conv_size : [3, 3],
 		conv_stride : [1, 1],
 		use_dilation : false
 	},
 	RES26 : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		n_labels : 12,
 		n_layers : 24,
 		n_feature_maps : 45,
@@ -187,7 +187,7 @@ const modelConfig = {
 		use_dilation : false
 	}, 
 	RES15_NARROW : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		n_labels : 12,
 		use_dilation : true,
 		n_layers : 13,
@@ -196,17 +196,17 @@ const modelConfig = {
 		conv_stride : [1, 1]
 	}, 
 	RES8_NARROW : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		n_labels : 12,
 		n_layers : 6,
 		n_feature_maps : 19,
-		res_pool : [3, 4],
+		res_pool : [4, 3],
 		use_dilation : false,
 		conv_size : [3, 3],
 		conv_stride : [1, 1]
 	},
 	RES26_NARROW : {
-		input_shape : [40, 100, 1],
+		input_shape : [100, 40, 1],
 		n_labels : 12,
 		n_layers : 24,
 		n_feature_maps : 19,
