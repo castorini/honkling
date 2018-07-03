@@ -1,3 +1,6 @@
 .DS_STORE
 training/.ipynb_checkpoints
 training/.idea
+data/speech_dataset
+training/sample_data/*.txt
+training/*.log

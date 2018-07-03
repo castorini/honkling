@@ -3,6 +3,10 @@ class SpeechResModel {
 	constructor(model_name) {
 		this.model_name = model_name;
 		this.config = modelConfig[model_name];
+		this.weights = weights[this.model_name];
+		
+		this.config['n_labels'] = this.weights['commands'].length;
+
 		this.layers = {}
 		// layer definition
 
@@ -198,8 +202,6 @@ class SpeechResModel {
 	}
 
 	load() {
-		this.weights = weights[this.model_name];
-
 		let w
 		for (var key in this.layers) {
 			w = [];
