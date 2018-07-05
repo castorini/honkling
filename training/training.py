@@ -7,9 +7,6 @@ import time
 import datetime
 import logging
 
-from matplotlib import pyplot as plt
-from IPython.display import clear_output
-
 from sklearn.model_selection import train_test_split
 from argparse import ArgumentParser
 
@@ -152,6 +149,11 @@ class ProgressChecker(keras.callbacks.Callback):
             remaining_time = remaing_epoch / self.frequency * elapsed_time
             print_log('info', 'expected remaining time : '+ time.strftime("%H:%M:%S", time.gmtime(remaining_time)))
 
+            print_log('info', 'loss = ' + str(logs['loss']))
+            print_log('info', 'categorical_accuracy = ' + str(logs['categorical_accuracy']))
+            print_log('info', 'val_loss = ' + str(logs['val_loss']))
+            print_log('info', 'val_categorical_accuracy = ' + str(logs['val_categorical_accuracy']))
+
             x, y = self.test_data
             loss, acc = self.model.evaluate(x, y, verbose=0)
             print_log('info', 'Validation loss: {}, acc: {}'.format(loss, acc))
@@ -164,7 +166,7 @@ class ProgressChecker(keras.callbacks.Callback):
             print_log('info', 'epoch ' + str(self.num_epochs) + ' / ' + str(self.num_epochs) + ' : ' + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
             print_log('info', 'training finish time = ' + datetime.datetime.fromtimestamp(self.finish_time).strftime('%Y-%m-%d %H:%M:%S'))
-
+            
             x, y = self.test_data
             loss, acc = self.model.evaluate(x, y, verbose=0)
             print_log('info', 'Validation loss: {}, acc: {}'.format(loss, acc))
@@ -199,8 +201,8 @@ def prepare_dataset(command_list, data_dir, input_shape):
     return X, Y
 
 
-def generate_weights_json(command_list, layers, model_name):
-    file = open('../weights/' + model_name + '/' + 'weights.js', 'w')
+def generate_weights_json(command_list, layers, model_name, file_name):
+    file = open('../weights/' + model_name + '/' + file_name +'.js', 'w')
 
     file.write('const weights = {\n\t' + model_name + ' : {\n')
 
@@ -278,12 +280,12 @@ def main():
         lr=args.learning_rate,
         decay=1e-5,
         momentum=0.9,
-        nesterov=True
+        nesterov=False
     )
     model.compile(
         loss='categorical_crossentropy',
         optimizer=optimizer,
-        metrics=['accuracy']
+        metrics=['categorical_accuracy']
     )
 
     print_log('info', 'model config = ' + str(optimizer.get_config()))
@@ -309,7 +311,7 @@ def main():
 
     # model training
 
-    print_log('info', 'training model with learning rate = ' + str(args.learning_rate) + ', num epochs = ' + str(args.num_epochs))
+    print_log('info', 'training model with learning rate = ' + str(args.learning_rate) + ', num epochs = ' + str(args.num_epochs) + ', batch size = ' + str(args.batch_size))
 
     process_checker = ProgressChecker((X_test, Y_test), args.training_log_frequency, args.num_epochs)
 
@@ -324,13 +326,13 @@ def main():
 
     train_loss = training_result.history['loss']
     val_loss = training_result.history['val_loss']
-    train_acc = training_result.history['acc']
-    val_acc = training_result.history['val_acc']
-
-    print_log('info', 'train_loss = ' + str(train_loss))
-    print_log('info', 'train_acc = ' + str(train_acc))
-    print_log('info', 'val_loss = ' + str(val_loss))
-    print_log('info', 'val_acc = ' + str(val_acc))
+    train_acc = training_result.history['categorical_accuracy']
+    val_acc = training_result.history['val_categorical_accuracy']
+    
+    print_log('info', 'train_loss = ' + str(train_loss[-1]))
+    print_log('info', 'train_acc = ' + str(train_acc[-1]))
+    print_log('info', 'val_loss = ' + str(val_loss[-1]))
+    print_log('info', 'val_acc = ' + str(val_acc[-1]))
 
     # graphing loss and accuracy
     #
@@ -343,7 +345,7 @@ def main():
     # plt.plot(xc, val_acc, label="val_acc")
     # plt.legend()
 
-    generate_weights_json(args.command_list, layers, args.model_name)
+    generate_weights_json(args.command_list, layers, args.model_name, args.log_file[:-4])
 
     print_log('info', 'training completed')
 

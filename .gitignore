@@ -4,3 +4,5 @@ training/.idea
 data/speech_dataset
 training/sample_data/*.txt
 training/*.log
+training/train_data
+training/log
