@@ -13,7 +13,7 @@ sampleRate = 44100
 def timeshift_audio(config, data):
     shift = (sampleRate * config["timeshift_ms"]) // 1000
     # shift = random.randint(-shift, shift)
-    print('shift = ', shift, '\n\r');
+    print 'shift = ', shift, '\n'
     a = -min(0, shift)
     b = max(0, shift)
     data = np.pad(data, (a, b), "constant")
@@ -21,11 +21,11 @@ def timeshift_audio(config, data):
 
 def preprocess_audio(data, n_mels, dct_filters):
     data = librosa.feature.melspectrogram(data, sampleRate, n_mels=n_mels, hop_length=441, n_fft=1323, fmin=20, fmax=4000)
-    print('melspectrogram data\n\r', data.shape, '\n\r', data, '\n\r')
+    print 'melspectrogram data\n', data.shape, '\n', data, '\n'
     data[data > 0] = np.log(data[data > 0])
     data = [np.matmul(dct_filters, x) for x in np.split(data, data.shape[1], axis=1)]
     data = np.array(data, order="F").squeeze(2).astype(np.float32)
-    print('transformed data\n\r', data.shape, '\n\r', data, '\n\r')
+    print 'transformed data\n', data.shape, '\n', data, '\n'
     return data
 
 def preprocess(config, example, timeshift=True, silence=False):
@@ -38,20 +38,20 @@ def preprocess(config, example, timeshift=True, silence=False):
     else:
         data = librosa.core.load(example, sampleRate)[0]
 
-    print('loaded data\n\r', data.shape, '\n\r', data, '\n\r')
+    print 'loaded data\n', data.shape, '\n', data, '\n'
 
     data = np.pad(data, (0, max(0, in_len - len(data))), "constant")
-    print('padded data\n\r', len(data), '\n\r', data, '\n\r')
+    print 'padded data\n', len(data), '\n', data, '\n'
     if timeshift:
         data = timeshift_audio(config, data)
 
-    print('shifted data\n\r', data.shape, '\n\r', data, '\n\r')
+    print 'shifted data\n', data.shape, '\n', data, '\n'
 
     data = preprocess_audio(data, config["n_mels"], config["filters"])
 
-    print('preprocessed data\n\r', data.shape, '\n\r', data, '\n\r')
+    print 'preprocessed data\n', data.shape, '\n', data, '\n'
 
-    data = torch.from_numpy(data);
+    # data = torch.from_numpy(data);
 
     return data
 
@@ -70,11 +70,17 @@ def main():
 
     config["filters"] = librosa.filters.dct(config["n_dct_filters"], config["n_mels"])
 
-    print('filters\n\r', config["filters"].shape, '\n\r', config["filters"], '\n\r')
+    print 'filters\n', config["filters"].shape, '\n', config["filters"], '\n'
 
     data = preprocess(config, args.filename)
 
-    print('final data\n\r', data.shape, '\n\r', data, '\n\r')
+    print 'final data\n', data.shape, '\n', data, '\n'
+
+    print 'max value : ', np.max(data)
+    print 'min value : ', np.
+    min(data)
+
+
     
 
 if __name__ == "__main__":

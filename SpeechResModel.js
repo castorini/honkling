@@ -1,29 +1,38 @@
 class SpeechResModel {
 
-	constructor(config) {
-		this.config = config;
+	constructor(model_name) {
+		this.model_name = model_name;
+		this.config = modelConfig[model_name];
+		this.weights = weights[this.model_name];
+		
+		this.config['n_labels'] = this.weights['commands'].length;
+
+		this.layers = {}
 		// layer definition
 
         // self.conv0 = nn.Conv2d(1, n_maps, (3, 3), padding=(1, 1), bias=False)
         // => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
 
-		this.conv0 = tf.layers.conv2d({
+		this.layers['conv0'] = tf.layers.conv2d({
 			filters: this.config['n_feature_maps'],
 			// inputShape: this.config['input_shape'],
 			kernelSize: this.config['conv_size'],
 			strides: this.config['conv_stride'],
 			padding: "same",
 			useBias: false,
-			kernelInitializer: tf.initializers.zeros(),
+			activation: 'relu',
+			kernelInitializer: 'glorotUniform',
 			biasInitializer: tf.initializers.zeros(),
+			name: "conv0",
 		})
 
 		// if "res_pool" in config:
   		// self.pool = nn.AvgPool2d(config["res_pool"])
 
 		if (this.config['res_pool']) {
-			this.pool = tf.layers.averagePooling2d({
-				poolSize: this.config['res_pool']
+			this.layers['pool'] = tf.layers.averagePooling2d({
+				poolSize: this.config['res_pool'],
+				name: "pool",
 			})
 		}
 
@@ -35,15 +44,17 @@ class SpeechResModel {
 			// => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
 			//     self.add_module("conv{}".format(i + 1), conv)
 			for (var i  = 0; i < (this.config['n_layers']); i++) {
-				this['conv'+ (i+1)] = tf.layers.conv2d({
+				this.layers['conv'+ (i+1)] = tf.layers.conv2d({
 					filters: this.config['n_feature_maps'],
 					// inputShape: this.config['n_feature_maps'],
 					kernelSize: this.config['conv_size'],
 					padding: "same",
 					dilation: Math.pow(2, Math.floor(i/3)),
 					useBias: false,
-					kernelInitializer: tf.initializers.zeros(),
+					activation: 'relu',
+					kernelInitializer: 'glorotUniform',
 					biasInitializer: tf.initializers.zeros(),
+					name: "conv"+(i+1),
 				})
 			}
 		} else {
@@ -53,15 +64,17 @@ class SpeechResModel {
 			// => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
 			//     self.add_module("conv{}".format(i + 1), conv)
 			for (var i  = 0; i < (this.config['n_layers']); i++) {
-				this['conv'+ (i+1)] = tf.layers.conv2d({
+				this.layers['conv'+ (i+1)] = tf.layers.conv2d({
 					filters: this.config['n_feature_maps'],
 					// inputShape: this.config['n_feature_maps'],
 					kernelSize: this.config['conv_size'],
 					padding: "same",
 					dilation: 1,
 					useBias: false,
-					kernelInitializer: tf.initializers.zeros(),
+					activation: 'relu',
+					kernelInitializer: 'glorotUniform',
 					biasInitializer: tf.initializers.zeros(),
+					name: "conv"+(i+1),
 				})
 			}
 		}
@@ -72,29 +85,28 @@ class SpeechResModel {
         // Affine = False is equal to gamma = 1 and beta = 0 (https://discuss.pytorch.org/t/affine-parameter-in-batchnorm/6005)
         // Axis must be index of channel dimnsion. Given data_format is channel_last, default (-1) is good 
         for (var i  = 0; i < (this.config['n_layers']); i++) {
-        	this['bn'+ (i+1)] = tf.layers.batchNormalization({
+        	this.layers['bn'+ (i+1)] = tf.layers.batchNormalization({
 				epsilon: 0.00001,
 				momentum: 0.1,
 				gammaInitializer: tf.initializers.ones(),
 				betaInitializer: tf.initializers.zeros(),
+				name: "bn"+(i+1),
 			})
 		}
 
 		// self.output = nn.Linear(n_maps, n_labels)
-		this.output = tf.layers.dense({
+		this.layers['output'] = tf.layers.dense({
 			units: this.config['n_labels'],
 			activation: 'linear',
-			biasInitializer : tf.initializers.zeros()
+			biasInitializer : tf.initializers.zeros(),
+			name: "output",
 		});
 
 		// addition layer
-		this.add = tf.layers.add();
+		this.layers['add'] = tf.layers.add();
 
 		// globalAveragePooling layer
-		this.globalAvgPool = tf.layers.globalAveragePooling2d({});
-
-		// ReLU layer
-		this.relu = tf.layers.leakyReLU({alpha:0});
+		this.layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
 	}
 
 	// Our actual model
@@ -107,16 +119,14 @@ class SpeechResModel {
 		// for i in range(self.n_layers + 1):
 		for (var i  = 0; i < (this.config['n_layers'] + 1); i++) {
 			// y = F.relu(getattr(self, "conv{}".format(i))(x))
-			y = this['conv'+ i].apply(x);
-			y = this.relu.apply(y);
-
+			y = this.layers['conv'+ i].apply(x);
 			// if i == 0:
             //     if hasattr(self, "pool"):
             //         y = self.pool(y)
             //     old_x = y
             if (i == 0) {
             	if (this.pool) {
-            		y = this.pool.apply(y);
+            		y = this.layers['pool'].apply(y);
             	}
     			old_x = y;
             }
@@ -125,7 +135,7 @@ class SpeechResModel {
             //     x = y + old_x
             //     old_x = x
             if ((i > 0) && (i % 2 == 0)) {
-            	x = this.add.apply([y, old_x]);
+            	x = this.layers['add'].apply([y, old_x]);
             	old_x = x;
 
         	// else:
@@ -137,24 +147,29 @@ class SpeechResModel {
         	// if i > 0:
             //     x = getattr(self, "bn{}".format(i))(x)
             if (i > 0) {
-            	x = this['bn'+ i].apply(x)
+            	x = this.layers['bn'+ i].apply(x)
             }
 		}
 
 		// x = x.view(x.size(0), x.size(1), -1) # shape: (batch, feats, o3)
         // x = torch.mean(x, 2)
         // generate average of single layer; result shape is (batch, feats)
-		x = this.globalAvgPool.apply(x);
+		x = this.layers['globalAvgPool'].apply(x);
 
-		const output = this.output.apply(x);
+		const output = this.layers['output'].apply(x);
 
 		this.model = tf.model({
 			inputs: input,
 			outputs: output,
 		});
 
-		const LEARNING_RATE = 0.15;
-		const optimizer = tf.train.sgd(LEARNING_RATE);
+		this.model.summary();
+		const optimizer = tf.train.momentum({
+			learningRate: 0.00001,
+			momentum: 0.9,
+			useNesterov: true
+		});
+
 		this.model.compile({
 		  optimizer: optimizer,
 		  loss: 'categoricalCrossentropy',
@@ -164,24 +179,56 @@ class SpeechResModel {
 
 	// to be removed in the future
 	// simply used as code reference & verification of the model link
-	async train() {
-		let batch_size = 20
-
-		for (var j = 0; j < 10; j++) {
-			let batch_x = tf.truncatedNormal([batch_size, 40, 100, 1], 2, 0.5);
+	async train(x) {
+		// let batch_size = x.length;
+		let batch_size = 1;
+		let n_labels = this.config['n_labels']
+		for (var j = 0; j < 5; j++) {
+			let batch_x = tf.tensor4d(x, [1,40,100,1], 'float32');
 			let raw_batch_y = [];
 			for (var i = 0; i < batch_size; i++) {
-				let item = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-				item[Math.floor((Math.random() * 10))] = 1;
+				let item = Array.from(Array(n_labels), () => 0);
+				item[0] = 1;
 				raw_batch_y.push(item);
 			}
 			let batch_y = tf.tensor(raw_batch_y);
 
 			await this.model.fit(batch_x, batch_y, {batchSize: batch_size});
-			console.log(j + 'th Model weights (normalized):',
-				this.model.trainableWeights); // access to weight of each layer
-				// to see actual numbers, you must dataSync()
-				// this.model.trainableWeights[0].read().dataSync()
+			// console.log(j + 'th Model weights:',
+			// 	this.model.trainableWeights); // access to weight of each layer
+			// 	// to see actual numbers, you must dataSync()
+			console.log(j + 'th Model conv0 weights:', this.model.trainableWeights[0].read().dataSync());
+		}
+	}
+
+	load() {
+		let w
+		for (var key in this.layers) {
+			w = [];
+			for (var i = 0; i < this.layers[key].getWeights().length; i++) {
+				let shape = this.layers[key].getWeights()[i].shape
+				switch (shape.length) {
+					case 1:
+						w.push(tf.tensor1d(this.weights[key+'_'+i], 'float32'))
+						break;
+					case 2:
+						w.push(tf.tensor2d(this.weights[key+'_'+i], shape, 'float32'))
+						break;
+					case 3:
+						w.push(tf.tensor3d(this.weights[key+'_'+i], shape, 'float32'))
+						break;
+					case 4:
+						w.push(tf.tensor4d(this.weights[key+'_'+i], shape, 'float32'))
+						break;
+					case 4:
+						w.push(tf.tensor5d(this.weights[key+'_'+i], shape, 'float32'))
+						break;
+					default:
+						console.log('Invalid size of weight shape');
+				}
+			}
+
+			this.layers[key].setWeights(w);
 		}
 	}
 
@@ -191,10 +238,12 @@ class SpeechResModel {
 		}
 		let input_shape = this.config['input_shape'].slice();
 		input_shape.unshift(-1);
+
 	    let output = this.model.predict(x.reshape(input_shape));
+	    console.log('output : ', output.dataSync());
 
 	    let axis = 1;
-	    let predictions = output.argMax(axis).dataSync();
-	    console.log('prediction result : ', predictions);
+	    let predictions = output.argMax(axis).dataSync()[0];
+	    console.log('label : ', predictions);
 	}
 }

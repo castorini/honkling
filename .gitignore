@@ -1,2 +1,8 @@
 .DS_STORE
-node_modules
+training/.ipynb_checkpoints
+training/.idea
+data/speech_dataset
+training/sample_data/*.txt
+training/*.log
+training/train_data
+training/log

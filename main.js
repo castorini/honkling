@@ -14,14 +14,17 @@ function toggleCommand(command) {
 toggleCommand('command2');
 
 let audio = new Audio();
-$(document).on('click', '#extractBtn:enabled', audio.processInput);
 
 // let speechModel = new SpeechModel(modelConfig["CNN_TSTRIDE8"]);
 // speechModel.compile();
-// // trigger train for now as a verification of model construction
-// speechModel.train();
 
-let speechResModel = new SpeechResModel(modelConfig["RES8"]);
+let speechResModel = new SpeechResModel("RES8_NARROW");
 speechResModel.compile();
-// trigger train for now as a verification of model construction
-speechResModel.train();
+speechResModel.load();
+
+$(document).on('click', '#extractBtn:enabled', function() {
+	audio.processInput();
+	setTimeout(function(){
+		speechResModel.predict(audio.get_data())
+	}, 3000);
+});

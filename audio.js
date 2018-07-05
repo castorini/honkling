@@ -89,6 +89,7 @@ class Audio {
     // clear previous data
     this.data = [];
     this.mfcc = [];
+    this.mfcc_flattened = [];
     
     if (that.micSource) {
       // extract from mic
@@ -129,14 +130,16 @@ class Audio {
               that.mfcc.push(curMfcc.mfcc);
             }
           }
-          let mfccFlattened = '';
+
+          let mfcc_flattened_str = '';
           for (let i = 0; i < that.mfcc.length; i++) {
             for (let j = 0; j < 40; j++) {
-              mfccFlattened += '' + that.mfcc[i][j] + ' ';
+              mfcc_flattened_str += '' + that.mfcc[i][j] + ' ';
+              that.mfcc_flattened.push(that.mfcc[i][j]);
             }
-         }
+          }
           let fname = that.fallBackAudio[0].currentSrc.replace(/^.*[\\\/]/, '');
-          that.download(fname+'.txt', mfccFlattened);
+          // that.download(fname+'.txt', mfcc_flattened_str);
           // TODO : trigger next processing logic
         };
       };
@@ -181,4 +184,8 @@ class Audio {
       $('#extractBtn').prop('disabled', false);
     }
   };
+
+  get_data() {
+    return this.mfcc_flattened;
+  }
 }
