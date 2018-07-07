@@ -186,6 +186,9 @@ class Audio {
   };
 
   get_data() {
+    while (this.mfcc_flattened.length < 4000) {
+      this.mfcc_flattened.push(0);
+    }
     return this.mfcc_flattened;
   }
 }
