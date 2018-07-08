@@ -56,7 +56,7 @@ class Audio {
     return flag;
   }
 
-  extractMediaFeature() {
+  extractFeature() {
     if (that.data.length == 100) return;
 
     var curInput = that.getInput();
@@ -81,7 +81,7 @@ class Audio {
     // clear previous data
     this.data = [];
     this.mfcc = [];
-    this.mfcc_flattened = [];
+    this.mfccFlatten = [];
 
     function reformat_data() {
       var flattened = [];
@@ -101,20 +101,20 @@ class Audio {
         }
       }
 
-      let mfcc_flattened_str = '';
+      let mfccFlattenStr = '';
       for (let i = 0; i < that.mfcc.length; i++) {
         for (let j = 0; j < 40; j++) {
-          mfcc_flattened_str += '' + that.mfcc[i][j] + ' ';
-          that.mfcc_flattened.push(that.mfcc[i][j]);
+          mfccFlattenStr += '' + that.mfcc[i][j] + ' ';
+          that.mfccFlatten.push(that.mfcc[i][j]);
         }
       }
       let fname = that.fallBackAudio[0].currentSrc.replace(/^.*[\\\/]/, '');
-      // that.download(fname+'.txt', mfcc_flattened_str);
+      // that.download(fname+'.txt', mfccFlattenStr);
     }
 
     if (that.micSource) {
       console.log('start recording')
-      var interval = setInterval(that.extractMediaFeature, 23.3);
+      var interval = setInterval(that.extractFeature, 23.3);
 
       setTimeout(function() {
         console.log('stop recording')
@@ -125,7 +125,7 @@ class Audio {
     } else {
       // extract from fall back audio
       that.fallBackAudio[0].onplay = function() {
-        var interval = setInterval(that.extractMediaFeature, 23.3);
+        var interval = setInterval(that.extractFeature, 23.3);
         that.fallBackAudio[0].onended = function() {
           clearInterval(interval);
           reformat_data();
@@ -174,9 +174,9 @@ class Audio {
   };
 
   get_data() {
-    while (this.mfcc_flattened.length < 4000) {
-      this.mfcc_flattened.push(0);
+    while (this.mfccFlatten.length < 4000) {
+      this.mfccFlatten.push(0);
     }
-    return this.mfcc_flattened;
+    return this.mfccFlatten;
   }
 }

@@ -189,7 +189,7 @@ def prepare_dataset(command_list, data_dir, input_shape):
         for file in files:
             if file.startswith('.'):
                 continue
-            target_command = "unkonwn"
+            target_command = "unknown"
             for index, command in enumerate(command_list):
                 if file.startswith(command):
                     target_command = command
@@ -204,7 +204,7 @@ def prepare_dataset(command_list, data_dir, input_shape):
 	        left = np.random.randint(total_pad);
                 data = np.pad(original_data, (left, total_pad-left), 'constant')
             data = data.reshape(input_shape)
-	    X.append(data)
+            X.append(data)
             Y.append(index)
 
     return X, Y
