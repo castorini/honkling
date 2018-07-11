@@ -45,14 +45,6 @@ class Audio {
     return this.meyda.getInput();
   };
 
-  extractMicFeature() {
-    var features = null;
-    features = that.get([
-        'mfcc'
-    ]);
-    that.data.push(features.mfcc)
-  }
-
   isAllZero(arr) {
     let flag = true;
     for (var i = 0; i < arr.length; ++i) {
@@ -64,7 +56,7 @@ class Audio {
     return flag;
   }
 
-  extractMediaFeature() {
+  extractFeature() {
     if (that.data.length == 100) return;
 
     var curInput = that.getInput();
@@ -89,58 +81,54 @@ class Audio {
     // clear previous data
     this.data = [];
     this.mfcc = [];
-    this.mfcc_flattened = [];
-    
+    this.mfccFlatten = [];
+
+    function reformat_data() {
+      var flattened = [];
+      for (let i = 0; i < that.data.length; i++) {
+         for (let j = 0; j < that.mBufferSize; j++) {
+           flattened.push(that.data[i][j]);
+         }
+      }
+
+      let i = 0;
+      while (i + that.mBufferSize < flattened.length && that.mfcc.length < 100) {
+        let window = flattened.slice(i, i + that.mBufferSize);
+        i += Math.floor(that.mBufferSize/3);
+        let curMfcc = that.get(['mfcc'], window);
+        if (!that.isAllZero(curMfcc.mfcc) || that.mfcc.length > 0) {
+          that.mfcc.push(curMfcc.mfcc);
+        }
+      }
+
+      let mfccFlattenStr = '';
+      for (let i = 0; i < that.mfcc.length; i++) {
+        for (let j = 0; j < 40; j++) {
+          mfccFlattenStr += '' + that.mfcc[i][j] + ' ';
+          that.mfccFlatten.push(that.mfcc[i][j]);
+        }
+      }
+      let fname = that.fallBackAudio[0].currentSrc.replace(/^.*[\\\/]/, '');
+      // that.download(fname+'.txt', mfccFlattenStr);
+    }
+
     if (that.micSource) {
-      // extract from mic
-      var intervalFunc = function() {
-        var iteration = 100;
-        var interval = setInterval(function() {
-          if (iteration < 1) {
-              clearInterval(interval);
-              console.log(that.data);
-              // TODO : trigger next processing logic
-              return;
-          }
-          that.extractMicFeature();
-          iteration--;
-        }, 10);
-      };
-      // wait for 30 milliseconds before extraction
-      setTimeout(intervalFunc, 30);
+      console.log('start recording')
+      var interval = setInterval(that.extractFeature, 23.3);
+
+      setTimeout(function() {
+        console.log('stop recording')
+        clearInterval(interval);
+        reformat_data();
+      }, 1000);
+
     } else {
       // extract from fall back audio
       that.fallBackAudio[0].onplay = function() {
-        var interval = setInterval(that.extractMediaFeature, 23.3);
+        var interval = setInterval(that.extractFeature, 23.3);
         that.fallBackAudio[0].onended = function() {
           clearInterval(interval);
-          var flattened = [];
-          for (let i = 0; i < that.data.length; i++) {
-             for (let j = 0; j < that.mBufferSize; j++) {
-               flattened.push(that.data[i][j]);
-             }
-          }
-
-          let i = 0;
-          while (i + that.mBufferSize < flattened.length && that.mfcc.length < 100) {
-            let window = flattened.slice(i, i + that.mBufferSize);
-            i += Math.floor(that.mBufferSize/3);
-            let curMfcc = that.get(['mfcc'], window);
-            if (!that.isAllZero(curMfcc.mfcc) || that.mfcc.length > 0) {
-              that.mfcc.push(curMfcc.mfcc);
-            }
-          }
-
-          let mfcc_flattened_str = '';
-          for (let i = 0; i < that.mfcc.length; i++) {
-            for (let j = 0; j < 40; j++) {
-              mfcc_flattened_str += '' + that.mfcc[i][j] + ' ';
-              that.mfcc_flattened.push(that.mfcc[i][j]);
-            }
-          }
-          let fname = that.fallBackAudio[0].currentSrc.replace(/^.*[\\\/]/, '');
-          // that.download(fname+'.txt', mfcc_flattened_str);
-          // TODO : trigger next processing logic
+          reformat_data();
         };
       };
       that.fallBackAudio[0].play();
@@ -186,6 +174,9 @@ class Audio {
   };
 
   get_data() {
-    return this.mfcc_flattened;
+    while (this.mfccFlatten.length < 4000) {
+      this.mfccFlatten.push(0);
+    }
+    return this.mfccFlatten;
   }
 }

@@ -6,3 +6,5 @@ training/sample_data/*.txt
 training/*.log
 training/train_data
 training/log
+training/training_data
+weights/RES8_NARROW/*.js

@@ -4,7 +4,9 @@ class SpeechResModel {
 		this.model_name = model_name;
 		this.config = modelConfig[model_name];
 		this.weights = weights[this.model_name];
-		
+
+		init_view(this.weights['commands']);
+
 		this.config['n_labels'] = this.weights['commands'].length;
 
 		this.layers = {}
@@ -84,22 +86,22 @@ class SpeechResModel {
         // 
         // Affine = False is equal to gamma = 1 and beta = 0 (https://discuss.pytorch.org/t/affine-parameter-in-batchnorm/6005)
         // Axis must be index of channel dimnsion. Given data_format is channel_last, default (-1) is good 
-        for (var i  = 0; i < (this.config['n_layers']); i++) {
-        	this.layers['bn'+ (i+1)] = tf.layers.batchNormalization({
+        for (var i  = 0; i < (this.config['n_layers'] + 1); i++) {
+        	this.layers['bn'+ i] = tf.layers.batchNormalization({
 				epsilon: 0.00001,
 				momentum: 0.1,
 				gammaInitializer: tf.initializers.ones(),
 				betaInitializer: tf.initializers.zeros(),
-				name: "bn"+(i+1),
+				name: "bn"+i,
 			})
 		}
 
 		// self.output = nn.Linear(n_maps, n_labels)
-		this.layers['output'] = tf.layers.dense({
+		this.layers['dense'] = tf.layers.dense({
 			units: this.config['n_labels'],
 			activation: 'linear',
 			biasInitializer : tf.initializers.zeros(),
-			name: "output",
+			name: "dense",
 		});
 
 		// addition layer
@@ -107,6 +109,9 @@ class SpeechResModel {
 
 		// globalAveragePooling layer
 		this.layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
+
+		// softmax
+		this.layers['output'] = tf.layers.softmax();
 	}
 
 	// Our actual model
@@ -114,6 +119,8 @@ class SpeechResModel {
 		// input layer
 		const input = tf.input({shape: this.config['input_shape']});
 		let x = input; // [40, 100, 1]
+		x = this.layers['bn0'].apply(x)
+
 		let y, old_x;
 
 		// for i in range(self.n_layers + 1):
@@ -125,7 +132,7 @@ class SpeechResModel {
             //         y = self.pool(y)
             //     old_x = y
             if (i == 0) {
-            	if (this.pool) {
+            	if (this.layers.pool) {
             		y = this.layers['pool'].apply(y);
             	}
     			old_x = y;
@@ -156,6 +163,8 @@ class SpeechResModel {
         // generate average of single layer; result shape is (batch, feats)
 		x = this.layers['globalAvgPool'].apply(x);
 
+		x = this.layers['dense'].apply(x);
+
 		const output = this.layers['output'].apply(x);
 
 		this.model = tf.model({
@@ -164,14 +173,9 @@ class SpeechResModel {
 		});
 
 		this.model.summary();
-		const optimizer = tf.train.momentum({
-			learningRate: 0.00001,
-			momentum: 0.9,
-			useNesterov: true
-		});
 
 		this.model.compile({
-		  optimizer: optimizer,
+		  optimizer: 'sgd',
 		  loss: 'categoricalCrossentropy',
 		  metrics: ['accuracy'],
 		});
@@ -236,14 +240,18 @@ class SpeechResModel {
 		if (!(x instanceof tf.Tensor)) {
 			x = tf.tensor(x);
 		}
+
 		let input_shape = this.config['input_shape'].slice();
 		input_shape.unshift(-1);
 
 	    let output = this.model.predict(x.reshape(input_shape));
-	    console.log('output : ', output.dataSync());
+	    console.log('model prediction result : ', output.dataSync());
 
 	    let axis = 1;
 	    let predictions = output.argMax(axis).dataSync()[0];
-	    console.log('label : ', predictions);
+
+	    console.log('prediction : ', this.weights['commands'][predictions]);
+
+	    toggleCommand(this.weights['commands'][predictions]);
 	}
 }
