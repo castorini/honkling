@@ -196,7 +196,7 @@ def prepare_dataset(command_list, data_dir, input_shape):
                     break
 
             original_data = np.loadtxt(os.path.join(subdir, file))
-	    if len(original_data) < 4000:
+	        if len(original_data) < 4000:
                 total_pad = 4000 - len(original_data);
 	        left = np.random.randint(total_pad);
                 data = np.pad(original_data, (left, total_pad-left), 'constant')
@@ -252,6 +252,7 @@ def main():
 
     args = parser.parse_args()
 
+    args.command_list.append('unknown')
     args.num_command = len(args.command_list)
     args.model_name = 'RES8_NARROW'
 
