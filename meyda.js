@@ -1606,7 +1606,7 @@ exports.default = function (args) {
     }
 
     //log each coefficient unless it's 0.
-    loggedMelBands[i] = loggedMelBands[i] > 0.00001 ? Math.log(loggedMelBands[i]) : 0;
+    loggedMelBands[i] = loggedMelBands[i] > 1e-10 ? Math.log(loggedMelBands[i]) : 0;
   }
 
   //dct
@@ -2341,13 +2341,14 @@ var MeydaAnalyzer = exports.MeydaAnalyzer = function () {
   _createClass(MeydaAnalyzer, [{
     key: 'start',
     value: function start(features) {
-      this._featuresToExtract = features;
-      this.EXTRACTION_STARTED = true;
+      this._m._featuresToExtract = features;
+      this._m.EXTRACTION_STARTED = true;
     }
   }, {
     key: 'stop',
     value: function stop() {
       this.EXTRACTION_STARTED = false;
+      this._m.spn.disconnect();
     }
   }, {
     key: 'setSource',
@@ -2363,10 +2364,9 @@ var MeydaAnalyzer = exports.MeydaAnalyzer = function () {
     }
   }, {
     key: 'get',
-    value: function get(features, data) {
+    value: function get(features) {
       if (this._m.inputData) {
-        //console.log(this._m.inputData);
-        return this._m.extract(features || this._featuresToExtract, data, this._m.previousInputData);
+        return this._m.extract(features || this._featuresToExtract, this._m.inputData, this._m.previousInputData);
       } else {
         return null;
       }
