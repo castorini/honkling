@@ -285,7 +285,7 @@ def main():
     parser.add_argument('-e', '--num_epochs', dest="num_epochs", type=int, default=500)
     parser.add_argument('-f', '--training_log_frequency', dest="training_log_frequency", type=int, default=50)
     parser.add_argument('-l', '--log_file', dest="log_file")
-    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=250)
+    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=100)
     parser.add_argument('-lr', '--learning_rate', dest="learning_rate", type=float, default=0.01)
     parser.add_argument('-ts', '--test_size', dest="test_size", type=float, default=0.10)
 
@@ -306,7 +306,7 @@ def main():
 
     # config for RES8_NARROW
     layer_config = dict(
-        input_shape=(100,40,1,),
+        input_shape=(101,40,1,),
         conv_size=(3,3),
         conv_stride=(1,1),
         n_labels=args.num_command,
