@@ -6,6 +6,8 @@ import numpy as np
 import time
 import datetime
 import logging
+import librosa
+import random
 
 from sklearn.model_selection import train_test_split
 from argparse import ArgumentParser
@@ -175,36 +177,73 @@ class ProgressChecker(keras.callbacks.Callback):
 
             print_log('info', 'training finish time = ' + datetime.datetime.fromtimestamp(self.finish_time).strftime('%Y-%m-%d %H:%M:%S'))
 
+def _timeshift_audio(data):
+        shift = (16000 * 100) // 1000
+        shift = random.randint(-shift, shift)
+        a = -min(0, shift)
+        b = max(0, shift)
+        data = np.pad(data, (a, b), "constant")
+        return data[:len(data) - a] if a else data[b:]
 
 def prepare_dataset(command_list, data_dir, input_shape):
-    data_list = os.listdir(data_dir)
 
     print_log('info', 'command list = ' + str(command_list))
     print_log('info', 'data dir = ' + data_dir)
 
     X = []
     Y = []
+    dct_filters = librosa.filters.dct(40, 40)
+    bg_noise_files = []
 
-    for subdir, dirs, files in os.walk(data_dir):
-        for file in files:
-            if file.startswith('.'):
-                continue
-            target_command = "unknown"
-            for index, command in enumerate(command_list):
-                if file.startswith(command):
-                    target_command = command
-                    break
+    # produce noise audios
+    for folder_name in os.listdir(data_dir):
+        path_name = os.path.join(data_dir, folder_name)
+        if folder_name == "_background_noise_":
+            for filename in os.listdir(path_name):
+                wav_name = os.path.join(path_name, filename)
+                if os.path.isfile(wav_name):
+                    if wav_name.endswith('wav'):
+                        bg_noise_files.append(wav_name)
+    bg_noise_audio = [librosa.core.load(file, sr=16000)[0] for file in bg_noise_files]
 
-            original_data = np.loadtxt(os.path.join(subdir, file))
-            if len(original_data) < 4000:
-                total_pad = 4000 - len(original_data);
-                left = np.random.randint(total_pad);
-                data = np.pad(original_data, (left, total_pad-left), 'constant')
-            else:
-                data = original_data;
-            data = data.reshape(input_shape)
-            X.append(data)
-            Y.append(index)
+    for folder_name in os.listdir(data_dir):
+        path_name = os.path.join(data_dir, folder_name)
+        # if not a directory, continue
+        if os.path.isfile(path_name):
+            continue
+        # if bg noise folder, continue
+        elif folder_name == "_background_noise_":
+            continue
+        if folder_name in command_list:
+
+            for filename in os.listdir(path_name):
+
+                # choose a random bg_noise
+                bg_noise = random.choice(bg_noise_audio)
+                a = random.randint(0, len(bg_noise) - 16000 - 1)
+                bg_noise = bg_noise[a:a + 16000]
+                wav_name = os.path.join(path_name, filename)
+
+                if os.path.isfile(wav_name):
+                    # get time series
+                    data = librosa.core.load(wav_name, sr=16000)[0]
+                    # pad data
+                    data = np.pad(data, (0, max(0, 16000 - len(data))), "constant")
+                    # time shift data
+                    data = _timeshift_audio(data)
+                    if random.random() < 0.8:
+                        a = random.random() * 0.1
+                        data = np.clip(a * bg_noise + data, -1, 1)
+
+                    # get mfcc
+                    data = librosa.feature.melspectrogram(data, sr=16000, n_mels=40, hop_length=160, n_fft=480, fmin=20, fmax=4000)
+                    data[data > 0] = np.log(data[data > 0])
+                    data = [np.matmul(dct_filters, x) for x in np.split(data, data.shape[1], axis=1)]
+                    data = np.array(data, order="F").squeeze(2).astype(np.float32)
+                    data = data.reshape(input_shape)
+                    X.append(data)
+                    index = command_list.index(folder_name)
+                    Y.append(index)
 
     return X, Y
 
@@ -246,7 +285,7 @@ def main():
     parser.add_argument('-e', '--num_epochs', dest="num_epochs", type=int, default=500)
     parser.add_argument('-f', '--training_log_frequency', dest="training_log_frequency", type=int, default=50)
     parser.add_argument('-l', '--log_file', dest="log_file")
-    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=250)
+    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=100)
     parser.add_argument('-lr', '--learning_rate', dest="learning_rate", type=float, default=0.01)
     parser.add_argument('-ts', '--test_size', dest="test_size", type=float, default=0.10)
 
@@ -267,7 +306,7 @@ def main():
 
     # config for RES8_NARROW
     layer_config = dict(
-        input_shape=(100,40,1,),
+        input_shape=(101,40,1,),
         conv_size=(3,3),
         conv_stride=(1,1),
         n_labels=args.num_command,
