@@ -24,8 +24,8 @@ speechResModel.compile();
 speechResModel.load();
 
 $(document).on('click', '#extractBtn:enabled', function() {
-	audio.processInput();
+	audio.processAudio();
 	setTimeout(function(){
-		speechResModel.predict(audio.get_data())
+		speechResModel.predict(audio.getData())
 	}, 3000);
 });
