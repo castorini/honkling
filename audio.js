@@ -46,6 +46,8 @@ class Audio {
     this.initSrcNode();
 
     this.initDownSampleNode();
+
+    this.initBiquadFilterNode();
   }
 
   initData() {
@@ -125,6 +127,17 @@ class Audio {
     }
   }
 
+  initBiquadFilterNode() {
+    this.BiquadFilterFrom = 20;
+    this.BiquadFilterTo = 4000;
+
+    var geometricMean = Math.sqrt(this.BiquadFilterFrom * this.BiquadFilterTo);
+    this.biquadFilterNode = this.context.createBiquadFilter();
+    this.biquadFilterNode.type = 'bandpass';
+    this.biquadFilterNode.frequency.value = geometricMean;
+    this.biquadFilterNode.Q.value = geometricMean / (this.BiquadFilterTo - this.BiquadFilterFrom);
+  }
+
   processAudio() {
     this.initData();
 
@@ -194,20 +207,26 @@ class Audio {
     this.downSampledSource.buffer = audioSourceBuffer;
 
     let postProcessing = function(mfcc) {
-      that.mfcc = that.mfcc.concat(Array.from(mfcc));
+      if (that.mfcc.length <= that.processedDataLength) {
+        that.mfcc = that.mfcc.concat(Array.from(mfcc));
+      }
+      
       if (that.mfcc.length == that.processedDataLength) {
         that.meyda.stop();
         that.context.suspend();
         that.downSampledSource.disconnect();
+        that.biquadFilterNode.disconnect();
         that.downSampledSource.stop();
         console.log('meyda processing completed');
         console.log('mfcc', that.mfcc);
       }
     }
 
+    that.downSampledSource.connect(that.biquadFilterNode);
+
     this.meyda = Meyda.createMeydaAnalyzer({
       bufferSize: this.meydaBufferSize,
-      source: this.downSampledSource,
+      source: this.biquadFilterNode,
       audioContext: this.context,
       callback: postProcessing,
       sampleRate: this.meydaSampleRate,
