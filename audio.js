@@ -37,7 +37,7 @@ class Audio {
     // which means that we have to pass in at least 32 ms
     // As a result, 32 ms length of feature is used for each 30 ms window
 
-    this.meydaSampleRate = this.meydaBufferSize * 100;
+    this.meydaHopSize = 160;
 
     this.fallBackAudio =  $('#fallBackAudio');
 
@@ -46,14 +46,11 @@ class Audio {
     this.initSrcNode();
 
     this.initDownSampleNode();
-
-    this.initBiquadFilterNode();
   }
 
   initData() {
     this.originalData = [];
     this.downSampledData = [];
-    this.windowedData = [];
     this.mfcc = [];
   }
 
@@ -127,17 +124,6 @@ class Audio {
     }
   }
 
-  initBiquadFilterNode() {
-    this.BiquadFilterFrom = 20;
-    this.BiquadFilterTo = 4000;
-
-    var geometricMean = Math.sqrt(this.BiquadFilterFrom * this.BiquadFilterTo);
-    this.biquadFilterNode = this.context.createBiquadFilter();
-    this.biquadFilterNode.type = 'bandpass';
-    this.biquadFilterNode.frequency.value = geometricMean;
-    this.biquadFilterNode.Q.value = geometricMean / (this.BiquadFilterTo - this.BiquadFilterFrom);
-  }
-
   processAudio() {
     this.initData();
 
@@ -176,30 +162,16 @@ class Audio {
     console.log('downsampled data', this.downSampledData);
 
     // Create an empty 30ms stereo buffer at the sample rate of the AudioContext
-    let audioSourceBuffer = this.context.createBuffer(1, this.meydaSampleRate, this.newSR);
+    let audioSourceBuffer = this.context.createBuffer(1, this.newSR, this.newSR);
     let audioSourceData = audioSourceBuffer.getChannelData(0);
 
-    let downSampleIndex = 0;
-    let windowIndex = 0;
-    let hopSize = this.newSR / 100;
-
     for (let i = 0; i < audioSourceBuffer.length; i++) {
-      if (downSampleIndex == this.meydaBufferSize) {
-        windowIndex++;
-        downSampleIndex = 0;
-      }
-      let audioSourceIndex = windowIndex * hopSize + downSampleIndex;
-      if (audioSourceIndex < this.downSampledData.length) {
-        audioSourceData[audioSourceIndex] = this.downSampledData[audioSourceIndex];
-        this.windowedData.push(this.downSampledData[audioSourceIndex]); // for verification
+      if (i < this.downSampledData.length) {
+        audioSourceData[i] = this.downSampledData[i];
       } else {
-        audioSourceData[audioSourceIndex] = 0;
-        this.windowedData.push(0);
+        audioSourceData[i] = 0;
       }
-      downSampleIndex++;
     }
-
-    console.log('windowed data', this.windowedData);
 
     // Get an AudioBufferSourceNode.
     // This is the AudioNode to use when we want to play an AudioBuffer
@@ -215,21 +187,19 @@ class Audio {
         that.meyda.stop();
         that.context.suspend();
         that.downSampledSource.disconnect();
-        that.biquadFilterNode.disconnect();
         that.downSampledSource.stop();
         console.log('meyda processing completed');
         console.log('mfcc', that.mfcc);
       }
     }
 
-    that.downSampledSource.connect(that.biquadFilterNode);
-
     this.meyda = Meyda.createMeydaAnalyzer({
       bufferSize: this.meydaBufferSize,
-      source: this.biquadFilterNode,
+      source: this.downSampledSource,
       audioContext: this.context,
+      hopSize: this.meydaHopSize,
       callback: postProcessing,
-      sampleRate: this.meydaSampleRate,
+      sampleRate: this.newSR,
     });
 
     console.log('start meyda processing');
