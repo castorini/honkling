@@ -158,8 +158,8 @@ class Audio {
   };
 
   getMFCC() {
-    console.log('original data', this.originalData);
-    console.log('downsampled data', this.downSampledData);
+    that.printData('original data', this.originalData);
+    that.printData('downsampled data', this.downSampledData);
 
     // Create an empty 30ms stereo buffer at the sample rate of the AudioContext
     let audioSourceBuffer = this.context.createBuffer(1, this.newSR, this.newSR);
@@ -189,7 +189,7 @@ class Audio {
         that.downSampledSource.disconnect();
         that.downSampledSource.stop();
         console.log('meyda processing completed');
-        console.log('mfcc', that.mfcc);
+        that.printData('mfcc', that.mfcc);
       }
     }
 
@@ -211,5 +211,15 @@ class Audio {
 
   getData() {
     return this.mfcc;
+  }
+
+  printData(name, data) {
+    console.log(name, data)
+    const arrMin = arr => Math.min(...arr);
+    const arrMax = arr => Math.max(...arr);
+    const arrAvg = arr => arr.reduce((a,b) => a + b, 0) / arr.length
+
+    console.log('\trange : ( ', arrMin(data), ' ~ ', arrMax(data), ' )');
+    console.log('\tmean : ', arrAvg(data))
   }
 }
