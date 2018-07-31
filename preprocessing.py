@@ -13,9 +13,14 @@ sample_rate = 16000
 
 def print_data(name, data) :
     print name, '\t', data.shape, '\n', data
-    print '\trange : ( ', np.min(data), ' ~ ', np.max(data), ' )'
-    print '\tmean : ', np.mean(data)
-    print '\tmdedian : ', np.median(data) , '\n'
+    if (np.iscomplex(np.min(data))) :
+        print '\trange : ( ', np.min(data), ' ~ ', np.max(data), ' )'
+        print '\tmean : ', np.mean(data)
+        print '\tmdedian : ', np.median(data) , '\n'
+    else :
+        print '\trange : ( ', round(np.min(data), 10), ' ~ ', round(np.max(data), 10), ' )'
+        print '\tmean : ', round(np.mean(data), 10)
+        print '\tmdedian : ', round(np.median(data), 10) , '\n'
 
 def timeshift_audio(config, data):
     shift = (sample_rate * config["timeshift_ms"]) // 1000

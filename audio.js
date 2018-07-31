@@ -187,8 +187,8 @@ class Audio {
       }
       
       if (that.mfcc.length == that.processedDataLength) {
-        that.meyda.stop();
         that.context.suspend();
+        that.meyda.stop();
         that.downSampledSource.disconnect();
         that.downSampledSource.stop();
         console.log('meyda processing completed');
