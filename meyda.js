@@ -147,6 +147,7 @@ function applyWindow(signal, windowname) {
         throw new Error('Invalid windowing function');
       }
     }
+    signal = pointwiseBufferMult(signal, windows[windowname][signal.length]);
   }
 
   return signal;
