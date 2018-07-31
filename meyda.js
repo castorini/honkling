@@ -215,8 +215,10 @@ function createMelFilterBank(numFilters, sampleRate, bufferSize) {
   var melValuesInFreq = new Float32Array(numFilters + 2);
 
   //Generate limits in Hz - from 0 to the nyquist.
-  var lowerLimitFreq = 0;
-  var upperLimitFreq = sampleRate / 2;
+  // var lowerLimitFreq = 0;
+  // var upperLimitFreq = sampleRate / 2;
+  var lowerLimitFreq = 20;
+  var upperLimitFreq = 4000;
 
   //Convert the limits to Mel
   var lowerLimitMel = _freqToMel(lowerLimitFreq);
@@ -1292,8 +1294,12 @@ var dct = __webpack_require__(26);
       loggedMelBands[i] += filtered[i][j];
     }
 
-    //log each coefficient.
-    loggedMelBands[i] = Math.log(loggedMelBands[i] + 1);
+    if (loggedMelBands[i] > 0) {
+      loggedMelBands[i] = Math.log(loggedMelBands[i]);
+    }
+
+    // //log each coefficient.
+    // loggedMelBands[i] = Math.log(loggedMelBands[i] + 1);
   }
 
   //dct

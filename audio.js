@@ -162,12 +162,15 @@ class Audio {
     that.printData('downsampled data', this.downSampledData);
 
     // Create an empty 30ms stereo buffer at the sample rate of the AudioContext
-    let audioSourceBuffer = this.context.createBuffer(1, this.newSR, this.newSR);
+    let audioSourceBuffer = this.context.createBuffer(1, this.newSR + this.meydaBufferSize, this.newSR);
     let audioSourceData = audioSourceBuffer.getChannelData(0);
 
+    // librosa stft centers data by padding each end with window size / 2 zeros
     for (let i = 0; i < audioSourceBuffer.length; i++) {
-      if (i < this.downSampledData.length) {
-        audioSourceData[i] = this.downSampledData[i];
+      if (i < this.meydaBufferSize/2) {
+        audioSourceData[i] = 0;
+      } else if (i < this.downSampledData.length + this.meydaBufferSize/2) {
+        audioSourceData[i] = this.downSampledData[i-this.meydaBufferSize/2];
       } else {
         audioSourceData[i] = 0;
       }

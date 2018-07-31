@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 # usage :
 #     python ./preprocessing.py --file "data/test.wav"
 
-sampleRate = 16000
+sample_rate = 16000
 
 def print_data(name, data) :
     print name, '\t', data.shape, '\n', data
@@ -18,7 +18,7 @@ def print_data(name, data) :
     print '\tmdedian : ', np.median(data) , '\n'
 
 def timeshift_audio(config, data):
-    shift = (sampleRate * config["timeshift_ms"]) // 1000
+    shift = (sample_rate * config["timeshift_ms"]) // 1000
     shift = random.randint(-shift, shift)
     print 'shift = ', shift, '\n'
     a = -min(0, shift)
@@ -26,12 +26,34 @@ def timeshift_audio(config, data):
     data = np.pad(data, (a, b), "constant")
     return data[:len(data) - a] if a else data[b:]
 
-def preprocess_audio(data, n_mels, dct_filters):
-    data = librosa.feature.melspectrogram(data, sampleRate, n_mels=n_mels, hop_length=sampleRate//100, n_fft=512, fmin=20, fmax=4000)
+def preprocess_audio(data, config):
+    amp_spectrum = librosa.core.stft(data, n_fft=config["n_fft"], hop_length=config["hop_length"], pad_mode='constant');
+    print_data('amp_spectrum data', amp_spectrum)
+
+    # np.abs(D[f, t]) is the magnitude of frequency bin f at frame t
+    power_spectrum = np.abs(amp_spectrum)**2
+    print_data('power spectrogram data', power_spectrum)
+
+    # corresponding librosa operations
+
+    # S, _ = librosa.spectrum._spectrogram(y=data, n_fft=config["n_fft"], hop_length=config["hop_length"],
+    #                         power=2)
+    # print_data('power spectrogram generated through _spectrogram', S)
+
+    mel_basis = librosa.filters.mel(sample_rate, n_fft=config["n_fft"], n_mels=config["n_mels"], fmin=config["fmin"], fmax=config["fmax"])
+    print_data('mel_basis', mel_basis)
+
+    data = np.dot(mel_basis, power_spectrum)
     print_data('melspectrogram data', data)
+
+    # corresponding librosa operations
+
+    # data = librosa.feature.melspectrogram(data, sample_rate, n_mels=config["n_mels"], hop_length=config["hop_length"], n_fft=config["n_fft"], fmin=config["fmin"], fmax=config["fmax"])
+    # print_data('melspectrogram data', data)
+
     data[data > 0] = np.log(data[data > 0])
     print_data('logged melspectrogram data', data)
-    data = [np.matmul(dct_filters, x) for x in np.split(data, data.shape[1], axis=1)]
+    data = [np.matmul(config["dct_filters"], x) for x in np.split(data, data.shape[1], axis=1)]
     data = np.array(data, order="F").squeeze(2).astype(np.float32)
     print_data('dct_filted data', data)
     return data
@@ -44,7 +66,7 @@ def preprocess(config, example, timeshift=True, silence=False):
     if silence:
         data = np.zeros(in_len, dtype=np.float32)
     else:
-        data = librosa.core.load(example, sampleRate)[0]
+        data = librosa.core.load(example, sample_rate)[0]
 
     print_data('loaded data', data)
 
@@ -56,7 +78,7 @@ def preprocess(config, example, timeshift=True, silence=False):
 
     print_data('shifted data', data)
 
-    data = preprocess_audio(data, config["n_mels"], config["filters"])
+    data = preprocess_audio(data, config)
 
     print_data('preprocessed data', data)
 
@@ -72,17 +94,19 @@ def main():
     config = {
         "n_dct_filters" : 40,
         "n_mels" : 40,
-        "input_length" : sampleRate,
+        "n_fft" : 512, # window size (limited by browser)
+        "hop_length" : 160,
+        "input_length" : sample_rate,
         "timeshift_ms" : 0,
+        "fmin" : 20,
+        "fmax" : 4000,
     };
 
-    config["filters"] = librosa.filters.dct(config["n_dct_filters"], config["n_mels"])
+    config["dct_filters"] = librosa.filters.dct(config["n_dct_filters"], config["n_mels"])
 
-    # print_data('dct_filter', config["filters"])
+    print_data('dct_filter', config["dct_filters"])
 
     data = preprocess(config, args.filename)
-
-    print_data('final data', data)
 
 
 if __name__ == "__main__":
