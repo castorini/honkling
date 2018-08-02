@@ -198,14 +198,47 @@ function mean(a) {
   }) / a.length;
 }
 
-function _melToFreq(melValue) {
-  var freqValue = 700 * (Math.exp(melValue / 1125) - 1);
-  return freqValue;
+// function _melToFreq(melValue) { // HTK formula
+//   var freqValue = 700 * (Math.exp(melValue / 1125) - 1);
+//   return freqValue;
+// }
+
+function _melToFreq(melValue) { // Slaney formula
+  var f_min = 0.0
+  var f_sp = 200.0 / 3
+
+  var freqs = f_min + f_sp * melValue
+
+  var min_log_hz = 1000                         // beginning of log region (Hz)
+  var min_log_mel = (min_log_hz - f_min) / f_sp   // same (Mels)
+
+  if (melValue >= min_log_mel) {
+    var logstep = Math.log(6.4) / 27.0              // step size for log region
+    freqs = min_log_hz * Math.exp(logstep * (melValue - min_log_mel))
+  }
+
+  return freqs;
 }
 
-function _freqToMel(freqValue) {
-  var melValue = 1125 * Math.log(1 + freqValue / 700);
-  return melValue;
+// function _freqToMel(freqValue) { // HTK formula
+//   var melValue = 1125 * Math.log(1 + freqValue / 700);
+//   return melValue;
+// }
+
+function _freqToMel(freqValue) { // Slaney formula
+  var f_min = 0.0
+  var f_sp = 200.0 / 3
+
+  var mels = (freqValue - f_min) / f_sp
+
+  var min_log_hz = 1000                         // beginning of log region (Hz)
+  if (freqValue >= min_log_hz) {
+    var min_log_mel = (min_log_hz - f_min) / f_sp   // same (Mels)
+    var logstep = Math.log(6.4) / 27.0              // step size for log region
+    mels = min_log_mel + (Math.log(freqValue / min_log_hz) / logstep)
+  }
+
+  return mels;
 }
 
 function melToFreq(mV) {
@@ -216,14 +249,68 @@ function freqToMel(fV) {
   return _freqToMel(fV);
 }
 
+// // index based Mel Filter
+// function createMelFilterBank(numFilters, sampleRate, bufferSize) {
+//   //the +2 is the upper and lower limits
+//   var melValues = new Float32Array(numFilters + 2);
+//   var melValuesInFreq = new Float32Array(numFilters + 2);
+
+//   //Generate limits in Hz - from 0 to the nyquist.
+//   // var lowerLimitFreq = 0;
+//   // var upperLimitFreq = sampleRate / 2;
+//   var lowerLimitFreq = 20;
+//   var upperLimitFreq = 4000;
+
+//   //Convert the limits to Mel
+//   var lowerLimitMel = _freqToMel(lowerLimitFreq);
+//   var upperLimitMel = _freqToMel(upperLimitFreq);
+
+//   //Find the range
+//   var range = upperLimitMel - lowerLimitMel;
+
+//   //Find the range as part of the linear interpolation
+//   var valueToAdd = range / (numFilters + 1);
+
+//   var fftBinsOfFreq = Array(numFilters + 2);
+
+//   for (var i = 0; i < melValues.length; i++) {
+//     // Initialising the mel frequencies
+//     // They're a linear interpolation between the lower and upper limits.
+//     melValues[i] = i * valueToAdd + lowerLimitMel;
+
+//     // Convert back to Hz
+//     melValuesInFreq[i] = _melToFreq(melValues[i]);
+
+//     // Find the corresponding bins
+//     fftBinsOfFreq[i] = Math.floor((bufferSize + 1) * melValuesInFreq[i] / sampleRate);
+//   }
+
+//   var filterBank = Array(numFilters);
+//   for (var j = 0; j < filterBank.length; j++) {
+//     // Create a two dimensional array of size numFilters * (buffersize/2)+1
+//     // pre-populating the arrays with 0s.
+//     filterBank[j] = Array.apply(null, new Array(bufferSize / 2 + 1)).map(Number.prototype.valueOf, 0);
+
+//     //creating the lower and upper slopes for each bin
+//     for (var _i = fftBinsOfFreq[j]; _i < fftBinsOfFreq[j + 1]; _i++) {
+//       filterBank[j][_i] = (_i - fftBinsOfFreq[j]) / (fftBinsOfFreq[j + 1] - fftBinsOfFreq[j]);
+//     }
+
+//     for (var _i2 = fftBinsOfFreq[j + 1]; _i2 < fftBinsOfFreq[j + 2]; _i2++) {
+//       filterBank[j][_i2] = (fftBinsOfFreq[j + 2] - _i2) / (fftBinsOfFreq[j + 2] - fftBinsOfFreq[j + 1]);
+//     }
+//   }
+
+//   return filterBank;
+// }
+
+// frequency based Mel Filter
 function createMelFilterBank(numFilters, sampleRate, bufferSize) {
   //the +2 is the upper and lower limits
   var melValues = new Float32Array(numFilters + 2);
   var melValuesInFreq = new Float32Array(numFilters + 2);
 
   //Generate limits in Hz - from 0 to the nyquist.
-  // var lowerLimitFreq = 0;
-  // var upperLimitFreq = sampleRate / 2;
   var lowerLimitFreq = 20;
   var upperLimitFreq = 4000;
 
@@ -235,38 +322,63 @@ function createMelFilterBank(numFilters, sampleRate, bufferSize) {
   var range = upperLimitMel - lowerLimitMel;
 
   //Find the range as part of the linear interpolation
-  var valueToAdd = range / (numFilters + 1);
+  var melValueToAdd = range / (numFilters + 1);
 
-  var fftBinsOfFreq = Array(numFilters + 2);
+  var freqDiff = Array(numFilters + 1);
+
+  // Slaney-style mel is scaled to be approx constant energy per channel
+  var enorm = Array(numFilters);
 
   for (var i = 0; i < melValues.length; i++) {
     // Initialising the mel frequencies
     // They're a linear interpolation between the lower and upper limits.
-    melValues[i] = i * valueToAdd;
+    melValues[i] = i * melValueToAdd + lowerLimitMel;
 
     // Convert back to Hz
     melValuesInFreq[i] = _melToFreq(melValues[i]);
 
-    // Find the corresponding bins
-    fftBinsOfFreq[i] = Math.floor((bufferSize + 1) * melValuesInFreq[i] / sampleRate);
+    if (i > 0) {
+      // store the difference
+      freqDiff[i-1] = melValuesInFreq[i] - melValuesInFreq[i-1];
+    }
+
+    if (i > 1) {
+      enorm[i-2] = 2.0 / (melValuesInFreq[i] - melValuesInFreq[i-2]);
+    }
   }
+
+  var fftValueToAdd = sampleRate / bufferSize;
+
+  var fftFreq = new Float32Array(bufferSize / 2 + 1);
+  for (var i = 0; i < fftFreq.length; i++) {
+    fftFreq[i] = i * fftValueToAdd;
+  }
+
+  var ramps = Array(melValues.length);
+  for (var i = 0; i < melValues.length; i++) {
+    ramps[i] = Array(fftFreq.length);
+    for (var j = 0; j < fftFreq.length; j++) {
+      ramps[i][j] = melValuesInFreq[i] - fftFreq[j];
+    }
+  }
+
 
   var filterBank = Array(numFilters);
-  for (var j = 0; j < filterBank.length; j++) {
+  for (var i = 0; i < filterBank.length; i++) {
     // Create a two dimensional array of size numFilters * (buffersize/2)+1
     // pre-populating the arrays with 0s.
-    filterBank[j] = Array.apply(null, new Array(bufferSize / 2 + 1)).map(Number.prototype.valueOf, 0);
+    filterBank[i] = Array(bufferSize / 2 + 1);
 
-    //creating the lower and upper slopes for each bin
-    for (var _i = fftBinsOfFreq[j]; _i < fftBinsOfFreq[j + 1]; _i++) {
-      filterBank[j][_i] = (_i - fftBinsOfFreq[j]) / (fftBinsOfFreq[j + 1] - fftBinsOfFreq[j]);
-    }
+    for (var j = 0; j < fftFreq.length; j++) {
+      var lower = -ramps[i][j] / freqDiff[i];
+      var upper = ramps[i+2][j] / freqDiff[i+1];
 
-    for (var _i2 = fftBinsOfFreq[j + 1]; _i2 < fftBinsOfFreq[j + 2]; _i2++) {
-      filterBank[j][_i2] = (fftBinsOfFreq[j + 2] - _i2) / (fftBinsOfFreq[j + 2] - fftBinsOfFreq[j + 1]);
+      if (isNaN(lower)) lower = 0;
+      if (isNaN(upper)) upper = 0;
+
+      filterBank[i][j] = enorm[i] * Math.max(0, Math.min(lower, upper))
     }
   }
-
   return filterBank;
 }
 
@@ -686,8 +798,8 @@ var prepareSignalWithSpectrum = function prepareSignalWithSpectrum(signal, windo
   preparedSignal.windowedSignal = __WEBPACK_IMPORTED_MODULE_0__utilities__["a" /* applyWindow */](preparedSignal.signal, windowingFunction);
 
   preparedSignal.complexSpectrum = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_fftjs__["fft"])(preparedSignal.windowedSignal);
-  preparedSignal.ampSpectrum = new Float32Array(bufferSize / 2);
-  for (var i = 0; i < bufferSize / 2; i++) {
+  preparedSignal.ampSpectrum = new Float32Array(bufferSize / 2 + 1);
+  for (var i = 0; i < bufferSize / 2  + 1 ; i++) {
     preparedSignal.ampSpectrum[i] = Math.sqrt(Math.pow(preparedSignal.complexSpectrum.real[i], 2) + Math.pow(preparedSignal.complexSpectrum.imag[i], 2));
   }
 
@@ -1290,10 +1402,10 @@ var dct = __webpack_require__(26);
 
   var loggedMelBands = new Float32Array(numFilters);
 
-  for (var i = 0; i < loggedMelBands.length; i++) {
-    filtered[i] = new Float32Array(args.bufferSize / 2);
+  for (var i = 0; i < numFilters; i++) {
+    filtered[i] = new Float32Array(args.bufferSize / 2 + 1);
     loggedMelBands[i] = 0;
-    for (var j = 0; j < args.bufferSize / 2; j++) {
+    for (var j = 0; j < filtered[i].length; j++) {
       //point-wise multiplication between power spectrum and filterbanks.
       filtered[i][j] = args.melFilterBank[i][j] * powSpec[j];
 
@@ -1304,9 +1416,6 @@ var dct = __webpack_require__(26);
     if (loggedMelBands[i] > 0) {
       loggedMelBands[i] = Math.log(loggedMelBands[i]);
     }
-
-    // //log each coefficient.
-    // loggedMelBands[i] = Math.log(loggedMelBands[i] + 1);
   }
 
   //dct
@@ -1827,25 +1936,29 @@ var memoizeCosines = function(N) {
   cosMap = cosMap || {};
   cosMap[N] = new Array(N*N);
 
-  var PI_N = Math.PI / N;
+  var PI_N = Math.PI / (2 * N);
 
-  for (var k = 0; k < N; k++) {
+  // first row
+  for (var n = 0; n < N; n++) {
+    cosMap[N][n] = 1.0 / Math.sqrt(N);
+  }
+
+  for (var k = 1; k < N; k++) {
     for (var n = 0; n < N; n++) {
-      cosMap[N][n + (k * N)] = Math.cos(PI_N * (n + 0.5) * k);
+      cosMap[N][n + (k * N)] = Math.cos(PI_N * (n * 2 + 1) * k) * Math.sqrt(2/N);
     }
   }
 };
 
-function dct(signal, scale) {
+function dct(signal) {
   var L = signal.length;
-  scale = scale || 2;
 
   if (!cosMap || !cosMap[L]) memoizeCosines(L);
 
   var coefficients = signal.map(function () {return 0;});
 
   return coefficients.map(function (__, ix) {
-    return scale * signal.reduce(function (prev, cur, ix_, arr) {
+    return signal.reduce(function (prev, cur, ix_, arr) {
       return prev + (cur * cosMap[L][ix_ + (ix * L)]);
     }, 0);
   });

@@ -12,7 +12,7 @@ from argparse import ArgumentParser
 sample_rate = 16000
 
 def print_data(name, data) :
-    print name, '\t', data.shape, '\n', data
+    print name, '\t', data.dtype, '\t', data.shape, '\n', data
     if (np.iscomplex(np.min(data))) :
         print '\trange : ( ', np.min(data), ' ~ ', np.max(data), ' )'
         print '\tmean : ', np.mean(data)
@@ -40,7 +40,8 @@ def preprocess_audio(data, config):
     print_data('power spectrogram data', power_spectrum)
 
     # corresponding librosa operations
-
+    # in order to use pad mode = 'constant' for stft, melspectrogram must be computed manually as in this preprocessing script
+    # default pad_mode for stft is reflection padding
     # S, _ = librosa.spectrum._spectrogram(y=data, n_fft=config["n_fft"], hop_length=config["hop_length"],
     #                         power=2)
     # print_data('power spectrogram generated through _spectrogram', S)
