@@ -700,6 +700,7 @@ var Meyda = {
   windowingFunction: 'hanning',
   featureExtractors: __WEBPACK_IMPORTED_MODULE_1__featureExtractors__,
   EXTRACTION_STARTED: false,
+  RECEIVED_DATA: false,
   numberOfMFCCCoefficients: 40,
   _featuresToExtract: [],
   windowing: __WEBPACK_IMPORTED_MODULE_0__utilities__["a" /* applyWindow */],
@@ -740,6 +741,13 @@ var Meyda = {
       this.signal = __WEBPACK_IMPORTED_MODULE_0__utilities__["f" /* arrayToTyped */](signal);
     } else {
       this.signal = signal;
+    }
+
+    if (this.signal.every(function(elem) {return elem == 0}) && !this.RECEIVED_DATA) {
+      // drop all zero entries at the begining
+      return [];
+    } else {
+      this.RECEIVED_DATA = true;
     }
 
     var preparedSignal = prepareSignalWithSpectrum(signal, this.windowingFunction, this.bufferSize);
@@ -1822,6 +1830,7 @@ var MeydaAnalyzer = function () {
     value: function start(features) {
       this._m._featuresToExtract = features || this._m._featuresToExtract;
       this._m.EXTRACTION_STARTED = true;
+      this._m.RECEIVED_DATA = false;
     }
   }, {
     key: 'stop',
