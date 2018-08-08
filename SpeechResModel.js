@@ -236,7 +236,7 @@ class SpeechResModel {
 		}
 	}
 
-	predict(x) {
+	predict(x, btn) {
 		if (!(x instanceof tf.Tensor)) {
 			x = tf.tensor(x);
 		}
@@ -252,6 +252,6 @@ class SpeechResModel {
 
 	    console.log('prediction : ', this.weights['commands'][predictions]);
 
-	    toggleCommand(this.weights['commands'][predictions]);
+	    toggleCommand(this.weights['commands'][predictions], btn);
 	}
 }

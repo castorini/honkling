@@ -61,6 +61,8 @@ class Audio {
       that.micSource = that.onlineContext.createMediaStreamSource(micStream);
       console.log('Setting Meyda Source to Microphone');
       console.groupEnd();
+      enableRecordBtn();
+      disablePlayBtn();
     };
 
     var errorCallback = function (err) {
@@ -69,6 +71,8 @@ class Audio {
       that.audioSource = that.onlineContext.createMediaElementSource(that.fallBackAudio[0]);
       that.audioSource.connect(that.onlineContext.destination); // connect to speaker
       console.groupEnd();
+      disableRecordBtn();
+      enablePlayBtn();
     };
 
     try {
@@ -81,12 +85,8 @@ class Audio {
       navigator.mediaDevices.getUserMedia(constraints)
         .then(successCallback)
         .catch(errorCallback)
-        .finally(function() {
-          $('#extractBtn').prop('disabled', false);
-        })
     } catch (err) {
       errorCallback(err);
-      $('#extractBtn').prop('disabled', false);
     }
   };
 
@@ -122,38 +122,36 @@ class Audio {
     }
   }
 
-  processAudio() {
+  processMicData() {
     this.initData();
+    this.micSource.connect(this.downSampleNode);
+    enableRecordingBtn()
+    this.onlineContext.resume();
 
-    if (this.micSource) {
-      console.log('start recording');
+    setTimeout(function() {
+      that.onlineContext.suspend();
+      that.micSource.disconnect(that.downSampleNode);
+      disableRecordBtn();
 
-      this.micSource.connect(this.downSampleNode);
-      this.onlineContext.resume();
+      that.getMFCC();
+    }, 1000);
+  }
 
-      setTimeout(function() {
-        console.log('recording has stopped');
-        that.onlineContext.suspend();
-        that.micSource.disconnect(that.downSampleNode);
+  processAudioData() {
+    this.initData();
+    this.fallBackAudio[0].onpause = function() {
+      that.onlineContext.suspend();
+      that.audioSource.disconnect(that.downSampleNode);
 
-        that.getMFCC();
-      }, 1000);
-    } else {
-      this.fallBackAudio[0].onpause = function() {
-        console.log('audio has stopped');
-        that.onlineContext.suspend();
-        that.audioSource.disconnect(that.downSampleNode);
-
-        that.getMFCC();
-      }
-
-      this.audioSource.connect(this.downSampleNode);
-      this.onlineContext.resume();
-
-      console.log('playing audio');
-      this.fallBackAudio[0].play();
+      that.getMFCC();
     }
-  };
+
+    this.audioSource.connect(this.downSampleNode);
+    this.onlineContext.resume();
+
+    disablePlayBtn()
+    this.fallBackAudio[0].play();
+  }
 
   getMFCC() {
     // that.printData('original data', this.originalData);
