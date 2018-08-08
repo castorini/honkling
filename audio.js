@@ -41,8 +41,6 @@ class Audio {
 
     this.fallBackAudio =  $('#fallBackAudio');
 
-    // this.onlineContext = new AudioContext();
-
     this.initSrcNode();
 
     this.initDownSampleNode();
