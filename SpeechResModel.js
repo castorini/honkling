@@ -78,6 +78,10 @@ class SpeechResModel {
 					biasInitializer: tf.initializers.zeros(),
 					name: "conv"+(i+1),
 				})
+				// addition layers
+				if (i % 2 == 0) {
+					this.layers['add'+i/2] = tf.layers.add();
+				}
 			}
 		}
 
@@ -103,9 +107,6 @@ class SpeechResModel {
 			biasInitializer : tf.initializers.zeros(),
 			name: "dense",
 		});
-
-		// addition layer
-		this.layers['add'] = tf.layers.add();
 
 		// globalAveragePooling layer
 		this.layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
@@ -140,9 +141,9 @@ class SpeechResModel {
 
             // if i > 0 and i % 2 == 0:
             //     x = y + old_x
-            //     old_x = x
+			//     old_x = x
             if ((i > 0) && (i % 2 == 0)) {
-            	x = this.layers['add'].apply([y, old_x]);
+            	x = this.layers['add'+(i/2-1)].apply([y, old_x]);
             	old_x = x;
 
         	// else:
@@ -253,5 +254,11 @@ class SpeechResModel {
 	    console.log('prediction : ', this.weights['commands'][predictions]);
 
 	    toggleCommand(this.weights['commands'][predictions]);
+	}
+
+	async save() {
+		// const saveResult = await this.model.save('localstorage://my-model-1');
+		const saveResult = await this.model.save('downloads://my-model-1')
+		console.log(saveResult);
 	}
 }

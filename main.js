@@ -14,6 +14,12 @@ function toggleCommand(command) {
 	}, 5000);
 }
 
+async function loadModel(param) {
+	const model = await tf.loadModel(param);
+	console.log("Model loading done.")
+	return model;
+}
+
 let audio = new Audio();
 
 // let speechModel = new SpeechModel(modelConfig["CNN_TSTRIDE8"]);
@@ -22,6 +28,16 @@ let audio = new Audio();
 let speechResModel = new SpeechResModel("RES8_NARROW");
 speechResModel.compile();
 speechResModel.load();
+
+$(document).on('click', '#saveBtn:enabled', function() {
+	speechResModel.save();
+});
+
+$(document).on('click', '#loadBtn:enabled', function() {
+	const jsonUpload = $("#json-upload")[0];
+	const weightsUpload = $("#weights-upload")[0];
+	const model = loadModel(tf.io.browserFiles([jsonUpload.files[0], weightsUpload.files[0]]))
+});
 
 $(document).on('click', '#extractBtn:enabled', function() {
 	audio.processInput();
