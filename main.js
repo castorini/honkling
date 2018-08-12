@@ -60,7 +60,7 @@ $(document).on('click', '#recordBtn:enabled', function() {
 	audio.processMicData();
 	setTimeout(function(){
 		speechResModel.predict(audio.getData(), 'recordBtn')
-	}, 1500);
+	}, 2000);
 });
 
 $(document).on('click', '#playBtn:enabled', function() {

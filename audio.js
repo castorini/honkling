@@ -124,9 +124,13 @@ class Audio {
 
   processMicData() {
     this.initData();
-    this.micSource.connect(this.downSampleNode);
     enableRecordingBtn()
-    this.onlineContext.resume();
+
+    setTimeout(function() {
+      // allowing user to notice they can record
+      that.micSource.connect(that.downSampleNode);
+      that.onlineContext.resume();
+    }, 500);
 
     setTimeout(function() {
       that.onlineContext.suspend();
@@ -134,7 +138,7 @@ class Audio {
       disableRecordBtn();
 
       that.getMFCC();
-    }, 1000);
+    }, 1500);
   }
 
   processAudioData() {
