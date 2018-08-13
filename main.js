@@ -6,18 +6,45 @@ function init_view(commands) {
 	})
 }
 
-function toggleCommand(command) {
+function toggleCommand(command, btn) {
 	$('#commandList .active').removeClass('active');
 	$('#commandList .'+command+'_button').addClass('active');
 	setTimeout(function(){
 		$('#commandList .'+command+'_button').removeClass('active');
-	}, 5000);
+		if (btn == 'recordBtn') {
+			enableRecordBtn();
+		} else {
+			enablePlayBtn();
+		}
+	}, 1500);
 }
 
-async function loadModel(param) {
-	const model = await tf.loadModel(param);
-	console.log("Model loading done.")
-	return model;
+function enableRecordBtn() {
+	$('#recordBtn').removeClass('btn-secondary');
+	$('#recordBtn').addClass('btn-primary');
+	$('#recordBtn').prop('disabled', false);
+}
+
+function disableRecordBtn() {
+	$('#recordBtn').removeClass('btn-danger');
+	$('#recordBtn').prop('disabled', true);
+}
+
+function enableRecordingBtn() {
+	$('#recordBtn').removeClass('btn-primary');
+	$('#recordBtn').addClass('btn-danger');
+	$('#recordBtn').prop('disabled', false);
+}
+
+function enablePlayBtn() {
+	$('#playBtn').removeClass('btn-secondary');
+	$('#playBtn').addClass('btn-primary');
+	$('#playBtn').prop('disabled', false);
+}
+
+function disablePlayBtn() {
+	$('#playBtn').removeClass('btn-primary');
+	$('#playBtn').prop('disabled', true);
 }
 
 let audio = new Audio();
@@ -25,23 +52,60 @@ let audio = new Audio();
 // let speechModel = new SpeechModel(modelConfig["CNN_TSTRIDE8"]);
 // speechModel.compile();
 
-let speechResModel = new SpeechResModel("RES8_NARROW");
-speechResModel.compile();
-speechResModel.load();
+let modelName = "RES8_NARROW";
+let model = new SpeechResModel(modelName);
+model.compile();
+model.load();
 
+async function loadModel(param) {
+	model = await tf.loadModel(param);
+}
+
+function predict(x, modelName, model, btn) {
+	if (!(x instanceof tf.Tensor)) {
+		x = tf.tensor(x);
+	}
+
+	let config = modelConfig[modelName];
+	let commands = weights[modelName]['commands'];
+
+	let input_shape = config['input_shape'].slice();
+	input_shape.unshift(-1);
+
+	let output = model.predict(x.reshape(input_shape));
+	console.log('model prediction result : ', output.dataSync());
+
+	let axis = 1;
+	let predictions = output.argMax(axis).dataSync()[0];
+
+	console.log('prediction : ', commands[predictions]);
+
+	toggleCommand(commands[predictions], btn);
+}
+
+// predictions
+$(document).on('click', '#recordBtn:enabled', function() {
+	audio.processMicData();
+	setTimeout(function(){
+		predict(audio.getData(), modelName, model, 'recordBtn')
+	}, 2000);
+});
+
+$(document).on('click', '#playBtn:enabled', function() {
+	audio.processAudioData();
+	setTimeout(function(){
+		predict(audio.getData(), modelName, model, 'playBtn')
+	}, 1500);
+});
+
+// model loading/saving
 $(document).on('click', '#saveBtn:enabled', function() {
-	speechResModel.save();
+	model.save();
 });
 
 $(document).on('click', '#loadBtn:enabled', function() {
 	const jsonUpload = $("#json-upload")[0];
 	const weightsUpload = $("#weights-upload")[0];
-	const model = loadModel(tf.io.browserFiles([jsonUpload.files[0], weightsUpload.files[0]]))
-});
-
-$(document).on('click', '#extractBtn:enabled', function() {
-	audio.processInput();
-	setTimeout(function(){
-		speechResModel.predict(audio.get_data())
-	}, 3000);
+	loadModel(tf.io.browserFiles([jsonUpload.files[0], weightsUpload.files[0]]))
+	console.log('loading model has completed', model);
 });

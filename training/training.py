@@ -177,15 +177,15 @@ class ProgressChecker(keras.callbacks.Callback):
 
             print_log('info', 'training finish time = ' + datetime.datetime.fromtimestamp(self.finish_time).strftime('%Y-%m-%d %H:%M:%S'))
 
-def _timeshift_audio(data):
-        shift = (16000 * 100) // 1000
+def timeshift_audio(config, data):
+        shift = (config["sample_rate"] * 100) // 1000
         shift = random.randint(-shift, shift)
         a = -min(0, shift)
         b = max(0, shift)
         data = np.pad(data, (a, b), "constant")
         return data[:len(data) - a] if a else data[b:]
 
-def prepare_dataset(command_list, data_dir, input_shape):
+def prepare_dataset(config, command_list, data_dir, input_shape):
 
     print_log('info', 'command list = ' + str(command_list))
     print_log('info', 'data dir = ' + data_dir)
@@ -204,7 +204,7 @@ def prepare_dataset(command_list, data_dir, input_shape):
                 if os.path.isfile(wav_name):
                     if wav_name.endswith('wav'):
                         bg_noise_files.append(wav_name)
-    bg_noise_audio = [librosa.core.load(file, sr=16000)[0] for file in bg_noise_files]
+    bg_noise_audio = [librosa.core.load(file, sr=config["sample_rate"])[0] for file in bg_noise_files]
 
     for folder_name in os.listdir(data_dir):
         path_name = os.path.join(data_dir, folder_name)
@@ -220,23 +220,26 @@ def prepare_dataset(command_list, data_dir, input_shape):
 
                 # choose a random bg_noise
                 bg_noise = random.choice(bg_noise_audio)
-                a = random.randint(0, len(bg_noise) - 16000 - 1)
-                bg_noise = bg_noise[a:a + 16000]
+                a = random.randint(0, len(bg_noise) - config["sample_rate"] - 1)
+                bg_noise = bg_noise[a:a + config["sample_rate"]]
                 wav_name = os.path.join(path_name, filename)
 
                 if os.path.isfile(wav_name):
                     # get time series
-                    data = librosa.core.load(wav_name, sr=16000)[0]
+                    data = librosa.core.load(wav_name, sr=config["sample_rate"])[0]
                     # pad data
-                    data = np.pad(data, (0, max(0, 16000 - len(data))), "constant")
+                    data = np.pad(data, (0, max(0, config["sample_rate"] - len(data))), "constant")
                     # time shift data
-                    data = _timeshift_audio(data)
+                    data = timeshift_audio(config, data)
                     if random.random() < 0.8:
                         a = random.random() * 0.1
                         data = np.clip(a * bg_noise + data, -1, 1)
 
-                    # get mfcc
-                    data = librosa.feature.melspectrogram(data, sr=16000, n_mels=40, hop_length=160, n_fft=480, fmin=20, fmax=4000)
+                    amp_spectrum = librosa.core.stft(data, n_fft=config["n_fft"], hop_length=config["hop_length"], pad_mode='constant');
+                    power_spectrum = np.abs(amp_spectrum)**2
+                    mel_basis = librosa.filters.mel(config["sample_rate"], n_fft=config["n_fft"], n_mels=config["n_mels"], fmin=config["fmin"], fmax=config["fmax"])
+                    data = np.dot(mel_basis, power_spectrum)
+
                     data[data > 0] = np.log(data[data > 0])
                     data = [np.matmul(dct_filters, x) for x in np.split(data, data.shape[1], axis=1)]
                     data = np.array(data, order="F").squeeze(2).astype(np.float32)
@@ -342,7 +345,19 @@ def main():
 
     # data preparation
 
-    X, Y = prepare_dataset(args.command_list, args.data_dir + '/', layer_config['input_shape'])
+    data_config = {
+        "sample_rate" : 16000,
+        "n_dct_filters" : 40,
+        "n_mels" : 40,
+        "n_fft" : 512, # window size
+        "hop_length" : 160,
+        "input_length" : 512,
+        "timeshift_ms" : 0,
+        "fmin" : 20,
+        "fmax" : 4000,
+    };
+
+    X, Y = prepare_dataset(data_config, args.command_list, args.data_dir + '/', layer_config['input_shape'])
 
     print_log('info', 'total data size = ' + str(len(X)))
 

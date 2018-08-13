@@ -27,7 +27,7 @@
             <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/go/0ab3b47d_nohash_0.wav"></audio> -->
             <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/stop/0b40aa8e_nohash_0.wav"></audio> -->
             <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/no/0cd323ec_nohash_1.wav"></audio> -->
-             <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/yes/0ff728b5_nohash_2.wav"></audio>
+            <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/yes/0ff728b5_nohash_2.wav"></audio>
           </div>
         </div>
         <hr>
@@ -40,13 +40,20 @@
         <hr>
       </div>
       <div class="row">
-        <button id="extractBtn" type="button" class="btn btn-primary col-centered" disabled>Extract</button>
+        <button id="recordBtn" type="button" class="btn col-centered" disabled>RECORD</button>
+        <button id="playBtn" type="button" class="btn col-centered" disabled>PLAY AUDIO</button>
       </div>
-      <input id="json-upload" class="col-centered" type="file" />
-      <input id="weights-upload" class="col-centered" type="file" />
+      <br>
+      <hr>
       <div class="row">
-        <button id="loadBtn" type="button" class="btn btn-primary col-centered" enabled>Load</button>
-        <button id="saveBtn" type="button" class="btn btn-primary col-centered" enabled>Save</button>
+        <span class="col-md-3 offset-md-3"> MODEL ARCHITECTURE : </span><input id="json-upload" class="col-md-3" type="file" />
+      </div>
+      <div class="row">
+        <span class="col-md-3 offset-md-3"> WEIGHTS : </span><input id="weights-upload" class="col-md-3" type="file" />
+      </div>
+      <div class="row">
+        <button id="loadBtn" type="button" class="btn btn-primary col-centered" enabled>LOAD MODEL</button>
+        <button id="saveBtn" type="button" class="btn btn-primary col-centered" enabled>SAVE MODEL</button>
       </div>
     </div>
     <script src="config.js"></script>
@@ -55,5 +62,6 @@
     <script src="SpeechResModel.js"></script>
     <script src="audio.js"></script>
     <script src="main.js"></script>
+    <script src="sampleTrainingData.js"></script>
   </body>
 </html>
