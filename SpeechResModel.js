@@ -1,9 +1,9 @@
 class SpeechResModel {
 
-	constructor(model_name) {
-		this.model_name = model_name;
-		this.config = modelConfig[model_name];
-		this.weights = weights[this.model_name];
+	constructor(modelName) {
+		this.modelName = modelName;
+		this.config = modelConfig[modelName];
+		this.weights = weights[this.modelName];
 
 		init_view(this.weights['commands']);
 
@@ -17,7 +17,6 @@ class SpeechResModel {
 
 		this.layers['conv0'] = tf.layers.conv2d({
 			filters: this.config['n_feature_maps'],
-			// inputShape: this.config['input_shape'],
 			kernelSize: this.config['conv_size'],
 			strides: this.config['conv_stride'],
 			padding: "same",
@@ -105,7 +104,11 @@ class SpeechResModel {
 		});
 
 		// addition layer
-		this.layers['add'] = tf.layers.add();
+		for (var i  = 2; i < (this.config['n_layers'] + 1); i++) {
+			if (i % 2 == 0) {
+				this.layers['add'+i] = tf.layers.add({name: "add" + i});
+			}
+		}
 
 		// globalAveragePooling layer
 		this.layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
@@ -142,7 +145,7 @@ class SpeechResModel {
             //     x = y + old_x
             //     old_x = x
             if ((i > 0) && (i % 2 == 0)) {
-            	x = this.layers['add'].apply([y, old_x]);
+            	x = this.layers['add'+ i].apply([y, old_x]);
             	old_x = x;
 
         	// else:
@@ -236,22 +239,8 @@ class SpeechResModel {
 		}
 	}
 
-	predict(x, btn) {
-		if (!(x instanceof tf.Tensor)) {
-			x = tf.tensor(x);
-		}
-
-		let input_shape = this.config['input_shape'].slice();
-		input_shape.unshift(-1);
-
-	    let output = this.model.predict(x.reshape(input_shape));
-	    console.log('model prediction result : ', output.dataSync());
-
-	    let axis = 1;
-	    let predictions = output.argMax(axis).dataSync()[0];
-
-	    console.log('prediction : ', this.weights['commands'][predictions]);
-
-	    toggleCommand(this.weights['commands'][predictions], btn);
+	async save() {
+		const saveResult = await this.model.save('downloads://speech_res_model')
+		console.log('saving model has completed', saveResult);
 	}
 }

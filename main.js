@@ -52,20 +52,60 @@ let audio = new Audio();
 // let speechModel = new SpeechModel(modelConfig["CNN_TSTRIDE8"]);
 // speechModel.compile();
 
-let speechResModel = new SpeechResModel("RES8_NARROW");
-speechResModel.compile();
-speechResModel.load();
+let modelName = "RES8_NARROW";
+let model = new SpeechResModel(modelName);
+model.compile();
+model.load();
 
+async function loadModel(param) {
+	model = await tf.loadModel(param);
+}
+
+function predict(x, modelName, model, btn) {
+	if (!(x instanceof tf.Tensor)) {
+		x = tf.tensor(x);
+	}
+
+	let config = modelConfig[modelName];
+	let commands = weights[modelName]['commands'];
+
+	let input_shape = config['input_shape'].slice();
+	input_shape.unshift(-1);
+
+	let output = model.predict(x.reshape(input_shape));
+	console.log('model prediction result : ', output.dataSync());
+
+	let axis = 1;
+	let predictions = output.argMax(axis).dataSync()[0];
+
+	console.log('prediction : ', commands[predictions]);
+
+	toggleCommand(commands[predictions], btn);
+}
+
+// predictions
 $(document).on('click', '#recordBtn:enabled', function() {
 	audio.processMicData();
 	setTimeout(function(){
-		speechResModel.predict(audio.getData(), 'recordBtn')
+		predict(audio.getData(), modelName, model, 'recordBtn')
 	}, 2000);
 });
 
 $(document).on('click', '#playBtn:enabled', function() {
 	audio.processAudioData();
 	setTimeout(function(){
-		speechResModel.predict(audio.getData(), 'playBtn')
+		predict(audio.getData(), modelName, model, 'playBtn')
 	}, 1500);
+});
+
+// model loading/saving
+$(document).on('click', '#saveBtn:enabled', function() {
+	model.save();
+});
+
+$(document).on('click', '#loadBtn:enabled', function() {
+	const jsonUpload = $("#json-upload")[0];
+	const weightsUpload = $("#weights-upload")[0];
+	loadModel(tf.io.browserFiles([jsonUpload.files[0], weightsUpload.files[0]]))
+	console.log('loading model has completed', model);
 });
