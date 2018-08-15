@@ -243,4 +243,8 @@ class SpeechResModel {
 		const saveResult = await this.model.save('downloads://speech_res_model')
 		console.log('saving model has completed', saveResult);
 	}
+
+	predict(x) {
+		return this.model.predict(x);
+	}
 }
