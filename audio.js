@@ -39,6 +39,8 @@ class Audio {
 
     this.mfccDataLength = 4040;
 
+    this.noiseThreshold = 0.01;
+
     this.fallBackAudio =  $('#fallBackAudio');
 
     this.initSrcNode();
@@ -116,7 +118,13 @@ class Audio {
 
     this.downSampleNode.onaudioprocess = function(audioProcessingEvent) {
       var inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+
+      if (that.originalData.length == 0 && inputData.every(function(elem) {return elem < that.noiseThreshold})) {
+        return;
+      }
+
       var downSampledData = interpolateArray(inputData, that.downSampledBufferSize);
+
       that.originalData = that.originalData.concat(Array.from(inputData));
       that.downSampledData = that.downSampledData.concat(downSampledData);
     }
@@ -138,7 +146,7 @@ class Audio {
       disableRecordBtn();
 
       that.getMFCC();
-    }, 1500);
+    }, 2500);
   }
 
   processAudioData() {
@@ -158,8 +166,8 @@ class Audio {
   }
 
   getMFCC() {
-    // that.printData('original data', this.originalData);
-    // that.printData('downsampled data', this.downSampledData);
+    // this.printData('original data', this.originalData);
+    // this.printData('downsampled data', this.downSampledData);
 
     var offlineContext = new OfflineAudioContext(1, this.newSR + (this.meydaBufferSize * 5), this.newSR);
     // make length of the context long enough that mfcc always gets enough buffers to process

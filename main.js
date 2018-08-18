@@ -88,7 +88,7 @@ $(document).on('click', '#recordBtn:enabled', function() {
 	audio.processMicData();
 	setTimeout(function(){
 		predict(audio.getData(), modelName, model, 'recordBtn')
-	}, 2000);
+	}, 3000);
 });
 
 $(document).on('click', '#playBtn:enabled', function() {
