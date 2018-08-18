@@ -4,6 +4,7 @@ function init_view(commands) {
 		$('#commandList').append(
 			$('<li>').attr('class','list-group-item ' + command + '_button').append(command));
 	})
+	$('#commandList .unknown_button').addClass('list-group-item-dark');
 }
 
 function toggleCommand(command) {
@@ -83,14 +84,14 @@ $(document).on('click', '#recordBtn:enabled', function() {
 	var deferred = audio.processMicData();
 
 	deferred.done(function() {
-		predict(audio.getData(), modelName, model)
+		predict(audio.getData(), modelName, model);
+	}).fail(function() {
+		// silence
+		toggleCommand('unknown');
+	}).always(function() {
 		setTimeout(function(){
 			enableRecordBtn();
 		}, 1500);
-	}).fail(function() {
-		// silence
-		console.log('there was no input to process');
-		enableRecordBtn();
 	});
 });
 
@@ -98,7 +99,7 @@ $(document).on('click', '#playBtn:enabled', function() {
 	var deferred = audio.processAudioData();
 
 	deferred.done(function() {
-		predict(audio.getData(), modelName, model)
+		predict(audio.getData(), modelName, model);
 		setTimeout(function(){
 			enablePlayBtn();
 		}, 1500);
