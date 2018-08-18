@@ -151,13 +151,11 @@ class Audio {
     that.onlineContext.resume();
 
     this.onlineDeferred.done(function() {
-      disableRecordBtn();
       that.getMFCC();
     }).fail(function() {
-      disableRecordBtn();
-      enableRecordBtn();
       that.offlineDeferred.reject();
     }).always(function() {
+      disableRecordBtn();
       that.onlineContext.suspend();
       that.micSource.disconnect(that.downSampleNode);
     });

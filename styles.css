@@ -59,3 +59,8 @@ div#legend {
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+.list-group-item-dark.active {
+    background-color: #d9534f !important;
+    border-color: #d43f3a !important;
+}
