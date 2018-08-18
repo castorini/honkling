@@ -19,8 +19,6 @@ class Audio {
     this.onlineContext = new AudioContext();
     this.onlineContext.suspend();
 
-    this.initData();
-
     this.oldSR = this.onlineContext.sampleRate;
     this.newSR = 16000;
 
@@ -41,7 +39,7 @@ class Audio {
 
     this.micInputWaitThreshold = Math.floor(this.oldSR / this.srcBufferSize) * 5; // wait for 5 seconds
 
-    this.noiseThreshold = 0.01;
+    this.noiseThreshold = 0.02;
 
     this.fallBackAudio =  $('#fallBackAudio');
 
@@ -68,8 +66,8 @@ class Audio {
       that.micSource = that.onlineContext.createMediaStreamSource(micStream);
       console.log('Setting Meyda Source to Microphone');
       console.groupEnd();
-      enableRecordBtn();
       disablePlayBtn();
+      enableRecordBtn();
     };
 
     var errorCallback = function (err) {
@@ -151,11 +149,12 @@ class Audio {
     that.onlineContext.resume();
 
     this.onlineDeferred.done(function() {
+      disableRecordBtn();
       that.getMFCC();
     }).fail(function() {
+      disableRecordBtn();
       that.offlineDeferred.reject();
     }).always(function() {
-      disableRecordBtn();
       that.onlineContext.suspend();
       that.micSource.disconnect(that.downSampleNode);
     });

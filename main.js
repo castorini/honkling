@@ -7,40 +7,53 @@ function init_view(commands) {
 	$('#commandList .unknown_button').addClass('list-group-item-dark');
 }
 
+var toggleTime = 2000;
+
 function toggleCommand(command) {
+	if (command == 'unknown') {
+		$('#statusBar').text('Failed to identified keyword spoken. Please try again');
+	} else {
+		$('#statusBar').text('keyword spoken is ... ' + command.toUpperCase() + ' !!');
+	}
+	
 	$('#commandList .active').removeClass('active');
 	$('#commandList .'+command+'_button').addClass('active');
 	setTimeout(function(){
 		$('#commandList .'+command+'_button').removeClass('active');
-	}, 1500);
+	}, toggleTime);
 }
 
 function enableRecordBtn() {
 	$('#recordBtn').removeClass('btn-secondary');
 	$('#recordBtn').addClass('btn-primary');
 	$('#recordBtn').prop('disabled', false);
+	$('#statusBar').text('Press RECORD button and say a keyword listed below');
 }
 
 function disableRecordBtn() {
 	$('#recordBtn').removeClass('btn-danger');
 	$('#recordBtn').prop('disabled', true);
+	$('#statusBar').text('interpreting ...');
 }
 
 function enableRecordingBtn() {
 	$('#recordBtn').removeClass('btn-primary');
 	$('#recordBtn').addClass('btn-danger');
 	$('#recordBtn').prop('disabled', false);
+	$('#statusBar').text('Recording ... say a keyword listed below within 4 seconds');
 }
 
 function enablePlayBtn() {
 	$('#playBtn').removeClass('btn-secondary');
 	$('#playBtn').addClass('btn-primary');
 	$('#playBtn').prop('disabled', false);
+	$('#statusBar').text('Press PLAY button to trigger audio');
 }
 
 function disablePlayBtn() {
 	$('#playBtn').removeClass('btn-primary');
 	$('#playBtn').prop('disabled', true);
+	$('#statusBar').text('interpreting ...');
 }
 
 let audio = new Audio();
@@ -91,7 +104,7 @@ $(document).on('click', '#recordBtn:enabled', function() {
 	}).always(function() {
 		setTimeout(function(){
 			enableRecordBtn();
-		}, 1500);
+		}, toggleTime);
 	});
 });
 
@@ -102,7 +115,7 @@ $(document).on('click', '#playBtn:enabled', function() {
 		predict(audio.getData(), modelName, model);
 		setTimeout(function(){
 			enablePlayBtn();
-		}, 1500);
+		}, toggleTime);
 	})
 });
 
