@@ -6,16 +6,11 @@ function init_view(commands) {
 	})
 }
 
-function toggleCommand(command, btn) {
+function toggleCommand(command) {
 	$('#commandList .active').removeClass('active');
 	$('#commandList .'+command+'_button').addClass('active');
 	setTimeout(function(){
 		$('#commandList .'+command+'_button').removeClass('active');
-		if (btn == 'recordBtn') {
-			enableRecordBtn();
-		} else {
-			enablePlayBtn();
-		}
 	}, 1500);
 }
 
@@ -61,7 +56,7 @@ async function loadModel(param) {
 	model = await tf.loadModel(param);
 }
 
-function predict(x, modelName, model, btn) {
+function predict(x, modelName, model) {
 	if (!(x instanceof tf.Tensor)) {
 		x = tf.tensor(x);
 	}
@@ -80,22 +75,34 @@ function predict(x, modelName, model, btn) {
 
 	console.log('prediction : ', commands[predictions]);
 
-	toggleCommand(commands[predictions], btn);
+	toggleCommand(commands[predictions]);
 }
 
 // predictions
 $(document).on('click', '#recordBtn:enabled', function() {
-	audio.processMicData();
-	setTimeout(function(){
-		predict(audio.getData(), modelName, model, 'recordBtn')
-	}, 3000);
+	var deferred = audio.processMicData();
+
+	deferred.done(function() {
+		predict(audio.getData(), modelName, model)
+		setTimeout(function(){
+			enableRecordBtn();
+		}, 1500);
+	}).fail(function() {
+		// silence
+		console.log('there was no input to process');
+		enableRecordBtn();
+	});
 });
 
 $(document).on('click', '#playBtn:enabled', function() {
-	audio.processAudioData();
-	setTimeout(function(){
-		predict(audio.getData(), modelName, model, 'playBtn')
-	}, 1500);
+	var deferred = audio.processAudioData();
+
+	deferred.done(function() {
+		predict(audio.getData(), modelName, model)
+		setTimeout(function(){
+			enablePlayBtn();
+		}, 1500);
+	})
 });
 
 // model loading/saving
