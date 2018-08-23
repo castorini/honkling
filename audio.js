@@ -156,18 +156,20 @@ class Audio {
     that.micSource.connect(that.downSampleNode);
     that.onlineContext.resume();
 
-    this.onlineDeferred.done(function() {
+    function postRecordingProcess() {
       clearInterval(that.recordingTimeDisplayInterval);
       disableRecordBtn();
-      that.getMFCC();
-    }).fail(function() {
-      clearInterval(that.recordingTimeDisplayInterval);
-      disableRecordBtn();
-      that.offlineDeferred.reject();
-    }).always(function() {
       that.onlineContext.suspend();
       that.micSource.disconnect(that.downSampleNode);
-    });
+    }
+
+    this.onlineDeferred.done(function() {
+      postRecordingProcess();
+      that.getMFCC();
+    }).fail(function() {
+      postRecordingProcess();
+      that.offlineDeferred.reject();
+    })
 
     return this.offlineDeferred.promise();
   }
