@@ -2,7 +2,7 @@ function init_view(commands) {
 	// list of commands view
 	commands.forEach(function(command) {
 		$('#commandList').append(
-			$('<li>').attr('class','list-group-item ' + command + '_button').append(command));
+			$('<li>').attr('class','list-group-item ' + command + '_button text-center').append(command));
 	})
 	$('#commandList .unknown_button').addClass('list-group-item-dark');
 }
@@ -40,7 +40,10 @@ function enableRecordingBtn() {
 	$('#recordBtn').removeClass('btn-primary');
 	$('#recordBtn').addClass('btn-danger');
 	$('#recordBtn').prop('disabled', false);
-	$('#statusBar').text('Recording ... say a keyword listed below within 4 seconds');
+}
+
+function displayRecordingMsg(remaining) {
+	$('#statusBar').text('Recording ... say a keyword listed below within ' + remaining + ' seconds');
 }
 
 function enablePlayBtn() {

@@ -10,7 +10,7 @@ audio {
   width:100%;
 }
 
-.col-centered{
+.col-centered {
   float: none;
   margin: 0 auto;
 }
@@ -27,4 +27,8 @@ audio {
 
 #logo {
   width:90%;
+}
+
+#commandList {
+  margin-bottom: 15px;
 }
