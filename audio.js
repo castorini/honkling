@@ -41,6 +41,8 @@ class Audio {
 
     this.noiseThreshold = 0.015;
 
+    this.remainingRecordTime = 0;
+
     this.fallBackAudio =  $('#fallBackAudio');
 
     this.initSrcNode();
@@ -54,7 +56,6 @@ class Audio {
     this.mfcc = [];
     this.onlineDeferred = $.Deferred();
     this.offlineDeferred = $.Deferred();
-    this.inputCounter = 0;
     this.remainingRecordTime = 5;
   }
 
@@ -121,36 +122,47 @@ class Audio {
     this.downSampledBufferSize = (that.newSR / that.oldSR) * this.srcBufferSize;
 
     this.downSampleNode.onaudioprocess = function(audioProcessingEvent) {
-      that.inputCounter++;
       var inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
 
-      if (that.inputCounter > that.micInputWaitThreshold) {
-        that.onlineDeferred.reject();
-      } else if (that.originalData.length == 0 && inputData.every(function(elem) {return elem < that.noiseThreshold})) {
+      if (that.originalData.length == 0) {
+        if (that.remainingRecordTime == 0) {
+          that.onlineDeferred.reject();
+        } else if (inputData.every(function(elem) {return elem < that.noiseThreshold})) {
+          return;
+        }
+      }
+
+      if (that.remainingRecordTime == 0) {
+        that.onlineDeferred.resolve();
         return;
       }
 
-      var downSampledData = interpolateArray(inputData, that.downSampledBufferSize);
-
-      that.originalData = that.originalData.concat(Array.from(inputData));
-      that.downSampledData = that.downSampledData.concat(downSampledData);
-
-      if (that.originalData.length > that.oldSR * 1.2) {
+      if (that.originalData.length < that.oldSR * 1.2) {
         // 1.2 multiplied to make sure data we process is longer than 1s
+        that.originalData = that.originalData.concat(Array.from(inputData));
+        var downSampledData = interpolateArray(inputData, that.downSampledBufferSize);
+        that.downSampledData = that.downSampledData.concat(downSampledData);
+      } else {
         that.onlineDeferred.resolve();
       }
     }
+  }
+
+  postRecordingProcess() {
+    disableRecordBtn();
+    that.onlineContext.suspend();
+    that.micSource.disconnect(that.downSampleNode);
   }
 
   processMicData() {
     this.initData();
     enableRecordingBtn()
 
-    displayRecordingMsg(that.remainingRecordTime);
+    displayRemainingRecordTime(that.remainingRecordTime);
     this.recordingTimeDisplayInterval = setInterval(
       function() {
         that.remainingRecordTime--;
-        displayRecordingMsg(that.remainingRecordTime);
+        displayRemainingRecordTime(that.remainingRecordTime);
       }, 1000);
 
     that.micSource.connect(that.downSampleNode);
@@ -164,10 +176,40 @@ class Audio {
     }
 
     this.onlineDeferred.done(function() {
-      postRecordingProcess();
+      clearInterval(that.recordingTimeDisplayInterval);
+      that.postRecordingProcess();
+      console.log(that.originalData.length, that.originalData[0]);
       that.getMFCC();
     }).fail(function() {
-      postRecordingProcess();
+      clearInterval(that.recordingTimeDisplayInterval);
+      that.postRecordingProcess();
+      that.offlineDeferred.reject();
+    })
+
+    return this.offlineDeferred.promise();
+  }
+
+  startRecording() {
+    if (this.remainingRecordTime > 0) {
+      return;
+    }
+
+    this.initData();
+    enableRecordingBtn()
+    displayRecordingMsg();
+
+    that.micSource.connect(that.downSampleNode);
+    that.onlineContext.resume();
+  }
+
+  stopRecording() {
+    this.remainingRecordTime = 0;
+
+    this.onlineDeferred.done(function() {
+      that.postRecordingProcess();
+      that.getMFCC();
+    }).fail(function() {
+      that.postRecordingProcess();
       that.offlineDeferred.reject();
     })
 
