@@ -39,7 +39,7 @@ class Audio {
 
     this.micInputWaitThreshold = Math.floor(this.oldSR / this.srcBufferSize) * 5; // wait for 5 seconds
 
-    this.noiseThreshold = 0.02;
+    this.noiseThreshold = 0.015;
 
     this.fallBackAudio =  $('#fallBackAudio');
 
@@ -55,6 +55,7 @@ class Audio {
     this.onlineDeferred = $.Deferred();
     this.offlineDeferred = $.Deferred();
     this.inputCounter = 0;
+    this.remainingRecordTime = 5;
   }
 
   initSrcNode() {
@@ -145,13 +146,22 @@ class Audio {
     this.initData();
     enableRecordingBtn()
 
+    displayRecordingMsg(that.remainingRecordTime);
+    this.recordingTimeDisplayInterval = setInterval(
+      function() {
+        that.remainingRecordTime--;
+        displayRecordingMsg(that.remainingRecordTime);
+      }, 1000);
+
     that.micSource.connect(that.downSampleNode);
     that.onlineContext.resume();
 
     this.onlineDeferred.done(function() {
+      clearInterval(that.recordingTimeDisplayInterval);
       disableRecordBtn();
       that.getMFCC();
     }).fail(function() {
+      clearInterval(that.recordingTimeDisplayInterval);
       disableRecordBtn();
       that.offlineDeferred.reject();
     }).always(function() {
