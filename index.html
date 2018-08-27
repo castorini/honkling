@@ -13,27 +13,32 @@
   </head>
   <body>
     <div class="container">
-      <div class="row">
-        <div class="col">
-          <h1 class="display-1">Honkling</h1>
-          <p class="lead">Keyword spotting with JavaScript.</p>
-          <hr>
+      <div class="row justify-content-center">
+        <div class="col-2">
+          <img id="logo" src="logo/Logomark black.png"/>
+        </div>
+        <div class="col-4">
+          <h1 class="display-1 text-center">Honkling</h1>
+          <p class="lead text-center">Keyword spotting with JavaScript.</p>
         </div>
       </div>
+      <hr>
       <div class="row">
-        <div id="showcase" class="col">
-          <div id="audioControl">
-            <p>Allow microphone access or play this audio file to see a demo.</p>
-            <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/go/0ab3b47d_nohash_0.wav"></audio> -->
-            <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/stop/0b40aa8e_nohash_0.wav"></audio> -->
-            <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/no/0cd323ec_nohash_1.wav"></audio> -->
-            <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/yes/0ff728b5_nohash_2.wav"></audio>
-          </div>
+        <div class="col">
+          <p id="statusBar"class="text-center">Allow microphone access to record a keyword</p>
+        </div>
+      </div>
+      <div id="audioControl" class="row">
+        <div class="col">
+          <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/go/0ab3b47d_nohash_0.wav"></audio> -->
+          <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/stop/0b40aa8e_nohash_0.wav"></audio> -->
+          <!-- <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/no/0cd323ec_nohash_1.wav"></audio> -->
+          <audio id="fallBackAudio" crossOrigin = "anonymous" controls src="./data/yes/0ff728b5_nohash_2.wav"></audio>
         </div>
         <hr>
       </div>
       <div class="row">
-        <div id="showcase" class="col">
+        <div class="col">
           <ul id="commandList" class="list-group">
           </ul>
         </div>

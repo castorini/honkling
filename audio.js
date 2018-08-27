@@ -19,8 +19,6 @@ class Audio {
     this.onlineContext = new AudioContext();
     this.onlineContext.suspend();
 
-    this.initData();
-
     this.oldSR = this.onlineContext.sampleRate;
     this.newSR = 16000;
 
@@ -39,6 +37,12 @@ class Audio {
 
     this.mfccDataLength = 4040;
 
+    this.micInputWaitThreshold = Math.floor(this.oldSR / this.srcBufferSize) * 5; // wait for 5 seconds
+
+    this.noiseThreshold = 0.015;
+
+    this.remainingRecordTime = 0;
+
     this.fallBackAudio =  $('#fallBackAudio');
 
     this.initSrcNode();
@@ -50,6 +54,9 @@ class Audio {
     this.originalData = [];
     this.downSampledData = [];
     this.mfcc = [];
+    this.onlineDeferred = $.Deferred();
+    this.offlineDeferred = $.Deferred();
+    this.remainingRecordTime = 5;
   }
 
   initSrcNode() {
@@ -61,8 +68,8 @@ class Audio {
       that.micSource = that.onlineContext.createMediaStreamSource(micStream);
       console.log('Setting Meyda Source to Microphone');
       console.groupEnd();
-      enableRecordBtn();
       disablePlayBtn();
+      enableRecordBtn();
     };
 
     var errorCallback = function (err) {
@@ -116,33 +123,102 @@ class Audio {
 
     this.downSampleNode.onaudioprocess = function(audioProcessingEvent) {
       var inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
-      var downSampledData = interpolateArray(inputData, that.downSampledBufferSize);
-      that.originalData = that.originalData.concat(Array.from(inputData));
-      that.downSampledData = that.downSampledData.concat(downSampledData);
+
+      if (that.originalData.length == 0) {
+        if (that.remainingRecordTime == 0) {
+          that.onlineDeferred.reject();
+        } else if (inputData.every(function(elem) {return elem < that.noiseThreshold})) {
+          return;
+        }
+      }
+
+      if (that.remainingRecordTime == 0) {
+        that.onlineDeferred.resolve();
+        return;
+      }
+
+      if (that.originalData.length < that.oldSR * 1.2) {
+        // 1.2 multiplied to make sure data we process is longer than 1s
+        that.originalData = that.originalData.concat(Array.from(inputData));
+        var downSampledData = interpolateArray(inputData, that.downSampledBufferSize);
+        that.downSampledData = that.downSampledData.concat(downSampledData);
+      } else {
+        that.onlineDeferred.resolve();
+      }
     }
+  }
+
+  postRecordingProcess() {
+    disableRecordBtn();
+    that.onlineContext.suspend();
+    that.micSource.disconnect(that.downSampleNode);
   }
 
   processMicData() {
     this.initData();
     enableRecordingBtn()
 
-    setTimeout(function() {
-      // allowing user to notice they can record
-      that.micSource.connect(that.downSampleNode);
-      that.onlineContext.resume();
-    }, 500);
+    displayRemainingRecordTime(that.remainingRecordTime);
+    this.recordingTimeDisplayInterval = setInterval(
+      function() {
+        that.remainingRecordTime--;
+        displayRemainingRecordTime(that.remainingRecordTime);
+      }, 1000);
 
-    setTimeout(function() {
+    that.micSource.connect(that.downSampleNode);
+    that.onlineContext.resume();
+
+    function postRecordingProcess() {
+      clearInterval(that.recordingTimeDisplayInterval);
+      disableRecordBtn();
       that.onlineContext.suspend();
       that.micSource.disconnect(that.downSampleNode);
-      disableRecordBtn();
+    }
 
+    this.onlineDeferred.done(function() {
+      clearInterval(that.recordingTimeDisplayInterval);
+      that.postRecordingProcess();
+      console.log(that.originalData.length, that.originalData[0]);
       that.getMFCC();
-    }, 1500);
+    }).fail(function() {
+      clearInterval(that.recordingTimeDisplayInterval);
+      that.postRecordingProcess();
+      that.offlineDeferred.reject();
+    })
+
+    return this.offlineDeferred.promise();
+  }
+
+  startRecording() {
+    if (this.remainingRecordTime > 0) {
+      return;
+    }
+
+    this.initData();
+    enableRecordingBtn()
+    displayRecordingMsg();
+
+    that.micSource.connect(that.downSampleNode);
+    that.onlineContext.resume();
+  }
+
+  stopRecording() {
+    this.remainingRecordTime = 0;
+
+    this.onlineDeferred.done(function() {
+      that.postRecordingProcess();
+      that.getMFCC();
+    }).fail(function() {
+      that.postRecordingProcess();
+      that.offlineDeferred.reject();
+    })
+
+    return this.offlineDeferred.promise();
   }
 
   processAudioData() {
     this.initData();
+
     this.fallBackAudio[0].onpause = function() {
       that.onlineContext.suspend();
       that.audioSource.disconnect(that.downSampleNode);
@@ -155,11 +231,13 @@ class Audio {
 
     disablePlayBtn()
     this.fallBackAudio[0].play();
+
+    return this.offlineDeferred.promise();
   }
 
   getMFCC() {
-    // that.printData('original data', this.originalData);
-    // that.printData('downsampled data', this.downSampledData);
+    // this.printData('original data', this.originalData);
+    // this.printData('downsampled data', this.downSampledData);
 
     var offlineContext = new OfflineAudioContext(1, this.newSR + (this.meydaBufferSize * 5), this.newSR);
     // make length of the context long enough that mfcc always gets enough buffers to process
@@ -207,9 +285,11 @@ class Audio {
       that.downSampledSource.disconnect();
       that.mfcc = that.mfcc.slice(0, that.mfccDataLength);
       that.printData('mfcc', that.mfcc);
+      that.offlineDeferred.resolve();
     }).catch(function(err) {
       console.log('Offline processing failed: ' + err);
       // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
+      that.offlineDeferred.reject();
     });
   }
 
