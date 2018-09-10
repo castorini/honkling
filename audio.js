@@ -76,7 +76,7 @@ class Audio {
       console.group();
       console.log('Initializing microphone has failed. Falling back to default audio file', err);
       that.audioSource = that.onlineContext.createMediaElementSource(that.fallBackAudio[0]);
-      that.audioSource.connect(that.onlineContext.destination); // connect to speaker
+      that.audioSource.connect(that.onlineContext.destination); // destination triggers polling
       console.groupEnd();
       disableRecordBtn();
       enablePlayBtn();
@@ -146,6 +146,8 @@ class Audio {
         that.onlineDeferred.resolve();
       }
     }
+
+    this.downSampleNode.connect(this.onlineContext.destination); // destination triggers polling
   }
 
   postRecordingProcess() {
@@ -156,7 +158,7 @@ class Audio {
 
   processMicData() {
     this.initData();
-    enableRecordingBtn()
+    enableRecordingBtn();
 
     displayRemainingRecordTime(that.remainingRecordTime);
     this.recordingTimeDisplayInterval = setInterval(
