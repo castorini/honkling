@@ -55,7 +55,7 @@ const modelConfig = {
 		conv1_pool : [1, 3],
 		conv1_stride : [4, 1],
 		conv2_stride : [1, 1],
-		conv2_pool : [1, 1], 
+		conv2_pool : [1, 1],
 		dnn1_size : 128,
 		dnn2_size : 128
 	},
@@ -81,14 +81,14 @@ const modelConfig = {
 		height : 101,
 		width : 40,
 		n_feature_maps1 : 94,
-		n_feature_maps2 : 94, 
+		n_feature_maps2 : 94,
 		conv1_size : [21, 8],
 		conv2_size : [6, 4],
 		conv1_pool : [2, 3],
 		conv1_stride : [1, 1],
 		conv2_stride : [1, 1],
 		conv2_pool : [1, 1],
-		dnn1_size : 128, 
+		dnn1_size : 128,
 		dnn2_size : 128
 	},
 	CNN_TPOOL3 : {
@@ -172,7 +172,7 @@ const modelConfig = {
 		conv_size : [3, 3],
 		conv_stride : [1, 1],
 		use_dilation : false
-	}, 
+	},
 	RES15_NARROW : {
 		input_shape : [101, 40, 1],
 		use_dilation : true,
@@ -180,7 +180,7 @@ const modelConfig = {
 		n_feature_maps : 19,
 		conv_size : [3, 3],
 		conv_stride : [1, 1]
-	}, 
+	},
 	RES8_NARROW : {
 		input_shape : [101, 40, 1],
 		n_layers : 6,
@@ -199,21 +199,4 @@ const modelConfig = {
 		conv_size : [3, 3],
 		conv_stride : [1, 1]
 	}
-}
-
-const audioConfig = {
-	group_speakers_by_id : true,
-	silence_prob : 0.1,
-	noise_prob : 0.8,
-	n_dct_filters : 40,
-	input_length : 16000,
-	n_mels : 40,
-	timeshift_ms : 100,
-	unknown_prob : 0.1,
-	train_pct : 80,
-	dev_pct : 10,
-	test_pct : 10,
-	wanted_words : ["command", "random"],
-	data_folder : "data",
-	mic : true
 }
