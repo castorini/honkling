@@ -21,7 +21,7 @@
         </div>
         <div class="col-4">
           <h1 class="display-1 text-center">Honkling</h1>
-          <p class="lead text-center">Keyword spotting with JavaScript.</p>
+          <p class="lead text-center"><small>Keyword spotting with JavaScript</small></p>
         </div>
       </div>
       <ul class="nav">
@@ -57,7 +57,7 @@
         <button id="playBtn" type="button" class="btn col-centered" disabled>PLAY AUDIO</button>
       </div>
       <br>
-      <hr>
+      <!-- <hr>
       <div class="row">
         <span class="col-md-3 offset-md-3"> MODEL ARCHITECTURE : </span><input id="json-upload" class="col-md-3" type="file" />
       </div>
@@ -67,14 +67,16 @@
       <div class="row">
         <button id="loadBtn" type="button" class="btn btn-primary col-centered" enabled>LOAD MODEL</button>
         <button id="saveBtn" type="button" class="btn btn-primary col-centered" enabled>SAVE MODEL</button>
-      </div>
+      </div> -->
     </div>
+    <script src="controller.js"></script>
     <script src="config.js"></script>
     <script src="weights/RES8_NARROW/weights.js"></script>
     <script src="SpeechModel.js"></script>
     <script src="SpeechResModel.js"></script>
-    <script src="audio.js"></script>
+    <script src="onlineAudioProcessor.js"></script>
+    <script src="offlineAudioProcessor.js"></script>
+    <script src="util.js"></script>
     <script src="main.js"></script>
-    <script src="sampleTrainingData.js"></script>
   </body>
 </html>
