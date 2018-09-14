@@ -152,73 +152,73 @@ class OnlineAudioProcessor {
         displayRemainingRecordTime(onlineProc.remainingRecordTime);
       }, 1000);
 
-      onlineProc.micSource.connect(onlineProc.downSampleNode);
-      onlineProc.audioContext.resume();
+    onlineProc.micSource.connect(onlineProc.downSampleNode);
+    onlineProc.audioContext.resume();
 
-      function postRecordingProcess() {
-        clearInterval(onlineProc.recordingTimeDisplayInterval);
-        disableRecordBtn();
-        onlineProc.audioContext.suspend();
-        onlineProc.micSource.disconnect(onlineProc.downSampleNode);
-      }
-
-      this.audioDeferred.done(function() {
-        clearInterval(onlineProc.recordingTimeDisplayInterval);
-        onlineProc.postRecordingProcess();
-        onlineProc.dataDeferred.resolve(onlineProc.downSampledData);
-      }).fail(function() {
-        clearInterval(onlineProc.recordingTimeDisplayInterval);
-        onlineProc.postRecordingProcess();
-        onlineProc.dataDeferred.reject();
-      })
-
-      return this.dataDeferred.promise();
+    function postRecordingProcess() {
+      clearInterval(onlineProc.recordingTimeDisplayInterval);
+      disableRecordBtn();
+      onlineProc.audioContext.suspend();
+      onlineProc.micSource.disconnect(onlineProc.downSampleNode);
     }
 
-    startRecording() {
-      if (this.remainingRecordTime > 0) {
-        return;
-      }
+    this.audioDeferred.done(function() {
+      clearInterval(onlineProc.recordingTimeDisplayInterval);
+      onlineProc.postRecordingProcess();
+      onlineProc.dataDeferred.resolve(onlineProc.downSampledData);
+    }).fail(function() {
+      clearInterval(onlineProc.recordingTimeDisplayInterval);
+      onlineProc.postRecordingProcess();
+      onlineProc.dataDeferred.reject();
+    })
 
-      this.initData();
-      enableRecordingBtn()
-      displayRecordingMsg();
-
-      onlineProc.micSource.connect(onlineProc.downSampleNode);
-      onlineProc.audioContext.resume();
-    }
-
-    stopRecording() {
-      this.remainingRecordTime = 0;
-
-      this.audioDeferred.done(function() {
-        onlineProc.postRecordingProcess();
-        onlineProc.dataDeferred.resolve(onlineProc.downSampledData);
-      }).fail(function() {
-        onlineProc.postRecordingProcess();
-        onlineProc.dataDeferred.reject();
-      })
-
-      return this.dataDeferred.promise();
-    }
-
-    // fallback audio process
-
-    processAudioData() {
-      this.initData();
-
-      this.fallBackAudio[0].onpause = function() {
-        onlineProc.audioContext.suspend();
-        onlineProc.audioSource.disconnect(onlineProc.downSampleNode);
-        onlineProc.dataDeferred.resolve(onlineProc.downSampledData);
-      }
-
-      this.audioSource.connect(this.downSampleNode);
-      this.audioContext.resume();
-
-      disablePlayBtn()
-      this.fallBackAudio[0].play();
-
-      return this.dataDeferred.promise();
-    }
+    return this.dataDeferred.promise();
   }
+
+  startRecording() {
+    if (this.remainingRecordTime > 0) {
+      return;
+    }
+
+    this.initData();
+    enableRecordingBtn()
+    displayRecordingMsg();
+
+    onlineProc.micSource.connect(onlineProc.downSampleNode);
+    onlineProc.audioContext.resume();
+  }
+
+  stopRecording() {
+    this.remainingRecordTime = 0;
+
+    this.audioDeferred.done(function() {
+      onlineProc.postRecordingProcess();
+      onlineProc.dataDeferred.resolve(onlineProc.downSampledData);
+    }).fail(function() {
+      onlineProc.postRecordingProcess();
+      onlineProc.dataDeferred.reject();
+    })
+
+    return this.dataDeferred.promise();
+  }
+
+  // fallback audio process
+
+  processAudioData() {
+    this.initData();
+
+    this.fallBackAudio[0].onpause = function() {
+      onlineProc.audioContext.suspend();
+      onlineProc.audioSource.disconnect(onlineProc.downSampleNode);
+      onlineProc.dataDeferred.resolve(onlineProc.downSampledData);
+    }
+
+    this.audioSource.connect(this.downSampleNode);
+    this.audioContext.resume();
+
+    disablePlayBtn()
+    this.fallBackAudio[0].play();
+
+    return this.dataDeferred.promise();
+  }
+}

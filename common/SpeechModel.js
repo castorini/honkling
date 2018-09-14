@@ -5,8 +5,8 @@ class SpeechModel {
 
 		// layer definition
 
-        // self.conv1 = nn.Conv2d(1, n_featmaps1, conv1_size, stride=conv1_stride)
-        // => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
+		// self.conv1 = nn.Conv2d(1, n_featmaps1, conv1_size, stride=conv1_stride)
+		// => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
 
 		this.conv1 = tf.layers.conv2d({
 			filters: this.config['n_feature_maps1'],
@@ -25,9 +25,9 @@ class SpeechModel {
 		//         t.zero_()
 		//         tensor[torch.abs(tensor) > 2 * std_dev] = torch.normal(t, std=std_dev)
 
-        // if tf_variant:
-        //     truncated_normal(self.conv1.weight.data)
-        //     self.conv1.bias.data.zero_()
+		// if tf_variant:
+		//     truncated_normal(self.conv1.weight.data)
+		//     self.conv1.bias.data.zero_()
 
 		if (this.config['tf_variant']) {
 			this.conv1.kernelInitializer = tf.initializers.truncatedNormal({
@@ -59,9 +59,9 @@ class SpeechModel {
 				biasInitializer: tf.initializers.zeros(),
 			})
 
-            // if tf_variant:
-            //     truncated_normal(self.conv2.weight.data)
-            //     self.conv2.bias.data.zero_()
+			// if tf_variant:
+			//     truncated_normal(self.conv2.weight.data)
+			//     self.conv2.bias.data.zero_()
 
 			if (this.config['tf_variant']) {
 				this.conv1.kernelInitializer = tf.initializers.truncatedNormal({
@@ -71,16 +71,16 @@ class SpeechModel {
 				// TODO :: Making sure abs(initial weights) < 2 * std_dev
 			}
 
-            // self.pool2 = nn.MaxPool2d(conv2_pool)
+			// self.pool2 = nn.MaxPool2d(conv2_pool)
 
-            this.pool2 = tf.layers.maxPooling2d({
+			this.pool2 = tf.layers.maxPooling2d({
 				poolSize: this.config['conv2_pool'],
 				padding: 'same',
 			})
 		}
 
 		// if not tf_variant:
-		// 	self.lin = nn.Linear(conv_net_size, 32) 
+		// 	self.lin = nn.Linear(conv_net_size, 32)
 
 		if (!this.config['tf_variant']) {
 			this.lin = tf.layers.dense({
@@ -94,13 +94,13 @@ class SpeechModel {
 		if (this.config['dnn1_size']) {
 
 			// dnn1_size = config["dnn1_size"]
-            // last_size = dnn1_size
-            // if tf_variant:
-            //     self.dnn1 = nn.Linear(conv_net_size, dnn1_size)
-            //     truncated_normal(self.dnn1.weight.data)
-            //     self.dnn1.bias.data.zero_()
+			// last_size = dnn1_size
+			// if tf_variant:
+			//     self.dnn1 = nn.Linear(conv_net_size, dnn1_size)
+			//     truncated_normal(self.dnn1.weight.data)
+			//     self.dnn1.bias.data.zero_()
 			// else:
-            //     self.dnn1 = nn.Linear(32, dnn1_size)
+			//     self.dnn1 = nn.Linear(32, dnn1_size)
 
 			this.dnn1 = tf.layers.dense({
 				units: this.config["dnn1_size"],
@@ -117,13 +117,13 @@ class SpeechModel {
 			}
 
 			// if "dnn2_size" in config:
-            //     dnn2_size = config["dnn2_size"]
-            //     last_size = dnn2_size
-            //     self.dnn2 = nn.Linear(dnn1_size, dnn2_size)
-            //     if tf_variant:
-            //         truncated_normal(self.dnn2.weight.data)
-            //         self.dnn2.bias.data.zero_()
-   			if (this.config['dnn2_size']) {
+			//     dnn2_size = config["dnn2_size"]
+			//     last_size = dnn2_size
+			//     self.dnn2 = nn.Linear(dnn1_size, dnn2_size)
+			//     if tf_variant:
+			//         truncated_normal(self.dnn2.weight.data)
+			//         self.dnn2.bias.data.zero_()
+			if (this.config['dnn2_size']) {
 				this.dnn2 = tf.layers.dense({
 					units: this.config["dnn2_size"],
 					activation: 'linear',
@@ -177,9 +177,9 @@ class SpeechModel {
 		this.model.add(this.pool1);
 
 		// if hasattr(self, "conv2"):
-        //     x = F.relu(self.conv2(x)) # shape: (batch, o1, i2, o2)
-        //     x = self.dropout(x)
-        //     x = self.pool2(x)
+		//     x = F.relu(self.conv2(x)) # shape: (batch, o1, i2, o2)
+		//     x = self.dropout(x)
+		//     x = self.pool2(x)
 
 		if (this.conv2d) {
 			this.model.add(this.conv2);
@@ -191,40 +191,40 @@ class SpeechModel {
 		// x = x.view(x.size(0), -1) # shape: (batch, o3)
 		this.model.add(this.flatten);
 
-        // if hasattr(self, "lin"):
-        //     x = self.lin(x)
-		
+		// if hasattr(self, "lin"):
+		//     x = self.lin(x)
+
 		if (this.lin) {
 			this.model.add(this.lin);
 		}
 
-        // if hasattr(self, "dnn1"):
-        //     x = self.dnn1(x)
-        //     if not self.tf_variant:
-        //         x = F.relu(x)
-        //     x = self.dropout(x)  
+		// if hasattr(self, "dnn1"):
+		//     x = self.dnn1(x)
+		//     if not self.tf_variant:
+		//         x = F.relu(x)
+		//     x = self.dropout(x)
 
-        if (this.dnn1) {
-        	this.model.add(this.dnn1);
-        	if (!this.config['tf_variant']) {
+		if (this.dnn1) {
+			this.model.add(this.dnn1);
+			if (!this.config['tf_variant']) {
 				this.model.add(this.relu);
-        	}
-        	this.model.add(this.dropout);
-        }
+			}
+			this.model.add(this.dropout);
+		}
 
-        // if hasattr(self, "dnn2"):
-        //     x = self.dnn2(x)
-        //     x = self.dropout(x)
+		// if hasattr(self, "dnn2"):
+		//     x = self.dnn2(x)
+		//     x = self.dropout(x)
 
-        if (this.dnn2) {
-        	this.model.add(this.dnn2);
-        	this.model.add(this.dropout);
-        }
+		if (this.dnn2) {
+			this.model.add(this.dnn2);
+			this.model.add(this.dropout);
+		}
 
 		// simply for verification of the model construction
 		this.model.add(this.output);
 		this.model.add(this.dropout);
-		
+
 		this.model.summary();
 		const optimizer = tf.train.momentum({
 			learningRate: 0.1,
@@ -232,9 +232,9 @@ class SpeechModel {
 			useNesterov: true
 		});
 		this.model.compile({
-		  optimizer: optimizer,
-		  loss: 'categoricalCrossentropy',
-		  metrics: ['accuracy'],
+			optimizer: optimizer,
+			loss: 'categoricalCrossentropy',
+			metrics: ['accuracy'],
 		});
 	}
 
@@ -248,28 +248,28 @@ class SpeechModel {
 			let raw_batch_y = [];
 			for (var i = 0; i < batch_size; i++) {
 				let item = Array.from(Array(n_labels), () => 0);
-                item[0] = 1;
+				item[0] = 1;
 				raw_batch_y.push(item);
 			}
 			let batch_y = tf.tensor(raw_batch_y);
 			await this.model.fit(batch_x, batch_y, {batchSize: batch_size});
 			console.log(j + 'th Model weights :',
-				this.model.trainableWeights); // access to weight of each layer
-				// to see actual numbers, you must dataSync()
-				// this.model.trainableWeights[0].read().dataSync()
+			this.model.trainableWeights); // access to weight of each layer
+			// to see actual numbers, you must dataSync()
+			// this.model.trainableWeights[0].read().dataSync()
 		}
 	}
-	
+
 	predict(x) {
 		if (!(x instanceof tf.Tensor)) {
 			x = tf.tensor(x);
 		}
 		let input_shape = this.config['input_shape'].slice();
 		input_shape.unshift(-1);
-	    let output = this.model.predict(x.reshape(input_shape));
+		let output = this.model.predict(x.reshape(input_shape));
 
-	    let axis = 1;
-	    let predictions = output.argMax(axis).dataSync();
-	    console.log('prediction result : ', predictions);
+		let axis = 1;
+		let predictions = output.argMax(axis).dataSync();
+		console.log('prediction result : ', predictions);
 	}
 }

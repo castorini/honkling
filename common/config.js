@@ -1,3 +1,11 @@
+const audioConfig = {
+	'offlineSampleRate' : 16000,
+	'offlineHopSize' : 10, // in ms
+	'offlineWindowSize' : 30, // in ms
+	'micInputWaitTime' : 5, // in s
+	'noiseThreshold' : 0.015
+}
+
 const modelConfig = {
 	CNN_TRAD_POOL2 : {
 		input_shape : [101, 40, 1],

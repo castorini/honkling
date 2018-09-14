@@ -5,15 +5,13 @@ class SpeechResModel {
 		this.config = modelConfig[modelName];
 		this.weights = weights[this.modelName];
 
-		init_view(this.weights['commands']);
-
 		this.config['n_labels'] = this.weights['commands'].length;
 
 		this.layers = {}
 		// layer definition
 
-        // self.conv0 = nn.Conv2d(1, n_maps, (3, 3), padding=(1, 1), bias=False)
-        // => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
+		// self.conv0 = nn.Conv2d(1, n_maps, (3, 3), padding=(1, 1), bias=False)
+		// => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
 
 		this.layers['conv0'] = tf.layers.conv2d({
 			filters: this.config['n_feature_maps'],
@@ -28,7 +26,7 @@ class SpeechResModel {
 		})
 
 		// if "res_pool" in config:
-  		// self.pool = nn.AvgPool2d(config["res_pool"])
+		// self.pool = nn.AvgPool2d(config["res_pool"])
 
 		if (this.config['res_pool']) {
 			this.layers['pool'] = tf.layers.averagePooling2d({
@@ -38,10 +36,10 @@ class SpeechResModel {
 		}
 
 		// dilation = config["use_dilation"]
-        // if dilation:
+		// if dilation:
 		if (this.config['use_dilation']) {
-			// 	self.convs = [nn.Conv2d(n_maps, n_maps, (3, 3), padding=int(2**(i // 3)), dilation=int(2**(i // 3)), 
-            //     bias=False) for i in range(n_layers)]
+			// 	self.convs = [nn.Conv2d(n_maps, n_maps, (3, 3), padding=int(2**(i // 3)), dilation=int(2**(i // 3)),
+			//     bias=False) for i in range(n_layers)]
 			// => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
 			//     self.add_module("conv{}".format(i + 1), conv)
 			for (var i  = 0; i < (this.config['n_layers']); i++) {
@@ -60,8 +58,8 @@ class SpeechResModel {
 			}
 		} else {
 			// else:
-            // self.convs = [nn.Conv2d(n_maps, n_maps, (3, 3), padding=1, dilation=1, 
-            //     bias=False) for _ in range(n_layers)]
+			// self.convs = [nn.Conv2d(n_maps, n_maps, (3, 3), padding=1, dilation=1,
+			//     bias=False) for _ in range(n_layers)]
 			// => torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
 			//     self.add_module("conv{}".format(i + 1), conv)
 			for (var i  = 0; i < (this.config['n_layers']); i++) {
@@ -81,12 +79,12 @@ class SpeechResModel {
 		}
 
 		// for i, conv in enumerate(self.convs):
-        //     self.add_module("bn{}".format(i + 1), nn.BatchNorm2d(n_maps, affine=False))
-        // 
-        // Affine = False is equal to gamma = 1 and beta = 0 (https://discuss.pytorch.org/t/affine-parameter-in-batchnorm/6005)
-        // Axis must be index of channel dimnsion. Given data_format is channel_last, default (-1) is good 
-        for (var i  = 0; i < (this.config['n_layers'] + 1); i++) {
-        	this.layers['bn'+ i] = tf.layers.batchNormalization({
+		//     self.add_module("bn{}".format(i + 1), nn.BatchNorm2d(n_maps, affine=False))
+		//
+		// Affine = False is equal to gamma = 1 and beta = 0 (https://discuss.pytorch.org/t/affine-parameter-in-batchnorm/6005)
+		// Axis must be index of channel dimnsion. Given data_format is channel_last, default (-1) is good
+		for (var i  = 0; i < (this.config['n_layers'] + 1); i++) {
+			this.layers['bn'+ i] = tf.layers.batchNormalization({
 				epsilon: 0.00001,
 				momentum: 0.1,
 				gammaInitializer: tf.initializers.ones(),
@@ -131,39 +129,39 @@ class SpeechResModel {
 			// y = F.relu(getattr(self, "conv{}".format(i))(x))
 			y = this.layers['conv'+ i].apply(x);
 			// if i == 0:
-            //     if hasattr(self, "pool"):
-            //         y = self.pool(y)
-            //     old_x = y
-            if (i == 0) {
-            	if (this.layers.pool) {
-            		y = this.layers['pool'].apply(y);
-            	}
-    			old_x = y;
-            }
+			//     if hasattr(self, "pool"):
+			//         y = self.pool(y)
+			//     old_x = y
+			if (i == 0) {
+				if (this.layers.pool) {
+					y = this.layers['pool'].apply(y);
+				}
+				old_x = y;
+			}
 
-            // if i > 0 and i % 2 == 0:
-            //     x = y + old_x
-            //     old_x = x
-            if ((i > 0) && (i % 2 == 0)) {
-            	x = this.layers['add'+ i].apply([y, old_x]);
-            	old_x = x;
+			// if i > 0 and i % 2 == 0:
+			//     x = y + old_x
+			//     old_x = x
+			if ((i > 0) && (i % 2 == 0)) {
+				x = this.layers['add'+ i].apply([y, old_x]);
+				old_x = x;
 
-        	// else:
-            //     x = y
-            } else {
-            	x = y;
-            }
+				// else:
+				//     x = y
+			} else {
+				x = y;
+			}
 
-        	// if i > 0:
-            //     x = getattr(self, "bn{}".format(i))(x)
-            if (i > 0) {
-            	x = this.layers['bn'+ i].apply(x)
-            }
+			// if i > 0:
+			//     x = getattr(self, "bn{}".format(i))(x)
+			if (i > 0) {
+				x = this.layers['bn'+ i].apply(x)
+			}
 		}
 
 		// x = x.view(x.size(0), x.size(1), -1) # shape: (batch, feats, o3)
-        // x = torch.mean(x, 2)
-        // generate average of single layer; result shape is (batch, feats)
+		// x = torch.mean(x, 2)
+		// generate average of single layer; result shape is (batch, feats)
 		x = this.layers['globalAvgPool'].apply(x);
 
 		x = this.layers['dense'].apply(x);
@@ -178,9 +176,9 @@ class SpeechResModel {
 		this.model.summary();
 
 		this.model.compile({
-		  optimizer: 'sgd',
-		  loss: 'categoricalCrossentropy',
-		  metrics: ['accuracy'],
+			optimizer: 'sgd',
+			loss: 'categoricalCrossentropy',
+			metrics: ['accuracy'],
 		});
 	}
 
@@ -216,22 +214,22 @@ class SpeechResModel {
 				let shape = this.layers[key].getWeights()[i].shape
 				switch (shape.length) {
 					case 1:
-						w.push(tf.tensor1d(this.weights[key+'_'+i], 'float32'))
-						break;
+					w.push(tf.tensor1d(this.weights[key+'_'+i], 'float32'))
+					break;
 					case 2:
-						w.push(tf.tensor2d(this.weights[key+'_'+i], shape, 'float32'))
-						break;
+					w.push(tf.tensor2d(this.weights[key+'_'+i], shape, 'float32'))
+					break;
 					case 3:
-						w.push(tf.tensor3d(this.weights[key+'_'+i], shape, 'float32'))
-						break;
+					w.push(tf.tensor3d(this.weights[key+'_'+i], shape, 'float32'))
+					break;
 					case 4:
-						w.push(tf.tensor4d(this.weights[key+'_'+i], shape, 'float32'))
-						break;
+					w.push(tf.tensor4d(this.weights[key+'_'+i], shape, 'float32'))
+					break;
 					case 4:
-						w.push(tf.tensor5d(this.weights[key+'_'+i], shape, 'float32'))
-						break;
+					w.push(tf.tensor5d(this.weights[key+'_'+i], shape, 'float32'))
+					break;
 					default:
-						console.log('Invalid size of weight shape');
+					console.log('Invalid size of weight shape');
 				}
 			}
 
