@@ -33,25 +33,25 @@
     </ul>
     <hr>
     <!-- <div class="row">
-    <div class="col">
-    <p id="statusBar"class="text-center">Message</p>
+      <div class="col">
+        <p id="statusBar"class="text-center">Message</p>
+      </div>
+    </div> -->
+    <div class="row">
+      <span class="col-md-3 offset-md-3"> MODEL ARCHITECTURE : </span><input id="json-upload" class="col-md-3" type="file" />
+    </div>
+    <div class="row">
+      <span class="col-md-3 offset-md-3"> WEIGHTS : </span><input id="weights-upload" class="col-md-3" type="file" />
+    </div>
+    <div class="row">
+      <button id="loadBtn" type="button" class="btn btn-primary col-centered" enabled>LOAD MODEL</button>
+      <button id="saveBtn" type="button" class="btn btn-primary col-centered" enabled>SAVE MODEL</button>
+    </div>
   </div>
-</div> -->
-<div class="row">
-  <span class="col-md-3 offset-md-3"> MODEL ARCHITECTURE : </span><input id="json-upload" class="col-md-3" type="file" />
-</div>
-<div class="row">
-  <span class="col-md-3 offset-md-3"> WEIGHTS : </span><input id="weights-upload" class="col-md-3" type="file" />
-</div>
-<div class="row">
-  <button id="loadBtn" type="button" class="btn btn-primary col-centered" enabled>LOAD MODEL</button>
-  <button id="saveBtn" type="button" class="btn btn-primary col-centered" enabled>SAVE MODEL</button>
-</div>
-</div>
-<script src="../common/config.js"></script>
-<script src="../common/util.js"></script>
-<script src="../weights/RES8_NARROW/weights.js"></script>
-<script src="../common/offlineAudioProcessor.js"></script>
-<script src="../controller/loadModelController.js"></script>
+  <script src="../common/config.js"></script>
+  <script src="../common/util.js"></script>
+  <script src="../weights/RES8_NARROW/weights.js"></script>
+  <script src="../common/offlineAudioProcessor.js"></script>
+  <script src="../controller/loadModelController.js"></script>
 </body>
 </html>
