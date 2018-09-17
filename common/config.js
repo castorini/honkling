@@ -1,3 +1,7 @@
+const evaluationConfig = {
+	'numAudioFilesPerCommand' : 10
+}
+
 const audioConfig = {
 	'offlineSampleRate' : 16000,
 	'offlineHopSize' : 10, // in ms
