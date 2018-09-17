@@ -1,6 +1,6 @@
 // TODO :: properly handle failure cases
 
-let evaluationResult = {}
+let reports = {}
 let singlePredictionReport = {}
 
 let commandIndex = 0;
@@ -12,6 +12,61 @@ let offlineProcessor;
 
 let prevEvalCompleteTime;
 let EvalCompleteTime;
+
+let totalAudioCount;
+let processedAudioCount;
+
+function displayCurrProgress() {
+  $('#statusBar').text('Measuring performance for command ' + model.weights['commands'][commandIndex] + ' ('+audioIndex+'/'+evaluationConfig['numAudioFilesPerCommand']+')');
+  updateProgressBar();
+}
+
+function displayEvaluationCompete() {
+  $('#statusBar').text('Performance evaluation has completed!');
+}
+
+function initProgressBar() {
+  $('#evaluateProgressBarWrapper').show();
+  $('#evaluateProgressBar').attr('aria-valuemax', totalAudioCount);
+  $('#evaluateProgressBar').attr('aria-valuemin', 0);
+  $('#evaluateProgressBar').attr('aria-valuenow', 0);
+  $('#evaluateProgressBar').css('width', 0);
+}
+
+function updateProgressBar() {
+  let percent = Math.floor(processedAudioCount/totalAudioCount*100);
+  $('#evaluateProgressBar').attr('aria-valuenow', processedAudioCount);
+  $('#evaluateProgressBar').css('width', percent+'%');
+  $('#evaluateProgressBar').text(percent + ' % ( ' +processedAudioCount + ' / ' + totalAudioCount + ' )');
+}
+
+function initReport() {
+  let command;
+  for (var i = 0; i < model.weights['commands'].length ; i++) {
+    command = model.weights['commands'][i];
+
+    let report = {}
+    report['total'] = evaluationConfig['numAudioFilesPerCommand'];
+    report['processedCount'] = 0;
+
+    report['mfccGenTimeAvg'] = 0;
+    report['mfccGenTimeMin'] = 0;
+    report['mfccGenTimeMax'] = 0;
+
+    report['inferenceTimeAvg'] = 0;
+    report['inferenceTimeMin'] = 0;
+    report['inferenceTimeMax'] = 0;
+
+    report['predictionSuccessCount'] = 0;
+
+    reports[command] = report;
+  }
+}
+
+function prepareEvaluation() {
+  initProgressBar();
+  initReport();
+}
 
 function summarizeResult() {
   singlePredictionReport.mfccPrepTime = singlePredictionReport.mfccPrepCompleted - singlePredictionReport.startTime;
@@ -67,6 +122,7 @@ function evaluate() {
   if (model.weights['commands'].length == commandIndex) {
     audioIndex = 0;
     commandIndex = 0;
+    displayEvaluationCompete();
     return;
   }
 
@@ -83,6 +139,8 @@ function evaluate() {
       commandIndex++;
       audioIndex = 0;
     }
+    processedAudioCount++;
+    displayCurrProgress();
     lastEvalTime = performance.now();
     delete offlineProcessor;
     evaluate();
@@ -109,6 +167,12 @@ $(document).on('click', '#evaluateBtn:enabled', function() {
     // TODO :: display details about evaluation process with summary provided
     console.log('server initialization completed');
     console.log(initSummary)
+
+    processedAudioCount = 0;
+    totalAudioCount = initSummary['positiveAudioCount'] * initSummary['commands'].length;
+
+    prepareEvaluation();
+
     evalStartTime = performance.now();
     evaluate();
 

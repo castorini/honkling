@@ -1,5 +1,5 @@
 const evaluationConfig = {
-	'numAudioFilesPerCommand' : 1
+	'numAudioFilesPerCommand' : 10
 }
 
 const audioConfig = {
