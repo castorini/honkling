@@ -31,7 +31,7 @@ function printData(name, data) {
 
   var i = 0;
   while (data[i] == 0) {
-    i++
+    i++;
   }
   console.log('\tfirst non zero element : ', i, ' - ', data[i]);
 

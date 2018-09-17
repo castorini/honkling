@@ -11,3 +11,4 @@ training/*.tar.gz
 weights/RES8_NARROW/*.js
 server/.idea
 server/venv
+data/speech_command*
