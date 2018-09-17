@@ -12,89 +12,129 @@ function init_view(commands) {
   commands.forEach(function(command) {
     $('#commandList').append(
       $('<li>').attr('class','list-group-item ' + command + '_button text-center').append(command));
-    });
-    $('#commandList .unknown_button').addClass('list-group-item-dark');
+  });
+  $('#commandList .unknown_button').addClass('list-group-item-dark');
+}
+
+function toggleCommand(command) {
+  if (command == 'unknown') {
+    $('#statusBar').text('Failed to identified keyword spoken. Please try again');
+  } else {
+    $('#statusBar').text('keyword spoken is ... ' + command.toUpperCase() + ' !!');
   }
 
-  function toggleCommand(command) {
-    if (command == 'unknown') {
-      $('#statusBar').text('Failed to identified keyword spoken. Please try again');
-    } else {
-      $('#statusBar').text('keyword spoken is ... ' + command.toUpperCase() + ' !!');
-    }
+  $('#commandList .active').removeClass('active');
+  $('#commandList .'+command+'_button').addClass('active');
+  setTimeout(function(){
+    $('#commandList .'+command+'_button').removeClass('active');
+  }, toggleTime);
+}
 
-    $('#commandList .active').removeClass('active');
-    $('#commandList .'+command+'_button').addClass('active');
+function enableRecordBtn() {
+  $('#recordBtn').removeClass('btn-secondary');
+  $('#recordBtn').addClass('btn-primary');
+  $('#recordBtn').prop('disabled', false);
+  if (isMobile) {
+    $('#statusBar').text('Press RECORD button to record a keyword listed below');
+  } else {
+    $('#statusBar').text('Press RECORD button or hold spacebar to record a keyword listed below');
+  }
+}
+
+function disableRecordBtn() {
+  $('#recordBtn').removeClass('btn-danger');
+  $('#recordBtn').prop('disabled', true);
+  $('#statusBar').text('interpreting ...');
+}
+
+function enableRecordingBtn() {
+  $('#recordBtn').removeClass('btn-primary');
+  $('#recordBtn').addClass('btn-danger');
+  $('#recordBtn').prop('disabled', false);
+}
+
+function displayRemainingRecordTime(remaining) {
+  $('#statusBar').text('Recording ... say a keyword listed below within ' + remaining + ' seconds');
+}
+
+function displayRecordingMsg(remaining) {
+  $('#statusBar').text('Recording ... release spacebar after saying a keyword');
+}
+
+function enablePlayBtn() {
+  $('#playBtn').removeClass('btn-secondary');
+  $('#playBtn').addClass('btn-primary');
+  $('#playBtn').prop('disabled', false);
+  $('#statusBar').text('Press PLAY button to trigger audio');
+}
+
+function disablePlayBtn() {
+  $('#playBtn').removeClass('btn-primary');
+  $('#playBtn').prop('disabled', true);
+  $('#statusBar').text('interpreting ...');
+}
+
+// list initialization
+init_view(model.weights['commands']);
+
+// Audio Processing
+
+let audio = new OnlineAudioProcessor(audioConfig);
+
+// predictions
+$(document).on('click', '#recordBtn:enabled', function() {
+  var deferred = audio.processMicData();
+
+  deferred.done(function(downSampledData) {
+    printData('down-sampled data', downSampledData);
+    // TODO :: delete offlineProcessor & clean up async calls
+    let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
+
+    offlineProcessor.getMFCC().done(function(mfccData) {
+      printData('mfcc data', mfccData);
+      toggleCommand(predict(mfccData, modelName, model));
+    })
+
+  }).fail(function() {
+    // silence
+    toggleCommand('unknown');
+  }).always(function() {
     setTimeout(function(){
-      $('#commandList .'+command+'_button').removeClass('active');
+      enableRecordBtn();
     }, toggleTime);
-  }
+  });
+});
 
-  function enableRecordBtn() {
-    $('#recordBtn').removeClass('btn-secondary');
-    $('#recordBtn').addClass('btn-primary');
-    $('#recordBtn').prop('disabled', false);
-    if (isMobile) {
-      $('#statusBar').text('Press RECORD button to record a keyword listed below');
-    } else {
-      $('#statusBar').text('Press RECORD button or hold spacebar to record a keyword listed below');
-    }
-  }
+$(document).on('click', '#playBtn:enabled', function() {
+  var deferred = audio.processAudioData();
 
-  function disableRecordBtn() {
-    $('#recordBtn').removeClass('btn-danger');
-    $('#recordBtn').prop('disabled', true);
-    $('#statusBar').text('interpreting ...');
-  }
+  deferred.done(function(downSampledData) {
+    printData('down-sampled data', downSampledData);
 
-  function enableRecordingBtn() {
-    $('#recordBtn').removeClass('btn-primary');
-    $('#recordBtn').addClass('btn-danger');
-    $('#recordBtn').prop('disabled', false);
-  }
+    let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
+    offlineProcessor.getMFCC().done(function(mfccData) {
+      printData('mfcc data', mfccData);
+      toggleCommand(predict(mfccData, modelName, model));
+    })
 
-  function displayRemainingRecordTime(remaining) {
-    $('#statusBar').text('Recording ... say a keyword listed below within ' + remaining + ' seconds');
-  }
+    setTimeout(function(){
+      enablePlayBtn();
+    }, toggleTime);
+  })
+});
 
-  function displayRecordingMsg(remaining) {
-    $('#statusBar').text('Recording ... release spacebar after saying a keyword');
-  }
-
-  function enablePlayBtn() {
-    $('#playBtn').removeClass('btn-secondary');
-    $('#playBtn').addClass('btn-primary');
-    $('#playBtn').prop('disabled', false);
-    $('#statusBar').text('Press PLAY button to trigger audio');
-  }
-
-  function disablePlayBtn() {
-    $('#playBtn').removeClass('btn-primary');
-    $('#playBtn').prop('disabled', true);
-    $('#statusBar').text('interpreting ...');
-  }
-
-  // list initialization
-  init_view(model.weights['commands']);
-
-  // Audio Processing
-
-  let audio = new OnlineAudioProcessor(audioConfig);
-
-  // predictions
-  $(document).on('click', '#recordBtn:enabled', function() {
-    var deferred = audio.processMicData();
+$(document).keyup(function( event ) {
+  if ( event.which == 32 ) {
+    var deferred = audio.stopRecording();
 
     deferred.done(function(downSampledData) {
       printData('down-sampled data', downSampledData);
-      // TODO :: delete offlineProcessor & clean up async calls
-      let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
 
+      let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
       offlineProcessor.getMFCC().done(function(mfccData) {
         printData('mfcc data', mfccData);
-        predict(mfccData, modelName, model);
+        toggleCommand(predict(mfccData, modelName, model));
       })
-
     }).fail(function() {
       // silence
       toggleCommand('unknown');
@@ -103,49 +143,9 @@ function init_view(commands) {
         enableRecordBtn();
       }, toggleTime);
     });
-  });
-
-  $(document).on('click', '#playBtn:enabled', function() {
-    var deferred = audio.processAudioData();
-
-    deferred.done(function(downSampledData) {
-      printData('down-sampled data', downSampledData);
-
-      let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
-      offlineProcessor.getMFCC().done(function(mfccData) {
-        printData('mfcc data', mfccData);
-        predict(mfccData, modelName, model);
-      })
-
-      setTimeout(function(){
-        enablePlayBtn();
-      }, toggleTime);
-    })
-  });
-
-  $(document).keyup(function( event ) {
-    if ( event.which == 32 ) {
-      var deferred = audio.stopRecording();
-
-      deferred.done(function(downSampledData) {
-        printData('down-sampled data', downSampledData);
-
-        let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
-        offlineProcessor.getMFCC().done(function(mfccData) {
-          printData('mfcc data', mfccData);
-          predict(mfccData, modelName, model);
-        })
-      }).fail(function() {
-        // silence
-        toggleCommand('unknown');
-      }).always(function() {
-        setTimeout(function(){
-          enableRecordBtn();
-        }, toggleTime);
-      });
-    }
-  }).keydown(function( event ) {
-    if ( event.which == 32 ) {
-      audio.startRecording();
-    }
-  });
+  }
+}).keydown(function( event ) {
+  if ( event.which == 32 ) {
+    audio.startRecording();
+  }
+});

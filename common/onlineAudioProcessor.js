@@ -207,7 +207,7 @@ class OnlineAudioProcessor {
   processAudioData() {
     this.initData();
 
-    this.fallBackAudio[0].onpause = function() {
+    $('#fallBackAudio')[0].onpause = function() {
       onlineProc.audioContext.suspend();
       onlineProc.audioSource.disconnect(onlineProc.downSampleNode);
       onlineProc.dataDeferred.resolve(onlineProc.downSampledData);
@@ -217,7 +217,7 @@ class OnlineAudioProcessor {
     this.audioContext.resume();
 
     disablePlayBtn()
-    this.fallBackAudio[0].play();
+    $('#fallBackAudio')[0].play();
 
     return this.dataDeferred.promise();
   }
