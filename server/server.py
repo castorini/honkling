@@ -11,24 +11,32 @@ PORT_NUMBER = 8080
 DATA_DIR_PATH = '../data/speech_commands'
 
 audio_files = {}
+unknown_audio_files = {}
+size_per_unknown_keyword = 0
+unknown_keywords = []
 
 def init_audio_files(commands, size):
-    print('initializing dataset for commands ' + str(commands) + ' with '
+    print('\ninitializing dataset for commands ' + str(commands) + ' with '
           + str(size) + ' audios each')
 
-    global audio_files
+    global audio_files, unknown_audio_files, size_per_unknown_keyword, unknown_keywords
 
     if bool(audio_files):
         audio_files = {}
+        unknown_audio_files = {}
+        size_per_unknown_keyword = 0
+        unknown_keywords = []
 
     # generate unknown keyword sets
-    unknown_keywords = []
     for folder_name in os.listdir(DATA_DIR_PATH):
         if folder_name == '_background_noise_':
             continue
         folder_path = os.path.join(DATA_DIR_PATH, folder_name)
         if os.path.isdir(folder_path) and folder_name not in commands:
             unknown_keywords.append(folder_name)
+            unknown_audio_files[folder_name] = []
+
+    print('unknown keywords : ' + str(unknown_keywords))
 
     # populate positive sets
     for folder_name in commands:
@@ -38,22 +46,33 @@ def init_audio_files(commands, size):
         audio_files[folder_name] = os.listdir(folder_path)[:size]
 
     # populate negative sets
-    audio_files['unknown'] = []
-    size_per_unknown_keyword = size // len(unknown_keywords)
+    size_per_unknown_keyword = size // len(unknown_keywords) + 1
     print('number of commands in unknown is ' + str(len(unknown_keywords)) +
           ' each command with ' + str(size_per_unknown_keyword) + ' audios each')
     for folder_name in unknown_keywords:
         folder_path = os.path.join(DATA_DIR_PATH, folder_name)
-        audio_files['unknown'] += os.listdir(folder_path)[:size_per_unknown_keyword]
+        unknown_audio_files[folder_name] = os.listdir(folder_path)[:size_per_unknown_keyword]
 
-    # for audio_command in audio_files:
-    #     print(audio_command, len(audio_files[audio_command]))
+    print('< positive commands counts >')
+    for audio_command in audio_files:
+        print('\t', audio_command, len(audio_files[audio_command]))
+    print('< negative commands counts >')
+    for audio_command in unknown_audio_files:
+        print('\t', audio_command, len(unknown_audio_files[audio_command]))
 
     return
 
 def get_audio(command, index):
-    file_name = audio_files[command][index]
-    print('retrieving ' + str(index) + 'th audio for ' + command + ' (' + file_name + ')')
+    if command == 'unknown':
+        command = unknown_keywords[index % len(unknown_keywords)]
+        index = index // len(unknown_keywords)
+
+        file_name = unknown_audio_files[command][index]
+        print('\nretrieving [negative] ' + str(index) + 'th audio for ' + command + ' (' + file_name + ')')
+    else :
+        index = index % len(audio_files[command])
+        file_name = audio_files[command][index]
+        print('\nretrieving [positive] ' + str(index) + 'th audio for ' + command + ' (' + file_name + ')')
 
     file_path = os.path.join(DATA_DIR_PATH, command, file_name)
     sample_rate, data = wavfile.read(file_path)
@@ -85,7 +104,7 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             }
         elif path == '/get_audio':
             command = params['command'][0]
-            index = int(params['index'][0]) % len(audio_files[command])
+            index = int(params['index'][0])
             result = get_audio(command, index)
         # send headers
         self.send_response(200, "ok")
