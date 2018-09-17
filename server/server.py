@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from scipy.io import wavfile
 from urllib.parse import urlparse, parse_qs, unquote
 import numpy as np
 import json
+import librosa
 import os
 
 HOST_NAME = '0.0.0.0'
@@ -14,6 +14,7 @@ audio_files = {}
 unknown_audio_files = {}
 size_per_unknown_keyword = 0
 unknown_keywords = []
+sample_rate = 0;
 
 def init_audio_files(commands, size):
     print('\ninitializing dataset for commands ' + str(commands) + ' with '
@@ -60,7 +61,14 @@ def init_audio_files(commands, size):
     for audio_command in unknown_audio_files:
         print('\t', audio_command, len(unknown_audio_files[audio_command]))
 
-    return
+    result = {}
+    result['positiveAudioCount'] = size
+    result['negativeAudioCount'] = size_per_unknown_keyword
+    result['commands'] = commands
+    result['unknownKeywords'] = unknown_keywords
+    result['totalCount'] = size * len(audio_files) + size_per_unknown_keyword * len(unknown_audio_files)
+
+    return result
 
 def get_audio(command, index):
     if command == 'unknown':
@@ -75,7 +83,8 @@ def get_audio(command, index):
         print('\nretrieving [positive] ' + str(index) + 'th audio for ' + command + ' (' + file_name + ')')
 
     file_path = os.path.join(DATA_DIR_PATH, command, file_name)
-    sample_rate, data = wavfile.read(file_path)
+    data = librosa.core.load(file_path, sr=sample_rate)[0]
+
     features = np.pad(data, (0, sample_rate - len(data)), 'constant')
 
     data = {}
@@ -89,6 +98,8 @@ def get_audio(command, index):
 
 class AudioRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        global sample_rate
+
         print(urlparse(self.path))
         parsed_url = urlparse(self.path)
 
@@ -98,10 +109,8 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         if path == '/init':
             commands = unquote(params['commands'][0]).split(',')
             size = int(params['size'][0])
-            init_audio_files(commands, size)
-            result = {
-                'message' : 'audio initialization was successful'
-            }
+            sample_rate = int(params['sampleRate'][0])
+            result = init_audio_files(commands, size)
         elif path == '/get_audio':
             command = params['command'][0]
             index = int(params['index'][0])
