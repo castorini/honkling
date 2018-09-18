@@ -24,11 +24,11 @@ function summarizeResult() {
   } else {
     console.log('< Generated report - positive case >');
   }
-  console.log('  Command = '+ singlePredictionReport.command + ', index = ' + audioIndex + ' file name = ' + fileName)
-  console.log('  mfccPrepTime (ms) = ' + singlePredictionReport.mfccPrepTime)
-  console.log('  inferenceTime (ms) = ' + singlePredictionReport.inferenceTime)
-  console.log('  totalElapsedTime (ms) = ' + singlePredictionReport.totalElapsedTime)
-  console.log('  prediction = ' + singlePredictionReport.label + ' -> ' + singlePredictionReport.prediction + ' ( '+singlePredictionReport.result+' )')
+  console.log('  Command = '+ singlePredictionReport.command + ', index = ' + audioIndex + ' file name = ' + fileName);
+  console.log('  mfccPrepTime (ms) = ' + singlePredictionReport.mfccPrepTime);
+  console.log('  inferenceTime (ms) = ' + singlePredictionReport.inferenceTime);
+  console.log('  totalElapsedTime (ms) = ' + singlePredictionReport.totalElapsedTime);
+  console.log('  prediction = ' + singlePredictionReport.label + ' -> ' + singlePredictionReport.prediction + ' ( '+singlePredictionReport.result+' )');
 }
 
 function measurePerf(data) {
@@ -40,7 +40,7 @@ function measurePerf(data) {
     singlePredictionReport.endTime = performance.now();
     perfMeasDeferred.resolve();
   }).fail(function(err) {
-    console.log('performance measuring for ' + singlePredictionReport.label + 'for ' + audioIndex + ' th audio failed')
+    console.log('performance measuring for ' + singlePredictionReport.label + 'for ' + audioIndex + ' th audio failed');
     perfMeasDeferred.reject(err);
   })
 }
