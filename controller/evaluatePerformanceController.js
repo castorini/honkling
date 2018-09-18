@@ -65,6 +65,11 @@ function getEmptyReport() {
   report['inferenceTimeMin'] = Number.MAX_SAFE_INTEGER;
   report['inferenceTimeMax'] = 0;
 
+  report['processingTimeSum'] = 0;
+  report['processingTimeAvg'] = 0;
+  report['processingTimeMin'] = Number.MAX_SAFE_INTEGER;
+  report['processingTimeMax'] = 0;
+
   report['predictionSuccessCount'] = 0;
   report['accuracy'] = 0;
 
@@ -85,9 +90,9 @@ function prepareEvaluation() {
 }
 
 function summarizeResult() {
-  singlePredictionReport.mfccPrepTime = singlePredictionReport.mfccPrepCompleted - singlePredictionReport.startTime;
-  singlePredictionReport.inferenceTime = singlePredictionReport.endTime - singlePredictionReport.mfccPrepCompleted;
-  singlePredictionReport.totalElapsedTime = singlePredictionReport.endTime - singlePredictionReport.startTime;
+  singlePredictionReport.mfccGenTime = singlePredictionReport.mfccGenCompleted - singlePredictionReport.startTime;
+  singlePredictionReport.inferenceTime = singlePredictionReport.endTime - singlePredictionReport.mfccGenCompleted;
+  singlePredictionReport.processingTime = singlePredictionReport.endTime - singlePredictionReport.startTime;
   singlePredictionReport.result = singlePredictionReport.label == singlePredictionReport.prediction;
 
   let command = singlePredictionReport.command;
@@ -98,9 +103,9 @@ function summarizeResult() {
     console.log('< Generated report - positive case >');
   }
   console.log('  Command = '+ command + ', index = ' + audioIndex + ' file name = ' + fileName);
-  console.log('  mfccPrepTime (ms) = ' + singlePredictionReport.mfccPrepTime);
+  console.log('  mfccGenTime (ms) = ' + singlePredictionReport.mfccGenTime);
   console.log('  inferenceTime (ms) = ' + singlePredictionReport.inferenceTime);
-  console.log('  totalElapsedTime (ms) = ' + singlePredictionReport.totalElapsedTime);
+  console.log('  processingTime (ms) = ' + singlePredictionReport.processingTime);
   console.log('  prediction = ' + singlePredictionReport.label + ' -> ' + singlePredictionReport.prediction + ' ( '+singlePredictionReport.result+' )');
 
   // accuracy aggregation
@@ -111,12 +116,12 @@ function summarizeResult() {
   }
 
   // mfcc generation data aggregation
-  reports[command]['mfccGenTimeSum'] += singlePredictionReport.mfccPrepTime;
-  if (singlePredictionReport.mfccPrepTime < reports[command]['mfccGenTimeMin']) {
-    reports[command]['mfccGenTimeMin'] = singlePredictionReport.mfccPrepTime;
+  reports[command]['mfccGenTimeSum'] += singlePredictionReport.mfccGenTime;
+  if (singlePredictionReport.mfccGenTime < reports[command]['mfccGenTimeMin']) {
+    reports[command]['mfccGenTimeMin'] = singlePredictionReport.mfccGenTime;
   }
-  if (singlePredictionReport.mfccPrepTime > reports[command]['mfccGenTimeMax']) {
-    reports[command]['mfccGenTimeMax'] = singlePredictionReport.mfccPrepTime;
+  if (singlePredictionReport.mfccGenTime > reports[command]['mfccGenTimeMax']) {
+    reports[command]['mfccGenTimeMax'] = singlePredictionReport.mfccGenTime;
   }
   reports[command]['mfccGenTimeAvg'] = reports[command]['mfccGenTimeSum'] / reports[command]['processedCount'];
 
@@ -129,6 +134,16 @@ function summarizeResult() {
     reports[command]['inferenceTimeMax'] = singlePredictionReport.inferenceTime;
   }
   reports[command]['inferenceTimeAvg'] = reports[command]['inferenceTimeSum'] / reports[command]['processedCount'];
+
+  // overall processing time (mfcc generation + inference)
+  reports[command]['processingTimeSum'] += singlePredictionReport.processingTime;
+  if (singlePredictionReport.processingTime < reports[command]['processingTimeMin']) {
+    reports[command]['processingTimeMin'] = singlePredictionReport.processingTime;
+  }
+  if (singlePredictionReport.processingTime > reports[command]['processingTimeMax']) {
+    reports[command]['processingTimeMax'] = singlePredictionReport.processingTime;
+  }
+  reports[command]['processingTimeAvg'] = reports[command]['processingTimeSum'] / reports[command]['processedCount'];
 }
 
 function generateSummary() {
@@ -155,10 +170,19 @@ function generateSummary() {
       summary['inferenceTimeMax'] = reports[command]['inferenceTimeMax'];
     }
 
+    summary['processingTimeSum'] += reports[command]['processingTimeSum'];
+    if (reports[command]['processingTimeMin'] < summary['processingTimeMin']) {
+      summary['processingTimeMin'] = reports[command]['processingTimeMin'];
+    }
+    if (reports[command]['processingTimeMax'] > summary['processingTimeMax']) {
+      summary['processingTimeMax'] = reports[command]['processingTimeMax'];
+    }
+
     summary['predictionSuccessCount'] += reports[command]['predictionSuccessCount'];
   }
   summary['mfccGenTimeAvg'] = summary['mfccGenTimeSum']/summary['processedCount'];
   summary['inferenceTimeAvg'] = summary['inferenceTimeSum']/summary['processedCount'];
+  summary['processingTimeAvg'] = summary['processingTimeSum']/summary['processedCount'];
   summary['accuracy'] = summary['predictionSuccessCount']/summary['processedCount'];
 
   reports['summary'] = summary;
@@ -168,7 +192,7 @@ function measurePerf(data) {
   singlePredictionReport.startTime = performance.now();
   offlineProcessor = new OfflineAudioProcessor(audioConfig, data);
   offlineProcessor.getMFCC().done(function(mfccData) {
-    singlePredictionReport.mfccPrepCompleted = performance.now();
+    singlePredictionReport.mfccGenCompleted = performance.now();
     singlePredictionReport.prediction = predict(mfccData, modelName, model);
     singlePredictionReport.endTime = performance.now();
     perfMeasDeferred.resolve();
