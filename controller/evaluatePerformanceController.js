@@ -16,6 +16,17 @@ let EvalCompleteTime;
 let totalAudioCount;
 let processedAudioCount;
 
+let evaluationInterrupt;
+
+function enableStopEvaluateBtn() {
+  $('#stopEvaluateBtn').show();
+  $('#evaluateBtn').hide();
+}
+function enableEvaluateBtn() {
+  $('#stopEvaluateBtn').hide();
+  $('#evaluateBtn').show();
+}
+
 function displayCurrProgress() {
   $('#statusBar').text('Measuring performance for command ' + model.weights['commands'][commandIndex] + ' ('+audioIndex+'/'+evaluationConfig['numAudioFilesPerCommand']+')');
   updateProgressBar();
@@ -40,26 +51,31 @@ function updateProgressBar() {
   $('#evaluateProgressBar').text(percent + ' % ( ' +processedAudioCount + ' / ' + totalAudioCount + ' )');
 }
 
+function getEmptyReport() {
+  let report = {};
+  report['processedCount'] = 0;
+
+  report['mfccGenTimeSum'] = 0;
+  report['mfccGenTimeAvg'] = 0;
+  report['mfccGenTimeMin'] = Number.MAX_SAFE_INTEGER;
+  report['mfccGenTimeMax'] = 0;
+
+  report['inferenceTimeSum'] = 0;
+  report['inferenceTimeAvg'] = 0;
+  report['inferenceTimeMin'] = Number.MAX_SAFE_INTEGER;
+  report['inferenceTimeMax'] = 0;
+
+  report['predictionSuccessCount'] = 0;
+  report['accuracy'] = 0;
+
+  return report;
+}
+
 function initReport() {
   let command;
   for (var i = 0; i < model.weights['commands'].length ; i++) {
     command = model.weights['commands'][i];
-
-    let report = {}
-    report['total'] = evaluationConfig['numAudioFilesPerCommand'];
-    report['processedCount'] = 0;
-
-    report['mfccGenTimeAvg'] = 0;
-    report['mfccGenTimeMin'] = 0;
-    report['mfccGenTimeMax'] = 0;
-
-    report['inferenceTimeAvg'] = 0;
-    report['inferenceTimeMin'] = 0;
-    report['inferenceTimeMax'] = 0;
-
-    report['predictionSuccessCount'] = 0;
-
-    reports[command] = report;
+    reports[command] = getEmptyReport();
   }
 }
 
@@ -74,16 +90,78 @@ function summarizeResult() {
   singlePredictionReport.totalElapsedTime = singlePredictionReport.endTime - singlePredictionReport.startTime;
   singlePredictionReport.result = singlePredictionReport.label == singlePredictionReport.prediction;
 
-  if (singlePredictionReport.command == 'unknown') {
+  let command = singlePredictionReport.command;
+
+  if (command == 'unknown') {
     console.log('< Generated report - negative case >');
   } else {
     console.log('< Generated report - positive case >');
   }
-  console.log('  Command = '+ singlePredictionReport.command + ', index = ' + audioIndex + ' file name = ' + fileName);
+  console.log('  Command = '+ command + ', index = ' + audioIndex + ' file name = ' + fileName);
   console.log('  mfccPrepTime (ms) = ' + singlePredictionReport.mfccPrepTime);
   console.log('  inferenceTime (ms) = ' + singlePredictionReport.inferenceTime);
   console.log('  totalElapsedTime (ms) = ' + singlePredictionReport.totalElapsedTime);
   console.log('  prediction = ' + singlePredictionReport.label + ' -> ' + singlePredictionReport.prediction + ' ( '+singlePredictionReport.result+' )');
+
+  // accuracy aggregation
+  reports[command]['processedCount']++;
+  if (singlePredictionReport.result) {
+    reports[command]['predictionSuccessCount']++;
+    reports[command]['accuracy'] = reports[command]['predictionSuccessCount'] / reports[command]['processedCount'];
+  }
+
+  // mfcc generation data aggregation
+  reports[command]['mfccGenTimeSum'] += singlePredictionReport.mfccPrepTime;
+  if (singlePredictionReport.mfccPrepTime < reports[command]['mfccGenTimeMin']) {
+    reports[command]['mfccGenTimeMin'] = singlePredictionReport.mfccPrepTime;
+  }
+  if (singlePredictionReport.mfccPrepTime > reports[command]['mfccGenTimeMax']) {
+    reports[command]['mfccGenTimeMax'] = singlePredictionReport.mfccPrepTime;
+  }
+  reports[command]['mfccGenTimeAvg'] = reports[command]['mfccGenTimeSum'] / reports[command]['processedCount'];
+
+  // inference data aggregation
+  reports[command]['inferenceTimeSum'] += singlePredictionReport.inferenceTime;
+  if (singlePredictionReport.inferenceTime < reports[command]['inferenceTimeMin']) {
+    reports[command]['inferenceTimeMin'] = singlePredictionReport.inferenceTime;
+  }
+  if (singlePredictionReport.inferenceTime > reports[command]['inferenceTimeMax']) {
+    reports[command]['inferenceTimeMax'] = singlePredictionReport.inferenceTime;
+  }
+  reports[command]['inferenceTimeAvg'] = reports[command]['inferenceTimeSum'] / reports[command]['processedCount'];
+}
+
+function generateSummary() {
+  let summary = getEmptyReport();
+
+  for (var i = 0; i < model.weights['commands'].length ; i++) {
+    command = model.weights['commands'][i];
+
+    summary['processedCount'] += reports[command]['processedCount'];
+
+    summary['mfccGenTimeSum'] += reports[command]['mfccGenTimeSum'];
+    if (reports[command]['mfccGenTimeMin'] < summary['mfccGenTimeMin']) {
+      summary['mfccGenTimeMin'] = reports[command]['mfccGenTimeMin'];
+    }
+    if (reports[command]['mfccGenTimeMax'] > summary['mfccGenTimeMax']) {
+      summary['mfccGenTimeMax'] = reports[command]['mfccGenTimeMax'];
+    }
+
+    summary['inferenceTimeSum'] += reports[command]['inferenceTimeSum'];
+    if (reports[command]['inferenceTimeMin'] < summary['inferenceTimeMin']) {
+      summary['inferenceTimeMin'] = reports[command]['inferenceTimeMin'];
+    }
+    if (reports[command]['inferenceTimeMax'] > summary['inferenceTimeMax']) {
+      summary['inferenceTimeMax'] = reports[command]['inferenceTimeMax'];
+    }
+
+    summary['predictionSuccessCount'] += reports[command]['predictionSuccessCount'];
+  }
+  summary['mfccGenTimeAvg'] = summary['mfccGenTimeSum']/summary['processedCount'];
+  summary['inferenceTimeAvg'] = summary['inferenceTimeSum']/summary['processedCount'];
+  summary['accuracy'] = summary['predictionSuccessCount']/summary['processedCount'];
+
+  reports['summary'] = summary;
 }
 
 function measurePerf(data) {
@@ -119,10 +197,13 @@ function getAudioAndMeasurePerf(command, index) {
 
 function evaluate() {
   // base case
-  if (model.weights['commands'].length == commandIndex) {
+  if (model.weights['commands'].length == commandIndex || evaluationInterrupt) {
     audioIndex = 0;
     commandIndex = 0;
     displayEvaluationCompete();
+    console.log('result ', reports);
+    generateSummary();
+    console.log('summary', reports['summary']);
     return;
   }
 
@@ -147,13 +228,19 @@ function evaluate() {
   }).fail(function(err) {
     console.log('performance measuring failed');
     console.log(err);
-  });;
+  });
 }
 
 $('#statusBar').text('command list : ' + model.weights['commands'].join(', '));
 
+$(document).on('click', '#stopEvaluateBtn', function() {
+  evaluationInterrupt = true;
+});
+
 // triggering audio file list initialization
-$(document).on('click', '#evaluateBtn:enabled', function() {
+$(document).on('click', '#evaluateBtn', function() {
+  evaluationInterrupt = false;
+  enableStopEvaluateBtn();
   $.ajax({
     dataType : 'json',
     url : 'http://honkling.cs.uwaterloo.ca:8080/init',
