@@ -71,7 +71,7 @@ function getEmptyReport() {
   return report;
 }
 
-function initReport() {
+function initReports() {
   let command;
   for (var i = 0; i < model.weights['commands'].length ; i++) {
     command = model.weights['commands'][i];
@@ -81,7 +81,7 @@ function initReport() {
 
 function prepareEvaluation() {
   initProgressBar();
-  initReport();
+  initReports();
 }
 
 function summarizeResult() {
