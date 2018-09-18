@@ -62,7 +62,7 @@ def init_audio_files(commands, size):
         print('\t', audio_command, len(unknown_audio_files[audio_command]))
 
     result = {}
-    result['positiveAudioCount'] = size
+    result['positiveAudioCount'] = size # TODO :: size should contain correct count in case there are not enough audio files
     result['negativeAudioCount'] = size_per_unknown_keyword
     result['commands'] = commands
     result['unknownKeywords'] = unknown_keywords
