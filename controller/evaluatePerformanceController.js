@@ -156,23 +156,22 @@ function initReports() {
 }
 
 function saveResult() {
+  let command = evalResult.command;
   evalResult.mfccCompTime = evalResult.mfccCompEndTime - evalResult.startTime;
   evalResult.inferenceTime = evalResult.endTime - evalResult.mfccCompEndTime;
   evalResult.processingTime = evalResult.endTime - evalResult.startTime;
-  evalResult.result = evalResult.label == evalResult.prediction;
-
-  let command = evalResult.command;
+  evalResult.result = command == evalResult.prediction;
 
   // if (command == 'unknown') {
   //   console.log('< Generated report - negative case >');
   // } else {
   //   console.log('< Generated report - positive case >');
   // }
-  // console.log('  Command = '+ command + ', index = ' + audioIndex + ' file name = ' + currAudioFile);
+  // console.log('  audio = '+ evalResult.label + ', index = ' + audioIndex + ' file name = ' + currAudioFile);
   // console.log('  mfccCompTime (ms) = ' + evalResult.mfccCompTime);
   // console.log('  inferenceTime (ms) = ' + evalResult.inferenceTime);
   // console.log('  processingTime (ms) = ' + evalResult.processingTime);
-  // console.log('  prediction = ' + evalResult.label + ' -> ' + evalResult.prediction + ' ( '+evalResult.result+' )');
+  // console.log('  prediction = ' + command + ' -> ' + evalResult.prediction + ' ( '+evalResult.result+' )');
 
   // accuracy aggregation
   reports[command]['processedTestCount']++;
