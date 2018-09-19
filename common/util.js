@@ -41,3 +41,11 @@ function printData(name, data) {
   }
   console.log('\tlast non zero element : ', i, ' - ', data[i]);
 }
+
+function roundTo(num, place) {
+  return +(Math.round(num + "e+" + place)  + "e-"+place);
+}
+
+function numberWithCommans(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

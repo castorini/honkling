@@ -1,5 +1,5 @@
 const evaluationConfig = {
-	'numAudioFilesPerCommand' : 10
+	'testSizePerCommand' : 1000
 }
 
 const audioConfig = {
