@@ -28,5 +28,5 @@ function predict(x, modelName, model) {
 
 	console.log('prediction : ', commands[predictions]);
 
-	return commands[predictions]
+	return commands[predictions];
 }
