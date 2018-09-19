@@ -351,6 +351,10 @@ function startEval() {
   initReports();
 }
 
+$(document).on('click', '#stopEvaluateBtn', function() {
+  evaluationInterrupt = true;
+});
+
 // triggering audio file list initialization
 $(document).on('click', '#evaluateBtn', function() {
   prepareEval();
