@@ -37,16 +37,31 @@
         <p id="statusBar"class="text-center">Message</p>
       </div>
     </div>
-    <div id="evaluateProgressBarWrapper" class="row" style="display: none;">
+    <div id="evaluateProgressBarWrapper" class="row" style="display:none;">
       <div class="col">
         <div class="progress">
           <div id="evaluateProgressBar" class="progress-bar" role="progressbar progress-bar-striped" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
+      </div>
     </div>
+    <div id="summaryTableWrapper" class="row justify-content-center">
+      <div class="col">
+        <H4 class="text-center">Evaluation Summary</H4>
+        <table id="summaryTable" class="table" style="margin:auto;">
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="testSizeInputWrapper" class="row justify-content-center">
+      <label class="col-5 col-form-label text-right vcenter" style="padding-right:5px;">number of audio to evaluate for each command : </label>
+      <div class="col-2 vcenter" style="padding-left:5px;">
+        <input id="testSizeInput" type="number" class="form-control">
+      </div>
     </div>
     <div class="row">
       <button id="evaluateBtn" type="button" class="btn btn-primary col-centered">EVALUATE</button>
-      <button id="stopEvaluateBtn" type="button" class="btn btn-danger col-centered"  style="display: none;">STOP</button>
+      <button id="stopEvaluateBtn" type="button" class="btn btn-danger col-centered"  style="display:none;">STOP</button>
     </div>
   </div>
   <script src="../common/config.js"></script>

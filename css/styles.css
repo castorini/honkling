@@ -32,6 +32,7 @@ audio {
 #commandList {
   margin-bottom: 15px;
 }
+
 .nav{
   border:1px solid #ccc;
   border-width:1px 0;
@@ -41,6 +42,7 @@ audio {
   text-align:center;
   display: block;
 }
+
 .nav li{
   display:inline;
 }
@@ -53,4 +55,13 @@ audio {
 
 .nav a:hover {
   color:black;
+}
+
+.vcenter {
+    display: flex;
+    align-items: center;
+}
+
+th{
+  vertical-align: middle !important
 }
