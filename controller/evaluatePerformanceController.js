@@ -8,12 +8,18 @@ let processedTestCount;
 
 function initEvalPerf() {
   $('#testSizeInput').val(evaluationConfig['testSizePerCommand']);
-  $('#statusBar').text('There are ' + model.weights['commands'].length + ' commands for evaluation. Recommanded test size is '+ evaluationConfig['testSizePerCommand']);
+  $('#statusBar').text('There are ' + model.weights['commands'].length + ' commands for evaluation. Recommended test size is '+ evaluationConfig['testSizePerCommand']);
 }
 
 function displayInitMsg() {
   $('#statusBar').text('Preparing test data set ...');
   $('#testSizeInputWrapper').hide();
+}
+
+function displayInitFailedMsg() {
+  $('#statusBar').text('Failed to prepare test data set. Please try again');
+  $('#testSizeInputWrapper').show();
+  enableEvaluateBtn();
 }
 
 function enableStopEvaluateBtn() {
@@ -93,7 +99,7 @@ function addTableEntryWithHeading(table, key, value, unit, heading, rowCount) {
 }
 
 function formatNumber(num) {
-  return numberWithCommans(roundTo(num, 2));
+  return numberWithCommas(roundTo(num, 2));
 }
 
 function generateTable(table, report) {
@@ -378,6 +384,7 @@ $(document).on('click', '#evaluateBtn', function() {
     evaluate();
 
   }).fail(function(err) {
+    displayInitFailedMsg();
     console.log('server initialization failed');
     console.log(err);
   });

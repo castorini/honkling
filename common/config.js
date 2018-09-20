@@ -1,5 +1,5 @@
 const evaluationConfig = {
-	'testSizePerCommand' : 1000
+	'testSizePerCommand' : 500
 }
 
 const audioConfig = {

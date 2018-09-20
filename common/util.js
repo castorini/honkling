@@ -46,6 +46,6 @@ function roundTo(num, place) {
   return +(Math.round(num + "e+" + place)  + "e-"+place);
 }
 
-function numberWithCommans(num) {
+function numberWithCommas(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
