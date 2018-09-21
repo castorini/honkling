@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 
 # Training Script of RES8_NARROW network for honkling
 # usage :
-#    python training.py -e 25 -f 5 -b 64 -d ../data/speech_commands -c yes no up down left right on off stop go
+#    python training.py -d ../data/speech_commands -c yes no up down left right on off stop go
 
 
 def print_log(level, msg):
@@ -252,9 +252,9 @@ def prepare_dataset(config, command_list, data_dir, input_shape):
 
     return X, Y
 
-def unison_shuffled_copies(X, Y):
+def unison_shuffled_copies(X, Y, seed):
     assert len(X) == len(Y)
-    p = np.random.RandomState().permutation(len(X))
+    p = np.random.RandomState(seed).permutation(len(X))
     return X[p], Y[p]
 
 def generate_weights_json(command_list, layers, model_name, file_name):
@@ -291,11 +291,12 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-d", "--data_dir", dest="data_dir", type=str, required=True)
     parser.add_argument('-c', '--command_list', nargs='+', dest="command_list", type=str, required=True)
-    parser.add_argument('-e', '--num_epochs', dest="num_epochs", type=int, default=500)
-    parser.add_argument('-f', '--training_log_frequency', dest="training_log_frequency", type=int, default=50)
+    parser.add_argument('-e', '--num_epochs', dest="num_epochs", type=int, default=26)
+    parser.add_argument('-f', '--training_log_frequency', dest="training_log_frequency", type=int, default=5)
     parser.add_argument('-l', '--log_file', dest="log_file")
-    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=100)
-    parser.add_argument('-lr', '--learning_rate', dest="learning_rate", type=float, default=0.01)
+    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=64)
+    parser.add_argument('-rs', '--random_seed', dest="random_seed", type=int, default=10)
+    parser.add_argument('-lr', '--learning_rate', dest="learning_rate", type=float, default=0.1)
     parser.add_argument('-ts', '--test_size', dest="test_size", type=float, default=0.10)
 
     args = parser.parse_args()
@@ -370,7 +371,7 @@ def main():
     X = np.array(X)
     Y = np.array(Y)
 
-    X_shuffled, Y_shuffled = unison_shuffled_copies(X, Y)
+    X_shuffled, Y_shuffled = unison_shuffled_copies(X, Y, args.random_seed)
 
     X_train, X_validate, X_test = np.split(X_shuffled, [int(.8 * len(X)), int(.9 * len(X))])
     Y_train, Y_validate, Y_test = np.split(Y_shuffled, [int(.8 * len(Y)), int(.9 * len(Y))])
