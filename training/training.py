@@ -157,12 +157,12 @@ class ProgressChecker(keras.callbacks.Callback):
 
             remaing_epoch = self.num_epochs - epoch
             remaining_time = remaing_epoch / self.frequency * elapsed_time
-            print_log('info', 'expected remaining time : '+ time.strftime("%H:%M:%S", time.gmtime(remaining_time)))
+            print_log('info', '\texpected remaining time : '+ time.strftime("%H:%M:%S", time.gmtime(remaining_time)))
 
-            print_log('info', 'loss = ' + str(logs['loss']))
-            print_log('info', 'categorical_accuracy = ' + str(logs['categorical_accuracy']))
-            print_log('info', 'val_loss = ' + str(logs['val_loss']))
-            print_log('info', 'val_categorical_accuracy = ' + str(logs['val_categorical_accuracy']))
+            print_log('info', '\tloss = ' + str(logs['loss']))
+            print_log('info', '\tcategorical_accuracy = ' + str(logs['categorical_accuracy']))
+            print_log('info', '\tval_loss = ' + str(logs['val_loss']))
+            print_log('info', '\tval_categorical_accuracy = ' + str(logs['val_categorical_accuracy']))
 
             self.loss.append(logs['loss'])
             self.categorical_accuracy.append(logs['categorical_accuracy'])
