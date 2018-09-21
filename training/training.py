@@ -250,12 +250,11 @@ def prepare_dataset(config, command_list, data_dir, input_shape):
                     index = command_list.index('unknown')
                 Y.append(index)
 
-
     return X, Y
 
 def unison_shuffled_copies(X, Y):
     assert len(X) == len(Y)
-    p = np.random.permutation(len(X))
+    p = np.random.RandomState().permutation(len(X))
     return X[p], Y[p]
 
 def generate_weights_json(command_list, layers, model_name, file_name):
@@ -376,6 +375,14 @@ def main():
     X_train, X_validate, X_test = np.split(X_shuffled, [int(.8 * len(X)), int(.9 * len(X))])
     Y_train, Y_validate, Y_test = np.split(Y_shuffled, [int(.8 * len(Y)), int(.9 * len(Y))])
 
+    neg_label = args.command_list.index('unknown')
+    test_pos_index = Y_test[Y_test != neg_label]
+    test_neg_index = Y_test[Y_test == neg_label]
+
+    Y_train = keras.utils.to_categorical(Y_train, num_classes=args.num_command)
+    Y_validate = keras.utils.to_categorical(Y_validate, num_classes=args.num_command)
+    Y_test = keras.utils.to_categorical(Y_test, num_classes=args.num_command)
+
     print_log('info', 'train X shape = ' + str(X_train.shape))
     print_log('info', 'train Y shape = ' + str(Y_train.shape))
     print_log('info', 'validate X shape = ' + str(X_validate.shape))
@@ -383,8 +390,8 @@ def main():
     print_log('info', 'test X shape = ' + str(X_test.shape))
     print_log('info', 'test Y shape = ' + str(Y_test.shape))
 
-    unknown_index = args.command_list.index('unknown')
-    print_log('info', 'number of neg in test set = ' + str(len(Y_test[Y_test == unknown_index])))
+    print_log('info', 'number of pos in test set = ' + str(len(test_pos_index)))
+    print_log('info', 'number of neg in test set = ' + str(len(test_neg_index)))
 
     # model training
 
@@ -416,24 +423,20 @@ def main():
     print_log('info', 'val_loss = ' + str(val_loss))
     print_log('info', 'val_acc = ' + str(val_acc))
 
-    pos_score = model.evaluate(X_test[Y_test != unknown_index], Y_test[Y_test != unknown_index], verbose=0)
-    neg_score = model.evaluate(X_test[Y_test == unknown_index], Y_test[Y_test == unknown_index], verbose=0)
+    pos_score = model.evaluate(X_test[test_pos_index], Y_test[test_pos_index], verbose=0)
+    neg_score = model.evaluate(X_test[test_neg_index], Y_test[test_neg_index], verbose=0)
     test_score = model.evaluate(X_test, Y_test, verbose=0)
 
-    print_log('info', 'pos_score = ' + pos_score)
-    print_log('info', 'neg_score = ' + neg_score)
-    print_log('info', 'test_score = ' + test_score)
+    print_log('info', 'Test loss on positives = ' + str(pos_score[0]))
+    print_log('info', 'Test accuracy on positives = ' + str(pos_score[1]))
 
-    print_log('info', 'Test loss on positives = ' + pos_score[0])
-    print_log('info', 'Test accuracy on positives = ' + pos_score[1])
+    print_log('info', 'Test loss on negatives = ' + str(neg_score[0]))
+    print_log('info', 'Test accuracy on negatives = ' + str(neg_score[1]))
 
-    print_log('info', 'Test loss on negatives = ' + neg_score[0])
-    print_log('info', 'Test accuracy on negatives = ' + neg_score[1])
+    print_log('info', 'Test loss = ' + str(test_score[0]))
+    print_log('info', 'Test accuracy = ' + str(test_score[1]))
 
-    print_log('info', 'Test loss = ' + test_score[0])
-    print_log('info', 'Test accuracy = ' + test_score[1])
-
-    # generate_weights_json(args.command_list, layers, args.model_name, args.log_file[:-4])
+    generate_weights_json(args.command_list, layers, args.model_name, args.log_file[:-4])
 
     print_log('info', 'training completed')
 

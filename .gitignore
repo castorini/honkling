@@ -1,6 +1,5 @@
 .DS_STORE
 training/.ipynb_checkpoints
-training/.idea
 training/data
 training/sample_data/*.txt
 training/*.log
@@ -9,6 +8,6 @@ training/log
 training/training_data
 training/*.tar.gz
 weights/RES8_NARROW/*.js
-server/.idea
+*.idea
 server/venv
 data/speech_command*
