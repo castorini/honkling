@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 
 # Training Script of RES8_NARROW network for honkling
 # usage :
-#    python training.py -d sample_data -c go yes stop no
+#    python training.py -e 25 -f 5 -b 64 -d ../data/speech_commands -c yes no up down left right on off stop go
 
 
 def print_log(level, msg):
