@@ -96,7 +96,7 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             result = get_audio(index)
 
             if index == test_size - 1 :
-                print('audio retrieval for all ' + str(test_size) + ' is completed');
+                print('\taudio retrieval for all ' + str(test_size) + ' is completed')
         # send headers
         self.send_response(200, "ok")
         self.send_header('Access-Control-Allow-Origin', '*')
