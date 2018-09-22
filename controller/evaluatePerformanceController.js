@@ -28,6 +28,7 @@ function enableEvaluateBtn() {
 }
 
 function resetEvalPerf() {
+  $('#statusBar').text('Please wait for completion');
   initProgressBar();
   $('#evaluateProgressBarWrapper').hide();
   $('#reportTableWrapper').hide();
@@ -48,11 +49,6 @@ function updateProgressBar() {
   $('#evaluateProgressBar').attr('aria-valuenow', index);
   $('#evaluateProgressBar').css('width', percent+'%');
   $('#evaluateProgressBar').text(percent + ' % ( ' + index + ' / ' + totalCount + ' )');
-}
-
-function displayCurrProgress() {
-  $('#statusBar').text('Measuring performance '+ ' ( ' + index + '/' + totalCount + ' )');
-  updateProgressBar();
 }
 
 function displaySummaryTable() {
@@ -295,7 +291,7 @@ function evaluate() {
   evalDeferred.done(function() {
     saveResult();
     index++;
-    displayCurrProgress();
+    updateProgressBar();
     delete offlineProcessor;
     evaluate();
   }).fail(function(err) {
