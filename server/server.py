@@ -16,11 +16,6 @@ test_size = 0
 X_test = []
 Y_test = []
 
-def unison_shuffled_copies(X, Y, seed):
-    assert len(X) == len(Y)
-    p = np.random.RandomState(seed).permutation(len(X))
-    return X[p], Y[p]
-
 def prepare_dataset():
     print('loading data set with command list = ' + str(command_list))
     print('data dir = ' + DATA_DIR_PATH)
@@ -83,9 +78,9 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             command_list = unquote(params['commands'][0]).split(',')
             seed = int(params['randomSeed'][0])
             X, Y = prepare_dataset()
-            X, Y = unison_shuffled_copies(X, Y, seed)
-            _, _, X_test = np.split(X, [int(.8 * len(X)), int(.9 * len(X))])
-            _, _, Y_test = np.split(Y, [int(.8 * len(Y)), int(.9 * len(Y))])
+            p = np.random.RandomState(seed).permutation(len(X))[int(.9 * len(X)):]
+            X_test = X[p]
+            Y_test = Y[p]
             test_size = len(Y_test)
             neg_label_index = command_list.index('unknown')
 
