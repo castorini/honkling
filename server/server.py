@@ -1,104 +1,76 @@
-#!/usr/bin/env python3
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlparse, parse_qs, unquote
-import numpy as np
 import json
 import librosa
 import os
+import numpy as np
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs, unquote
 
 HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8080
 DATA_DIR_PATH = '../data/speech_commands'
 
-audio_files = {}
-unknown_audio_files = {}
-size_per_unknown_keyword = 0
-unknown_keywords = []
-sample_rate = 0;
+sample_rate = 0
+neg_label_index = 0
+command_list = []
+test_size = 0
+X_test = []
+Y_test = []
 
-def init_audio_files(commands, size):
-    print('\ninitializing dataset for commands ' + str(commands) + ' with '
-          + str(size) + ' audios each')
+def unison_shuffled_copies(X, Y, seed):
+    assert len(X) == len(Y)
+    p = np.random.RandomState(seed).permutation(len(X))
+    return X[p], Y[p]
 
-    global audio_files, unknown_audio_files, size_per_unknown_keyword, unknown_keywords
+def prepare_dataset():
+    print('loading data set with command list = ' + str(command_list))
+    print('data dir = ' + DATA_DIR_PATH)
 
-    if bool(audio_files):
-        audio_files = {}
-        unknown_audio_files = {}
-        size_per_unknown_keyword = 0
-        unknown_keywords = []
+    X = []
+    Y = []
 
-    # generate unknown keyword sets
     for folder_name in os.listdir(DATA_DIR_PATH):
-        if folder_name == '_background_noise_':
+        path_name = os.path.join(DATA_DIR_PATH, folder_name)
+        # if not a directory, continue
+        if os.path.isfile(path_name):
             continue
-        folder_path = os.path.join(DATA_DIR_PATH, folder_name)
-        if os.path.isdir(folder_path) and folder_name not in commands:
-            unknown_keywords.append(folder_name)
-            unknown_audio_files[folder_name] = []
-
-    print('unknown keywords : ' + str(unknown_keywords))
-
-    # populate positive sets
-    for folder_name in commands:
-        if folder_name == 'unknown':
+        # if bg noise folder, continue
+        elif folder_name == "_background_noise_":
             continue
-        folder_path = os.path.join(DATA_DIR_PATH, folder_name)
-        audio_files[folder_name] = os.listdir(folder_path)[:size]
+        for filename in os.listdir(path_name):
+            wav_name = os.path.join(path_name, filename)
 
-    # populate negative sets
-    size_per_unknown_keyword = size // len(unknown_keywords) + 1
-    print('number of commands in unknown is ' + str(len(unknown_keywords)) +
-          ' each command with ' + str(size_per_unknown_keyword) + ' audios each')
-    for folder_name in unknown_keywords:
-        folder_path = os.path.join(DATA_DIR_PATH, folder_name)
-        unknown_audio_files[folder_name] = os.listdir(folder_path)[:size_per_unknown_keyword]
+            if os.path.isfile(wav_name):
+                # get time series
+                data = librosa.core.load(wav_name, sr=sample_rate)[0]
+                data = np.pad(data, (0, sample_rate - len(data)), 'constant')
+                X.append(data)
+                if folder_name in command_list:
+                    index = command_list.index(folder_name)
+                else:
+                    index = command_list.index('unknown')
+                Y.append(index)
 
-    print('< positive commands counts >')
-    for audio_command in audio_files:
-        print('\t', audio_command, len(audio_files[audio_command]))
-    print('< negative commands counts >')
-    for audio_command in unknown_audio_files:
-        print('\t', audio_command, len(unknown_audio_files[audio_command]))
+    return np.array(X), np.array(Y)
 
-    result = {}
-    result['positiveAudioCount'] = size # TODO :: size should contain correct count in case there are not enough audio files
-    result['negativeAudioCount'] = size_per_unknown_keyword
-    result['commands'] = commands
-    result['unknownKeywords'] = unknown_keywords
-    result['totalCount'] = size * len(audio_files) + size_per_unknown_keyword * len(unknown_audio_files)
-
-    return result
-
-def get_audio(command, index):
-    if command == 'unknown':
-        command = unknown_keywords[index % len(unknown_keywords)]
-        index = index // len(unknown_keywords)
-
-        file_name = unknown_audio_files[command][index]
-        print('\nretrieving [negative] ' + str(index) + 'th audio for ' + command + ' (' + file_name + ')')
-    else :
-        index = index % len(audio_files[command])
-        file_name = audio_files[command][index]
-        print('\nretrieving [positive] ' + str(index) + 'th audio for ' + command + ' (' + file_name + ')')
-
-    file_path = os.path.join(DATA_DIR_PATH, command, file_name)
-    data = librosa.core.load(file_path, sr=sample_rate)[0]
-
-    features = np.pad(data, (0, sample_rate - len(data)), 'constant')
-
+def get_audio(index):
+    label_index = Y_test[index]
     data = {}
-    data['command'] = command
-    data['index'] = index
-    data['fileName'] = file_name
-    data['sampleRate'] = sample_rate
-    data['features'] = features.tolist()
+    data['commandIndex'] = int(label_index)
+    data['command'] = command_list[label_index]
 
+    data['class'] = 'positive'
+    if label_index == neg_label_index:
+        data['class'] = 'negative'
+
+    print('\nretrieving ' + str(index) + ' / ' + str(test_size) + ' - ' + data['command'] + ' (' + data['class'] + ')')
+
+    data['index'] = index
+    data['features'] = X_test[index].tolist()
     return data
 
 class AudioRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        global sample_rate
+        global sample_rate, command_list, test_size, neg_label_index, X_test, Y_test
 
         print(urlparse(self.path))
         parsed_url = urlparse(self.path)
@@ -107,14 +79,26 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         path = parsed_url.path
 
         if path == '/init':
-            commands = unquote(params['commands'][0]).split(',')
-            size = int(params['size'][0])
             sample_rate = int(params['sampleRate'][0])
-            result = init_audio_files(commands, size)
+            command_list = unquote(params['commands'][0]).split(',')
+            seed = int(params['randomSeed'][0])
+            X, Y = prepare_dataset()
+            X, Y = unison_shuffled_copies(X, Y, seed)
+            _, _, X_test = np.split(X, [int(.8 * len(X)), int(.9 * len(X))])
+            _, _, Y_test = np.split(Y, [int(.8 * len(Y)), int(.9 * len(Y))])
+            test_size = len(Y_test)
+            neg_label_index = command_list.index('unknown')
+
+            result = {}
+            result['totalCount'] = test_size
+            result['posCount'] = len(Y_test[Y_test != neg_label_index])
+            result['negCount'] = len(Y_test[Y_test == neg_label_index])
+
+            print('init result', result)
+
         elif path == '/get_audio':
-            command = params['command'][0]
             index = int(params['index'][0])
-            result = get_audio(command, index)
+            result = get_audio(index)
         # send headers
         self.send_response(200, "ok")
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -131,9 +115,6 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         return
 
 if __name__ == '__main__':
-    print('starting server ...')
-
-    #Server settings
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)
     print('running server ...')

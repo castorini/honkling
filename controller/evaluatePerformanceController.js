@@ -1,24 +1,19 @@
-// TODO :: properly handle failure cases
-
 // display updates
 
 // progress bar
-let totalTestCount;
-let processedTestCount;
+let totalCount;
+let index;
 
 function initEvalPerf() {
-  $('#testSizeInput').val(evaluationConfig['testSizePerCommand']);
-  $('#statusBar').text('There are ' + model.weights['commands'].length + ' commands for evaluation. Recommended test size is '+ evaluationConfig['testSizePerCommand']);
+  $('#statusBar').text('Keywords for evaluation : ' + model.weights['commands'] + ' ('+ model.weights['commands'].length +')');
 }
 
 function displayInitMsg() {
   $('#statusBar').text('Preparing test data set ...');
-  $('#testSizeInputWrapper').hide();
 }
 
-function displayInitFailedMsg() {
-  $('#statusBar').text('Failed to prepare test data set. Please try again');
-  $('#testSizeInputWrapper').show();
+function displayFailedMsg(msg) {
+  $('#statusBar').text(msg);
   enableEvaluateBtn();
 }
 
@@ -35,43 +30,43 @@ function enableEvaluateBtn() {
 function resetEvalPerf() {
   initProgressBar();
   $('#evaluateProgressBarWrapper').hide();
-  $('#testSizeInputWrapper').show();
-  $('#summaryTableWrapper').hide();
+  $('#reportTableWrapper').hide();
   enableEvaluateBtn();
   initEvalPerf();
 }
 
 function initProgressBar() {
   $('#evaluateProgressBarWrapper').show();
-  $('#evaluateProgressBar').attr('aria-valuemax', totalTestCount);
+  $('#evaluateProgressBar').attr('aria-valuemax', totalCount);
   $('#evaluateProgressBar').attr('aria-valuemin', 0);
   $('#evaluateProgressBar').attr('aria-valuenow', 0);
   $('#evaluateProgressBar').css('width', 0);
 }
 
 function updateProgressBar() {
-  let percent = Math.floor(processedTestCount/totalTestCount*100);
-  $('#evaluateProgressBar').attr('aria-valuenow', processedTestCount);
+  let percent = Math.floor(index/totalCount*100);
+  $('#evaluateProgressBar').attr('aria-valuenow', index);
   $('#evaluateProgressBar').css('width', percent+'%');
-  $('#evaluateProgressBar').text(percent + ' % ( ' +processedTestCount + ' / ' + totalTestCount + ' )');
+  $('#evaluateProgressBar').text(percent + ' % ( ' + index + ' / ' + totalCount + ' )');
 }
 
 function displayCurrProgress() {
-  $('#statusBar').text('Measuring performance for command ' + model.weights['commands'][commandIndex] + ' ('+audioIndex+'/'+evaluationConfig['testSizePerCommand']+')');
+  $('#statusBar').text('Measuring performance '+ ' ( ' + index + '/' + totalCount + ' )');
   updateProgressBar();
 }
 
 function displaySummaryTable() {
-  $('#summaryTableWrapper').show();
-  generateTable($('#summaryTable'), reports['summary']);
+  $('#reportTableWrapper').show();
+  generateTable($('#summaryReportTable'), reports['summary']);
+  generateTable($('#posReportTable'), reports['positive']);
+  generateTable($('#negReportTable'), reports['negative']);
 }
 
 function displayEvalCompete() {
-  $('#statusBar').text('Performance evaluation has completed!');
+  $('#statusBar').text('Performance evaluation has completed for ' + evalResult['positive']['totalCount'] + ' positive and ' + evalResult['negative']['totalCount'] + ' keywords!');
   $('#evaluateProgressBarWrapper').hide();
   displaySummaryTable();
   $('#evaluateProgressBarWrapper').hide();
-  $('#testSizeInputWrapper').show();
   enableEvaluateBtn();
 }
 
@@ -103,7 +98,7 @@ function formatNumber(num) {
 }
 
 function generateTable(table, report) {
-  addTableEntryWithHeading(table, "total count", report["processedTestCount"], "", "ACCURACY", 3);
+  addTableEntryWithHeading(table, "total count", report["totalCount"], "", "ACCURACY", 3);
   addTableEntry(table, "success count", report["successCount"], "");
   addTableEntry(table, "accuracy", formatNumber(report["accuracy"] * 100, 2), "%");
 
@@ -126,11 +121,57 @@ function generateTable(table, report) {
 // report generation
 
 let reports = {};
+let evaluation = {};
 let evalResult = {};
+
+function getEmptyEvalResult() {
+  let result = {};
+  result['mfccCompTime'] = [];
+  result['inferenceTime'] = [];
+  result['processingTime'] = [];
+  result['successCount'] = 0;
+  result['totalCount'] = 0;
+  return result;
+}
+
+function initEvalResults() {
+  evalResult['positive'] = getEmptyEvalResult();
+  evalResult['negative'] = getEmptyEvalResult();
+  evalResult['summary'] = getEmptyEvalResult();
+}
+
+function saveResult() {
+  let command = evaluation['audio']['command'];
+  let classification = evaluation['audio']['class'];
+
+  let mfccCompTime = evaluation.mfccCompEndTime - evaluation.startTime;
+  let inferenceTime = evaluation.endTime - evaluation.mfccCompEndTime;
+  let processingTime = evaluation.endTime - evaluation.startTime;
+  let predResult = command == evaluation.prediction;
+
+  // console.log('< Generated report >');
+  // console.log('  label = '+ command + ', index = ' + index);
+  // console.log('  mfccCompTime (ms) = ' + mfccCompTime);
+  // console.log('  inferenceTime (ms) = ' + inferenceTime);
+  // console.log('  processingTime (ms) = ' + processingTime);
+  // console.log('  prediction = ' + evaluation.prediction + ' ( '+predResult+' )');
+
+  // accuracy aggregation
+  if (predResult) {
+      evalResult[classification]['successCount']++;
+      evalResult['summary']['successCount']++;
+  }
+
+  evalResult[classification]['mfccCompTime'].push(mfccCompTime);
+  evalResult['summary']['mfccCompTime'].push(mfccCompTime);
+  evalResult[classification]['inferenceTime'].push(inferenceTime);
+  evalResult['summary']['inferenceTime'].push(inferenceTime);
+  evalResult[classification]['processingTime'].push(processingTime);
+  evalResult['summary']['processingTime'].push(processingTime);
+}
 
 function getEmptyReport() {
   let report = {};
-  report['processedTestCount'] = 0;
 
   report['mfccCompTimeSum'] = 0;
   report['mfccCompTimeAvg'] = 0;
@@ -153,110 +194,44 @@ function getEmptyReport() {
   return report;
 }
 
-function initReports() {
-  let command;
-  for (var i = 0; i < model.weights['commands'].length ; i++) {
-    command = model.weights['commands'][i];
-    reports[command] = getEmptyReport();
-  }
-}
+function generateReport(data) {
+  let report = getEmptyReport();
 
-function saveResult() {
-  let command = evalResult.command;
-  evalResult.mfccCompTime = evalResult.mfccCompEndTime - evalResult.startTime;
-  evalResult.inferenceTime = evalResult.endTime - evalResult.mfccCompEndTime;
-  evalResult.processingTime = evalResult.endTime - evalResult.startTime;
-  evalResult.result = command == evalResult.prediction;
+  report['successCount'] = data['successCount'];
+  report['totalCount'] = data['totalCount'];
+  report['accuracy'] = report['successCount'] / report['totalCount'];
 
-  // if (command == 'unknown') {
-  //   console.log('< Generated report - negative case >');
-  // } else {
-  //   console.log('< Generated report - positive case >');
-  // }
-  // console.log('  audio = '+ evalResult.label + ', index = ' + audioIndex + ' file name = ' + currAudioFile);
-  // console.log('  mfccCompTime (ms) = ' + evalResult.mfccCompTime);
-  // console.log('  inferenceTime (ms) = ' + evalResult.inferenceTime);
-  // console.log('  processingTime (ms) = ' + evalResult.processingTime);
-  // console.log('  prediction = ' + command + ' -> ' + evalResult.prediction + ' ( '+evalResult.result+' )');
-
-  // accuracy aggregation
-  reports[command]['processedTestCount']++;
-  if (evalResult.result) {
-    reports[command]['successCount']++;
-    reports[command]['accuracy'] = reports[command]['successCount'] / reports[command]['processedTestCount'];
-  }
-
-  // mfcc generation data aggregation
-  reports[command]['mfccCompTimeSum'] += evalResult.mfccCompTime;
-  if (evalResult.mfccCompTime < reports[command]['mfccCompTimeMin']) {
-    reports[command]['mfccCompTimeMin'] = evalResult.mfccCompTime;
-  }
-  if (evalResult.mfccCompTime > reports[command]['mfccCompTimeMax']) {
-    reports[command]['mfccCompTimeMax'] = evalResult.mfccCompTime;
-  }
-  reports[command]['mfccCompTimeAvg'] = reports[command]['mfccCompTimeSum'] / reports[command]['processedTestCount'];
-
-  // inference data aggregation
-  reports[command]['inferenceTimeSum'] += evalResult.inferenceTime;
-  if (evalResult.inferenceTime < reports[command]['inferenceTimeMin']) {
-    reports[command]['inferenceTimeMin'] = evalResult.inferenceTime;
-  }
-  if (evalResult.inferenceTime > reports[command]['inferenceTimeMax']) {
-    reports[command]['inferenceTimeMax'] = evalResult.inferenceTime;
-  }
-  reports[command]['inferenceTimeAvg'] = reports[command]['inferenceTimeSum'] / reports[command]['processedTestCount'];
-
-  // overall processing time (mfcc generation + inference)
-  reports[command]['processingTimeSum'] += evalResult.processingTime;
-  if (evalResult.processingTime < reports[command]['processingTimeMin']) {
-    reports[command]['processingTimeMin'] = evalResult.processingTime;
-  }
-  if (evalResult.processingTime > reports[command]['processingTimeMax']) {
-    reports[command]['processingTimeMax'] = evalResult.processingTime;
-  }
-  reports[command]['processingTimeAvg'] = reports[command]['processingTimeSum'] / reports[command]['processedTestCount'];
-}
-
-function generateSummary() {
-  let summary = getEmptyReport();
-
-  for (var i = 0; i < model.weights['commands'].length ; i++) {
-    command = model.weights['commands'][i];
-
-    summary['processedTestCount'] += reports[command]['processedTestCount'];
-
-    summary['mfccCompTimeSum'] += reports[command]['mfccCompTimeSum'];
-    if (reports[command]['mfccCompTimeMin'] < summary['mfccCompTimeMin']) {
-      summary['mfccCompTimeMin'] = reports[command]['mfccCompTimeMin'];
+  for (var i = 0; i < data['totalCount']; i++) {
+    report['mfccCompTimeSum'] += data['mfccCompTime'][i];
+    if (data['mfccCompTime'][i] < report['mfccCompTimeMin']) {
+      report['mfccCompTimeMin'] = data['mfccCompTime'][i];
     }
-    if (reports[command]['mfccCompTimeMax'] > summary['mfccCompTimeMax']) {
-      summary['mfccCompTimeMax'] = reports[command]['mfccCompTimeMax'];
+    if (data['mfccCompTime'][i] > report['mfccCompTimeMax']) {
+      report['mfccCompTimeMax'] = data['mfccCompTime'][i];
     }
 
-    summary['inferenceTimeSum'] += reports[command]['inferenceTimeSum'];
-    if (reports[command]['inferenceTimeMin'] < summary['inferenceTimeMin']) {
-      summary['inferenceTimeMin'] = reports[command]['inferenceTimeMin'];
+    report['inferenceTimeSum'] += data['inferenceTime'][i];
+    if (data['inferenceTime'][i] < report['inferenceTimeMin']) {
+      report['inferenceTimeMin'] = data['inferenceTime'][i];
     }
-    if (reports[command]['inferenceTimeMax'] > summary['inferenceTimeMax']) {
-      summary['inferenceTimeMax'] = reports[command]['inferenceTimeMax'];
-    }
-
-    summary['processingTimeSum'] += reports[command]['processingTimeSum'];
-    if (reports[command]['processingTimeMin'] < summary['processingTimeMin']) {
-      summary['processingTimeMin'] = reports[command]['processingTimeMin'];
-    }
-    if (reports[command]['processingTimeMax'] > summary['processingTimeMax']) {
-      summary['processingTimeMax'] = reports[command]['processingTimeMax'];
+    if (data['inferenceTime'][i] > report['inferenceTimeMax']) {
+      report['inferenceTimeMax'] = data['inferenceTime'][i];
     }
 
-    summary['successCount'] += reports[command]['successCount'];
+    report['processingTimeSum'] += data['processingTime'][i];
+    if (data['processingTime'][i] < report['processingTimeMin']) {
+      report['processingTimeMin'] = data['processingTime'][i];
+    }
+    if (data['processingTime'][i] > report['processingTimeMax']) {
+      report['processingTimeMax'] = data['processingTime'][i];
+    }
   }
-  summary['mfccCompTimeAvg'] = summary['mfccCompTimeSum']/summary['processedTestCount'];
-  summary['inferenceTimeAvg'] = summary['inferenceTimeSum']/summary['processedTestCount'];
-  summary['processingTimeAvg'] = summary['processingTimeSum']/summary['processedTestCount'];
-  summary['accuracy'] = summary['successCount']/summary['processedTestCount'];
 
-  reports['summary'] = summary;
+  report['mfccCompTimeAvg'] = report['mfccCompTimeSum'] / report['totalCount'];
+  report['inferenceTimeAvg'] = report['inferenceTimeSum'] / report['totalCount'];
+  report['processingTimeAvg'] = report['processingTimeSum'] / report['totalCount'];
+
+  return report;
 }
 
 // performance evaluation
@@ -264,39 +239,36 @@ function generateSummary() {
 let evaluationInterrupt;
 let evalDeferred;
 let offlineProcessor;
-let commandIndex = 0;
-let audioIndex = 0;
-
-let currAudioFile;
 
 function measurePerf(data) {
-  evalResult.startTime = performance.now();
+  evaluation.startTime = performance.now();
   offlineProcessor = new OfflineAudioProcessor(audioConfig, data);
   offlineProcessor.getMFCC().done(function(mfccData) {
-    evalResult.mfccCompEndTime = performance.now();
-    evalResult.prediction = predict(mfccData, modelName, model);
-    evalResult.endTime = performance.now();
+    evaluation.mfccCompEndTime = performance.now();
+    evaluation.prediction = predict(mfccData, modelName, model);
+    evaluation.endTime = performance.now();
     evalDeferred.resolve();
   }).fail(function(err) {
-    console.log('performance measuring for ' + evalResult.label + 'for ' + audioIndex + ' th audio failed');
+    console.log('performance measuring for ' + evaluation.label + 'for ' + index + ' th audio failed');
     evalDeferred.reject(err);
   })
 }
 
 // retrieval of single audio
-function getAudioAndMeasurePerf(command, index) {
+function getAudioAndMeasurePerf(index) {
   return $.ajax({
     dataType: 'json',
     url: 'http://honkling.cs.uwaterloo.ca:8080/get_audio',
     crossDomain: true,
-    data: {command:command, index:index}
+    data: {index:index}
   }).done(function(data) {
-    currAudioFile = data['fileName'];
-    evalResult.label = data['command'];
+    evaluation['audio'] = data;
     measurePerf(data['features']);
   }).fail(function(err) {
-    console.log('audio retrieval failed for ' + audioIndex + ' th audio of ' + evalResult.label);
+    let errMsg = 'audio retrieval for ' + index + ' th audio failed';
+    console.log(errMsg);
     console.log(err);
+    displayFailedMsg(errMsg);
   });
 }
 
@@ -307,53 +279,43 @@ function evaluate() {
   }
 
   // base case
-  if (model.weights['commands'].length == commandIndex) {
-    console.log('result ', reports);
-    generateSummary();
-    console.log('summary', reports['summary']);
+  if (index == totalCount) {
+    reports = {
+        'positive' : generateReport(evalResult['positive']),
+        'negative' : generateReport(evalResult['negative']),
+        'summary' : generateReport(evalResult['summary'])
+    }
     displayEvalCompete();
     return;
   }
 
   evalDeferred = $.Deferred();
 
-  evalResult.command = model.weights['commands'][commandIndex];
-  // console.log('start evaluation for ' + evalResult.command + ' with index ' + audioIndex);
-
-  getAudioAndMeasurePerf(evalResult.command, audioIndex);
+  getAudioAndMeasurePerf(index);
   evalDeferred.done(function() {
     saveResult();
-    audioIndex++;
-    if (audioIndex == evaluationConfig['testSizePerCommand']) {
-      commandIndex++;
-      audioIndex = 0;
-    }
-    processedTestCount++;
+    index++;
     displayCurrProgress();
     delete offlineProcessor;
     evaluate();
   }).fail(function(err) {
-    console.log('performance measuring failed');
+    let errMsg = 'Performance measuring failed. Please try again'
+    console.log(errMsg);
     console.log(err);
+    displayFailedMsg(errMsg);
   });
 }
 
 function initEvalState() {
-  audioIndex = 0;
-  commandIndex = 0;
+  index = 0;
   evaluationInterrupt = false;
-  evaluationConfig['testSizePerCommand'] = $('#testSizeInput').val();
+  initEvalResults();
 }
 
 function prepareEval() {
   initEvalState();
   enableStopEvaluateBtn();
   displayInitMsg();
-}
-
-function startEval() {
-  initProgressBar();
-  initReports();
 }
 
 $(document).on('click', '#stopEvaluateBtn', function() {
@@ -369,25 +331,32 @@ $(document).on('click', '#evaluateBtn', function() {
     crossDomain: true,
     data : {
       commands : model.weights['commands'].toString(),
-      size : evaluationConfig['testSizePerCommand'],
+      randomSeed :10,
       sampleRate : audioConfig['offlineSampleRate']
    },
   }).done(function(initSummary) {
     console.log('server initialization completed', initSummary);
 
     // TODO :: display details about evaluation process with summary provided
-    processedTestCount = 0;
-    totalTestCount = initSummary['positiveAudioCount'] * initSummary['commands'].length;
+    index = 0;
+    totalCount = initSummary['totalCount'];
+    evalResult['summary']['totalCount'] = totalCount;
+    evalResult['positive']['totalCount'] = initSummary['posCount'];
+    evalResult['negative']['totalCount'] = initSummary['negCount'];
 
-    startEval();
-    evalStartTime = performance.now();
+    initProgressBar();
     evaluate();
 
   }).fail(function(err) {
-    displayInitFailedMsg();
-    console.log('server initialization failed');
+    let errMsg = 'Failed to prepare test data set. Please try again'
+    console.log(errMsg);
     console.log(err);
+    displayFailedMsg(errMsg);
   });
+  // warming up model prediction
+  for (var i = 0; i < sampleDataLabel.length; i++) {
+    predict(mfccData[sampleDataLabel[i]], modelName, model);
+  }
 });
 
 $(document).on('click', '#stopEvaluateBtn', function() {

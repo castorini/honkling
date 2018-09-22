@@ -1,7 +1,3 @@
-const evaluationConfig = {
-	'testSizePerCommand' : 500
-}
-
 const audioConfig = {
 	'offlineSampleRate' : 16000,
 	'offlineHopSize' : 10, // in ms
