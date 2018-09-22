@@ -12,27 +12,27 @@ from argparse import ArgumentParser
 sample_rate = 16000
 
 def print_data(name, data) :
-    print name, '\t', data.dtype, '\t', data.shape, '\n', data
+    print(name, '\t', data.dtype, '\t', data.shape, '\n', data)
     if (np.iscomplex(np.min(data))) :
-        print '\trange : ( ', np.min(data), ' ~ ', np.max(data), ' )'
-        print '\tmean : ', np.mean(data)
-        print '\tmdedian : ', np.median(data) , '\n'
+        print('\trange : ( ', np.min(data), ' ~ ', np.max(data), ' )')
+        print('\tmean : ', np.mean(data))
+        print('\tmdedian : ', np.median(data) , '\n')
     else :
-        print '\trange : ( ', round(np.min(data), 10), ' ~ ', round(np.max(data), 10), ' )'
-        print '\tmean : ', round(np.mean(data), 10)
-        print '\tmdedian : ', round(np.median(data), 10) , '\n'
+        print('\trange : ( ', round(np.min(data), 10), ' ~ ', round(np.max(data), 10), ' )')
+        print('\tmean : ', round(np.mean(data), 10))
+        print('\tmdedian : ', round(np.median(data), 10) , '\n')
 
 def timeshift_audio(config, data):
     shift = (sample_rate * config["timeshift_ms"]) // 1000
     shift = random.randint(-shift, shift)
-    print 'shift = ', shift, '\n'
+    print('shift = ', shift, '\n')
     a = -min(0, shift)
     b = max(0, shift)
     data = np.pad(data, (a, b), "constant")
     return data[:len(data) - a] if a else data[b:]
 
 def preprocess_audio(data, config):
-    amp_spectrum = librosa.core.stft(data, n_fft=config["n_fft"], hop_length=config["hop_length"], pad_mode='constant');
+    amp_spectrum = librosa.core.stft(data, n_fft=config["n_fft"], hop_length=config["hop_length"], pad_mode='constant')
     print_data('amp_spectrum data', amp_spectrum)
 
     # np.abs(D[f, t]) is the magnitude of frequency bin f at frame t

@@ -18,7 +18,7 @@ function init_view(commands) {
 
 function toggleCommand(command) {
   if (command == 'unknown') {
-    $('#statusBar').text('Failed to identified keyword spoken. Please try again');
+    $('#statusBar').text('Failed to identify keyword spoken. Please try again');
   } else {
     $('#statusBar').text('keyword spoken is ... ' + command.toUpperCase() + ' !!');
   }

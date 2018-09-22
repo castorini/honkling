@@ -1,8 +1,9 @@
 from keras.models import *
 from keras.layers import *
+import pandas as pd
+import numpy as np
 import keras
 import os
-import numpy as np
 import time
 import datetime
 import logging
@@ -15,12 +16,12 @@ from argparse import ArgumentParser
 
 # Training Script of RES8_NARROW network for honkling
 # usage :
-#    python training.py -d sample_data -c go yes stop no
+#    python training.py -d ../data/speech_commands -c yes no up down left right on off stop go
 
 
 def print_log(level, msg):
     if (level == 'info'):
-        print msg
+        print(msg)
         logging.info(msg)
     if (level == 'debug'):
         logging.debug(msg)
@@ -84,15 +85,15 @@ def define_layers(config) :
         name="dense"
     )
 
-    layers['add'] = Add();
+    layers['add'] = Add()
 
-    layers['globalAvgPool'] = GlobalAveragePooling2D();
+    layers['globalAvgPool'] = GlobalAveragePooling2D()
 
-    layers['output'] = Softmax();
+    layers['output'] = Softmax()
 
     print_log('debug', '< layers definitions >')
 
-    for name, layer in layers.iteritems():
+    for name, layer in layers.items():
         print_log('debug', name +' = ' +str(layer.get_config()))
 
     return layers
@@ -100,7 +101,7 @@ def define_layers(config) :
 
 def compile_model(config, layers):
     input = Input(shape=config['input_shape'], name='input')
-    x = input;
+    x = input
     x = layers['bn0'](x)
 
     for i in range(config['n_layers'] + 1):
@@ -142,10 +143,10 @@ class ProgressChecker(keras.callbacks.Callback):
         self.timestamp = [self.start_time]
         self.elapsed_time = []
         print_log('info', 'training start time = ' + datetime.datetime.fromtimestamp(self.start_time).strftime('%Y-%m-%d %H:%M:%S'))
-	self.loss = []
-	self.categorical_accuracy = []
-	self.val_loss = []
-	self.val_categorical_accuracy = []
+        self.loss = []
+        self.categorical_accuracy = []
+        self.val_loss = []
+        self.val_categorical_accuracy = []
 
     def on_epoch_end(self, epoch, logs={}):
         if epoch % self.frequency == 0 and epoch != 0:
@@ -156,12 +157,12 @@ class ProgressChecker(keras.callbacks.Callback):
 
             remaing_epoch = self.num_epochs - epoch
             remaining_time = remaing_epoch / self.frequency * elapsed_time
-            print_log('info', 'expected remaining time : '+ time.strftime("%H:%M:%S", time.gmtime(remaining_time)))
+            print_log('info', '\texpected remaining time : '+ time.strftime("%H:%M:%S", time.gmtime(remaining_time)))
 
-            print_log('info', 'loss = ' + str(logs['loss']))
-            print_log('info', 'categorical_accuracy = ' + str(logs['categorical_accuracy']))
-            print_log('info', 'val_loss = ' + str(logs['val_loss']))
-            print_log('info', 'val_categorical_accuracy = ' + str(logs['val_categorical_accuracy']))
+            print_log('info', '\tloss = ' + str(logs['loss']))
+            print_log('info', '\tcategorical_accuracy = ' + str(logs['categorical_accuracy']))
+            print_log('info', '\tval_loss = ' + str(logs['val_loss']))
+            print_log('info', '\tval_categorical_accuracy = ' + str(logs['val_categorical_accuracy']))
 
             self.loss.append(logs['loss'])
             self.categorical_accuracy.append(logs['categorical_accuracy'])
@@ -214,42 +215,47 @@ def prepare_dataset(config, command_list, data_dir, input_shape):
         # if bg noise folder, continue
         elif folder_name == "_background_noise_":
             continue
-        if folder_name in command_list:
+        for filename in os.listdir(path_name):
 
-            for filename in os.listdir(path_name):
+            # choose a random bg_noise
+            bg_noise = random.choice(bg_noise_audio)
+            a = random.randint(0, len(bg_noise) - config["sample_rate"] - 1)
+            bg_noise = bg_noise[a:a + config["sample_rate"]]
+            wav_name = os.path.join(path_name, filename)
 
-                # choose a random bg_noise
-                bg_noise = random.choice(bg_noise_audio)
-                a = random.randint(0, len(bg_noise) - config["sample_rate"] - 1)
-                bg_noise = bg_noise[a:a + config["sample_rate"]]
-                wav_name = os.path.join(path_name, filename)
+            if os.path.isfile(wav_name):
+                # get time series
+                data = librosa.core.load(wav_name, sr=config["sample_rate"])[0]
+                # pad data
+                data = np.pad(data, (0, max(0, config["sample_rate"] - len(data))), "constant")
+                # time shift data
+                data = timeshift_audio(config, data)
+                if random.random() < 0.8:
+                    a = random.random() * 0.1
+                    data = np.clip(a * bg_noise + data, -1, 1)
 
-                if os.path.isfile(wav_name):
-                    # get time series
-                    data = librosa.core.load(wav_name, sr=config["sample_rate"])[0]
-                    # pad data
-                    data = np.pad(data, (0, max(0, config["sample_rate"] - len(data))), "constant")
-                    # time shift data
-                    data = timeshift_audio(config, data)
-                    if random.random() < 0.8:
-                        a = random.random() * 0.1
-                        data = np.clip(a * bg_noise + data, -1, 1)
+                amp_spectrum = librosa.core.stft(data, n_fft=config["n_fft"], hop_length=config["hop_length"], pad_mode='constant')
+                power_spectrum = np.abs(amp_spectrum)**2
+                mel_basis = librosa.filters.mel(config["sample_rate"], n_fft=config["n_fft"], n_mels=config["n_mels"], fmin=config["fmin"], fmax=config["fmax"])
+                data = np.dot(mel_basis, power_spectrum)
 
-                    amp_spectrum = librosa.core.stft(data, n_fft=config["n_fft"], hop_length=config["hop_length"], pad_mode='constant');
-                    power_spectrum = np.abs(amp_spectrum)**2
-                    mel_basis = librosa.filters.mel(config["sample_rate"], n_fft=config["n_fft"], n_mels=config["n_mels"], fmin=config["fmin"], fmax=config["fmax"])
-                    data = np.dot(mel_basis, power_spectrum)
-
-                    data[data > 0] = np.log(data[data > 0])
-                    data = [np.matmul(dct_filters, x) for x in np.split(data, data.shape[1], axis=1)]
-                    data = np.array(data, order="F").squeeze(2).astype(np.float32)
-                    data = data.reshape(input_shape)
-                    X.append(data)
+                data[data > 0] = np.log(data[data > 0])
+                data = [np.matmul(dct_filters, x) for x in np.split(data, data.shape[1], axis=1)]
+                data = np.array(data, order="F").squeeze(2).astype(np.float32)
+                data = data.reshape(input_shape)
+                X.append(data)
+                if folder_name in command_list:
                     index = command_list.index(folder_name)
-                    Y.append(index)
+                else:
+                    index = command_list.index('unknown')
+                Y.append(index)
 
     return X, Y
 
+def unison_shuffled_copies(X, Y, seed):
+    assert len(X) == len(Y)
+    p = np.random.RandomState(seed).permutation(len(X))
+    return X[p], Y[p]
 
 def generate_weights_json(command_list, layers, model_name, file_name):
     file = open('../weights/' + model_name + '/' + file_name +'.js', 'w')
@@ -263,7 +269,7 @@ def generate_weights_json(command_list, layers, model_name, file_name):
             file.write(', ')
     file.write('], \n')
 
-    for key, value in layers.iteritems():
+    for key, value in layers.items():
         weights = np.array(value.get_weights())
 
         for i in range(len(weights)):
@@ -285,11 +291,12 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-d", "--data_dir", dest="data_dir", type=str, required=True)
     parser.add_argument('-c', '--command_list', nargs='+', dest="command_list", type=str, required=True)
-    parser.add_argument('-e', '--num_epochs', dest="num_epochs", type=int, default=500)
-    parser.add_argument('-f', '--training_log_frequency', dest="training_log_frequency", type=int, default=50)
+    parser.add_argument('-e', '--num_epochs', dest="num_epochs", type=int, default=26)
+    parser.add_argument('-f', '--training_log_frequency', dest="training_log_frequency", type=int, default=5)
     parser.add_argument('-l', '--log_file', dest="log_file")
-    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=100)
-    parser.add_argument('-lr', '--learning_rate', dest="learning_rate", type=float, default=0.01)
+    parser.add_argument('-b', '--batch_size', dest="batch_size", type=int, default=64)
+    parser.add_argument('-rs', '--random_seed', dest="random_seed", type=int, default=10)
+    parser.add_argument('-lr', '--learning_rate', dest="learning_rate", type=float, default=0.1)
     parser.add_argument('-ts', '--test_size', dest="test_size", type=float, default=0.10)
 
     args = parser.parse_args()
@@ -355,23 +362,37 @@ def main():
         "timeshift_ms" : 0,
         "fmin" : 20,
         "fmax" : 4000,
-    };
+    }
 
     X, Y = prepare_dataset(data_config, args.command_list, args.data_dir + '/', layer_config['input_shape'])
 
     print_log('info', 'total data size = ' + str(len(X)))
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.test_size, random_state=1)
-    Y_train = keras.utils.to_categorical(Y_train, num_classes=args.num_command)
-    Y_test = keras.utils.to_categorical(Y_test, num_classes=args.num_command)
+    X = np.array(X)
+    Y = np.array(Y)
 
-    X_train = np.array(X_train)
-    X_test = np.array(X_test)
+    X_shuffled, Y_shuffled = unison_shuffled_copies(X, Y, args.random_seed)
+
+    X_train, X_validate, X_test = np.split(X_shuffled, [int(.8 * len(X)), int(.9 * len(X))])
+    Y_train, Y_validate, Y_test = np.split(Y_shuffled, [int(.8 * len(Y)), int(.9 * len(Y))])
+
+    neg_label = args.command_list.index('unknown')
+    test_pos_index = Y_test[Y_test != neg_label]
+    test_neg_index = Y_test[Y_test == neg_label]
+
+    Y_train = keras.utils.to_categorical(Y_train, num_classes=args.num_command)
+    Y_validate = keras.utils.to_categorical(Y_validate, num_classes=args.num_command)
+    Y_test = keras.utils.to_categorical(Y_test, num_classes=args.num_command)
 
     print_log('info', 'train X shape = ' + str(X_train.shape))
     print_log('info', 'train Y shape = ' + str(Y_train.shape))
+    print_log('info', 'validate X shape = ' + str(X_validate.shape))
+    print_log('info', 'validate Y shape = ' + str(Y_validate.shape))
     print_log('info', 'test X shape = ' + str(X_test.shape))
     print_log('info', 'test Y shape = ' + str(Y_test.shape))
+
+    print_log('info', 'number of pos in test set = ' + str(len(test_pos_index)))
+    print_log('info', 'number of neg in test set = ' + str(len(test_neg_index)))
 
     # model training
 
@@ -382,7 +403,7 @@ def main():
     training_result = model.fit(
         X_train,
         Y_train,
-        validation_data=(X_test, Y_test),
+        validation_data=(X_validate, Y_validate),
         epochs=args.num_epochs,
         batch_size=args.batch_size,
         callbacks=[ process_checker ],
@@ -403,16 +424,18 @@ def main():
     print_log('info', 'val_loss = ' + str(val_loss))
     print_log('info', 'val_acc = ' + str(val_acc))
 
-    # graphing loss and accuracy
-    #
-    # xc = range(training_config['num_epochs'])
-    #
-    # plt.figure()
-    # plt.plot(xc, train_loss, label="train_loss")
-    # plt.plot(xc, train_acc, label="train_acc")
-    # plt.plot(xc, val_loss, label="val_loss")
-    # plt.plot(xc, val_acc, label="val_acc")
-    # plt.legend()
+    pos_score = model.evaluate(X_test[test_pos_index], Y_test[test_pos_index], verbose=0)
+    neg_score = model.evaluate(X_test[test_neg_index], Y_test[test_neg_index], verbose=0)
+    test_score = model.evaluate(X_test, Y_test, verbose=0)
+
+    print_log('info', 'Test loss on positives = ' + str(pos_score[0]))
+    print_log('info', 'Test accuracy on positives = ' + str(pos_score[1]))
+
+    print_log('info', 'Test loss on negatives = ' + str(neg_score[0]))
+    print_log('info', 'Test accuracy on negatives = ' + str(neg_score[1]))
+
+    print_log('info', 'Test loss = ' + str(test_score[0]))
+    print_log('info', 'Test accuracy = ' + str(test_score[1]))
 
     generate_weights_json(args.command_list, layers, args.model_name, args.log_file[:-4])
 
