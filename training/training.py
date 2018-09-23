@@ -1,18 +1,16 @@
-from keras.models import *
-from keras.layers import *
-import pandas as pd
-import numpy as np
-import keras
-import os
-import time
 import datetime
-import logging
+import keras
 import librosa
+import logging
+import os
 import random
-
-from sklearn.model_selection import train_test_split
+import time
+import numpy as np
+import pandas as pd
 from argparse import ArgumentParser
-
+from keras.layers import *
+from keras.models import *
+from sklearn.model_selection import train_test_split
 
 # Training Script of RES8_NARROW network for honkling
 # usage :

@@ -31,7 +31,7 @@
       <li><a href="./loadModel.html">Load Model</a></li>
       <li><a href="./about.html">About</a></li>
     </ul>
-    <hr>
+    <br/>
     <div class="row">
       <div class="col">
         <p id="statusBar"class="text-center">Message</p>
@@ -44,19 +44,40 @@
         </div>
       </div>
     </div>
-    <div id="summaryTableWrapper" class="row justify-content-center">
-      <div class="col">
-        <H4 class="text-center">Evaluation Summary</H4>
-        <table id="summaryTable" class="table" style="margin:auto;">
-          <tbody>
-          </tbody>
-        </table>
+    <div id="reportTableWrapper">
+      <div class="row justify-content-center">
+        <div class="col">
+          <H4 class="text-center">Evaluation Summary</H4>
+          <br/>
+          <table id="summaryReportTable" class="table" style="margin:auto;">
+            <tbody>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-    <div id="testSizeInputWrapper" class="row justify-content-center">
-      <label class="col-5 col-form-label text-right vcenter" style="padding-right:5px;">number of audio to evaluate for each command : </label>
-      <div class="col-2 vcenter" style="padding-left:5px;">
-        <input id="testSizeInput" type="number" class="form-control">
+      <br/>
+      <br/>
+      <div class="row justify-content-center">
+        <div class="col">
+          <H4 class="text-center">Positive Keyword Evaluation Summary</H4>
+          <br/>
+          <table id="posReportTable" class="table" style="margin:auto;">
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <br/>
+      <br/>
+      <div class="row justify-content-center">
+        <div class="col">
+          <H4 class="text-center">Negative Keyword Evaluation Summary</H4>
+          <br/>
+          <table id="negReportTable" class="table" style="margin:auto;">
+            <tbody>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
     <div class="row">
@@ -64,6 +85,7 @@
       <button id="stopEvaluateBtn" type="button" class="btn btn-danger col-centered"  style="display:none;">STOP</button>
     </div>
   </div>
+  <script src="../common/sampleTrainingData.js"></script>
   <script src="../common/config.js"></script>
   <script src="../common/util.js"></script>
   <script src="../weights/RES8_NARROW/weights.js"></script>
