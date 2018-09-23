@@ -10,62 +10,34 @@ PORT_NUMBER = 8080
 DATA_DIR_PATH = '../data/speech_commands'
 
 sample_rate = 0
-neg_label_index = 0
 command_list = []
-test_size = 0
-X_test = []
-Y_test = []
-
-def prepare_dataset():
-    print('loading data set with command list = ' + str(command_list))
-    print('data dir = ' + DATA_DIR_PATH)
-
-    X = []
-    Y = []
-
-    for folder_name in os.listdir(DATA_DIR_PATH):
-        path_name = os.path.join(DATA_DIR_PATH, folder_name)
-        # if not a directory, continue
-        if os.path.isfile(path_name):
-            continue
-        # if bg noise folder, continue
-        elif folder_name == "_background_noise_":
-            continue
-        for filename in os.listdir(path_name):
-            wav_name = os.path.join(path_name, filename)
-
-            if os.path.isfile(wav_name):
-                # get time series
-                data = librosa.core.load(wav_name, sr=sample_rate)[0]
-                data = np.pad(data, (0, sample_rate - len(data)), 'constant')
-                X.append(data)
-                if folder_name in command_list:
-                    index = command_list.index(folder_name)
-                else:
-                    index = command_list.index('unknown')
-                Y.append(index)
-
-    return np.array(X), np.array(Y)
 
 def get_audio(index):
-    label_index = Y_test[index]
+    audio_file_name = testing_list[index]
     data = {}
-    data['commandIndex'] = int(label_index)
-    data['command'] = command_list[label_index]
-
-    data['class'] = 'positive'
-    if label_index == neg_label_index:
-        data['class'] = 'negative'
-
-    print('\nretrieving ' + str(index) + ' / ' + str(test_size) + ' - ' + data['command'] + ' (' + data['class'] + ')')
 
     data['index'] = index
-    data['features'] = X_test[index].tolist()
+    data['command'] = os.path.dirname(audio_file_name)
+    print(data['command'])
+    if data['command'] in command_list:
+        data['commandIndex'] = command_list.index(data['command'])
+        data['class'] = 'positive'
+    else :
+        data['commandIndex'] = command_list.index('unknown')
+        data['class'] = 'negative'
+
+    print('\nretrieving ' + str(index) + ' / ' + str(test_size) + ' - ' + audio_file_name + ' (' + data['class'] + ')')
+
+    audio_file_path = os.path.join(DATA_DIR_PATH, audio_file_name)
+    features = librosa.core.load(audio_file_path, sr=sample_rate)[0]
+    features = np.pad(features, (0, sample_rate - len(features)), 'constant')
+
+    data['features'] = features.tolist()
     return data
 
 class AudioRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        global sample_rate, command_list, test_size, neg_label_index, X_test, Y_test
+        global sample_rate, command_list
 
         print(urlparse(self.path))
         parsed_url = urlparse(self.path)
@@ -73,21 +45,12 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         params = parse_qs(unquote(parsed_url.query))
         path = parsed_url.path
 
+        result = None
+
         if path == '/init':
             sample_rate = int(params['sampleRate'][0])
             command_list = unquote(params['commands'][0]).split(',')
-            seed = int(params['randomSeed'][0])
-            X, Y = prepare_dataset()
-            p = np.random.RandomState(seed).permutation(len(X))[int(.9 * len(X)):]
-            X_test = X[p]
-            Y_test = Y[p]
-            test_size = len(Y_test)
-            neg_label_index = command_list.index('unknown')
-
-            result = {}
-            result['totalCount'] = test_size
-            result['posCount'] = len(Y_test[Y_test != neg_label_index])
-            result['negCount'] = len(Y_test[Y_test == neg_label_index])
+            result = {'totalCount' : test_size}
 
             print('init result', result)
 
@@ -113,6 +76,14 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         return
 
 if __name__ == '__main__':
+    global testing_list, test_size
+
+    testing_list_file = os.path.join(DATA_DIR_PATH, 'testing_list.txt')
+    with open(testing_list_file) as f:
+        content = f.readlines()
+    testing_list = [x.strip() for x in content]
+    test_size = len(testing_list)
+
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)
     print('running server ...')

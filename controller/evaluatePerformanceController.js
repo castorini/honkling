@@ -13,6 +13,7 @@ function displayInitMsg() {
 }
 
 function displayFailedMsg(msg) {
+  $('#evaluateProgressBarWrapper').hide();
   $('#statusBar').text(msg);
   enableEvaluateBtn();
 }
@@ -157,6 +158,8 @@ function saveResult() {
       evalResult[classification]['successCount']++;
       evalResult['summary']['successCount']++;
   }
+
+  evalResult[classification]['totalCount']++;
 
   evalResult[classification]['mfccCompTime'].push(mfccCompTime);
   evalResult['summary']['mfccCompTime'].push(mfccCompTime);
@@ -337,8 +340,6 @@ $(document).on('click', '#evaluateBtn', function() {
     index = 0;
     totalCount = initSummary['totalCount'];
     evalResult['summary']['totalCount'] = totalCount;
-    evalResult['positive']['totalCount'] = initSummary['posCount'];
-    evalResult['negative']['totalCount'] = initSummary['negCount'];
 
     initProgressBar();
     evaluate();
