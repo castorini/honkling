@@ -1,7 +1,7 @@
 import json
 import librosa
 import os
-from random import shuffle
+import random
 import numpy as np
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
@@ -10,33 +10,66 @@ HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8080
 DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
+SILENCE_TAG = '__silence__'
+noise_prob = 0.8
 
-sample_rate = 0
-command_list = []
+def get_noise():
+    bg_noise = random.choice(background_noise)
+    start_pos = random.randint(0, len(bg_noise) - sample_rate - 1)
+    return bg_noise[start_pos:start_pos + sample_rate]
 
-def get_audio(index):
-    audio_file_name = testing_list[index]
+
+def get_audio(type, index):
+    bg_noise = get_noise()
+
     data = {}
-
     data['index'] = index
-    audio_class = os.path.dirname(audio_file_name)
+    if index < len(audios[type]['list']):
+        audio_file_name = audios[type]['list'][index]
+        audio_class = os.path.dirname(audio_file_name)
+        audio_file_path = os.path.join(DATA_DIR_PATH, audio_file_name)
+        features = librosa.core.load(audio_file_path, sr=sample_rate)[0]
+    else:
+        audio_file_name = SILENCE_TAG
+        audio_class = SILENCE_TAG
+        features = np.zeros(sample_rate, dtype=np.float32)
+
+    features = np.pad(features, (0, sample_rate - len(features)), 'constant')
+
+    noise_flag = False
+    if type == 'dev' and (random.random() < noise_prob or audio_class == SILENCE_TAG):
+        a = random.random() * 0.1
+        features = np.clip(a * bg_noise + features, -1, 1)
+        noise_flag = True
+
     if audio_class in command_list:
         data['command'] = audio_class
         data['commandIndex'] = command_list.index(audio_class)
         data['class'] = 'positive'
     else :
         data['command'] = UNKNOWN_KEYWORD
+        # TODO :: should silence be separate index?
         data['commandIndex'] = command_list.index(UNKNOWN_KEYWORD)
         data['class'] = 'negative'
 
-    print('\nretrieving ' + str(index) + ' / ' + str(test_size) + ' - ' + audio_file_name + ' (' + data['class'] + ')')
-
-    audio_file_path = os.path.join(DATA_DIR_PATH, audio_file_name)
-    features = librosa.core.load(audio_file_path, sr=sample_rate)[0]
-    features = np.pad(features, (0, sample_rate - len(features)), 'constant')
+    print('\n[' + type + ' - ' + data['class'] + '] retrieving ' + str(index) + ' / ' + str(audios[type]['size']) + ' - ' + audio_file_name + ' ( noise = ' + str(noise_flag) + ' )')
 
     data['features'] = features.tolist()
     return data
+
+def init_bg_noise():
+    global background_noise
+
+    background_noise_folder = os.path.join(DATA_DIR_PATH, '_background_noise_')
+    background_noise = []
+    for file in os.listdir(background_noise_folder):
+        if file.endswith('.wav'):
+            audio_file_path = os.path.join(background_noise_folder, file)
+            features = librosa.core.load(audio_file_path, sr=sample_rate)[0]
+            background_noise.append(features)
+
+    print('background_noise initialization completed')
+
 
 class AudioRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -53,16 +86,18 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         if path == '/init':
             sample_rate = int(params['sampleRate'][0])
             command_list = unquote(params['commands'][0]).split(',')
-            result = {'totalCount' : test_size}
-
+            init_bg_noise()
+            result = {'testCount' : audios['test']['size'], 'devCount' : audios['dev']['size']}
             print('init result', result)
 
         elif path == '/get_audio':
+            type = params['type'][0]
             index = int(params['index'][0])
-            result = get_audio(index)
+            result = get_audio(type, index)
 
-            if index == test_size - 1:
-                print('===================== audio retrieval for all ' + str(test_size) + ' is completed =====================\n\n')
+            if index == audios[type]['size']-1:
+                print('===================== audio retrieval for ' + type + ' set ' + str(audios[type]['size']) + ' is completed =====================\n\n')
+
         # send headers
         self.send_response(200, "ok")
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -79,14 +114,39 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         return
 
 if __name__ == '__main__':
-    global testing_list, test_size
+    global audios
 
-    testing_list_file = os.path.join(DATA_DIR_PATH, 'testing_list.txt')
-    with open(testing_list_file) as f:
+    """
+    dev_set 3091
+    dev_set audio_files 2834
+    test_set 3079
+    test_set audio_files 2823
+    """
+
+    dev_file_list = 'dev_set.txt'
+    dev_size = 3091
+    with open(dev_file_list) as f:
         content = f.readlines()
-    testing_list = [x.strip() for x in content]
-    shuffle(testing_list)
-    test_size = len(testing_list)
+    dev_set = [x.strip() for x in content]
+    random.shuffle(dev_set)
+
+    test_file_list = 'test_set.txt'
+    test_size = 3079
+    with open(test_file_list) as f:
+        content = f.readlines()
+    test_set = [x.strip() for x in content]
+    random.shuffle(test_set)
+
+    audios = {
+        'dev': {
+            'size' : dev_size,
+            'list' : dev_set
+        },
+        'test': {
+            'size' : test_size,
+            'list' : test_set
+        }
+    }
 
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)

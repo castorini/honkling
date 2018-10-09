@@ -259,7 +259,7 @@ function getAudioAndMeasurePerf(index) {
     dataType: 'json',
     url: 'http://honkling.cs.uwaterloo.ca:8080/get_audio',
     crossDomain: true,
-    data: {index:index}
+    data: {index:index, type:'dev'}
   }).done(function(data) {
     evaluation['audio'] = data;
     measurePerf(data['features']);
@@ -338,7 +338,7 @@ $(document).on('click', '#evaluateBtn', function() {
 
     // TODO :: display details about evaluation process with summary provided
     index = 0;
-    totalCount = initSummary['totalCount'];
+    totalCount = initSummary['devCount'];
     evalResult['summary']['totalCount'] = totalCount;
 
     initProgressBar();
