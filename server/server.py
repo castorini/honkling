@@ -37,7 +37,7 @@ def get_audio(type, index):
     features = np.pad(features, (0, sample_rate - len(features)), 'constant')
 
     noise_flag = False
-    if type == 'dev' and (random.random() < noise_prob or audio_class == SILENCE_TAG):
+    if type == 'val' and (random.random() < noise_prob or audio_class == SILENCE_TAG):
         a = random.random() * 0.1
         features = np.clip(a * bg_noise + features, -1, 1)
         noise_flag = True
@@ -87,7 +87,7 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             sample_rate = int(params['sampleRate'][0])
             command_list = unquote(params['commands'][0]).split(',')
             init_bg_noise()
-            result = {'testCount' : audios['test']['size'], 'devCount' : audios['dev']['size']}
+            result = {'testCount' : audios['test']['size'], 'valCount' : audios['val']['size']}
             print('init result', result)
 
         elif path == '/get_audio':
@@ -117,18 +117,18 @@ if __name__ == '__main__':
     global audios
 
     """
-    dev_set 3091
-    dev_set audio_files 2834
+    val_set 3091
+    val_set audio_files 2834
     test_set 3079
     test_set audio_files 2823
     """
 
-    dev_file_list = 'dev_set.txt'
-    dev_size = 3091
-    with open(dev_file_list) as f:
+    val_file_list = 'dev_set.txt'
+    val_size = 3091
+    with open(val_file_list) as f:
         content = f.readlines()
-    dev_set = [x.strip() for x in content]
-    random.shuffle(dev_set)
+    val_set = [x.strip() for x in content]
+    random.shuffle(val_set)
 
     test_file_list = 'test_set.txt'
     test_size = 3079
@@ -138,9 +138,9 @@ if __name__ == '__main__':
     random.shuffle(test_set)
 
     audios = {
-        'dev': {
-            'size' : dev_size,
-            'list' : dev_set
+        'val': {
+            'size' : val_size,
+            'list' : val_set
         },
         'test': {
             'size' : test_size,

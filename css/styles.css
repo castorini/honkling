@@ -65,3 +65,15 @@ audio {
 th{
   vertical-align: middle !important
 }
+
+.valEvaluation {
+  margin-bottom: 20px;
+}
+
+.positiveReportTableWrapper {
+  padding-top: 20px;
+}
+
+.negativeReportTableWrapper {
+  padding-top: 20px;
+}
