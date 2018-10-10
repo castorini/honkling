@@ -159,10 +159,11 @@ $(document).on('click', '#evaluateBtn', function() {
   }).fail(function(err) {
     updateStatus('initialization faield because ' + err);
   });
-  // warming up model prediction
-  for (var i = 0; i < sampleDataLabel.length; i++) {
-    predict(mfccData[sampleDataLabel[i]], modelName, model);
-  }
 });
+
+// warming up model prediction
+for (var i = 0; i < sampleDataLabel.length; i++) {
+  predict(mfccData[sampleDataLabel[i]], modelName, model);
+}
 
 updateStatus('Keywords for evaluation : ' + model.weights['commands'] + ' ('+ model.weights['commands'].length +')');

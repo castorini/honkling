@@ -3,6 +3,9 @@ class PerformanceReport {
     this.dataSet = dataSet;
     this.type = type;
     this.data = data;
+    sortNumberArray(this.data['mfccCompTime']);
+    sortNumberArray(this.data['inferenceTime']);
+    sortNumberArray(this.data['processingTime']);
     this.generateReport();
   }
 
@@ -13,16 +16,25 @@ class PerformanceReport {
     report['mfccCompTimeAvg'] = 0;
     report['mfccCompTimeMin'] = Number.MAX_SAFE_INTEGER;
     report['mfccCompTimeMax'] = 0;
+    report['mfccCompTimeP50'] = 0;
+    report['mfccCompTimeP90'] = 0;
+    report['mfccCompTimeP99'] = 0;
 
     report['inferenceTimeSum'] = 0;
     report['inferenceTimeAvg'] = 0;
     report['inferenceTimeMin'] = Number.MAX_SAFE_INTEGER;
     report['inferenceTimeMax'] = 0;
+    report['inferenceTimeP50'] = 0;
+    report['inferenceTimeP90'] = 0;
+    report['inferenceTimeP99'] = 0;
 
     report['processingTimeSum'] = 0;
     report['processingTimeAvg'] = 0;
     report['processingTimeMin'] = Number.MAX_SAFE_INTEGER;
     report['processingTimeMax'] = 0;
+    report['processingTimeP50'] = 0;
+    report['processingTimeP90'] = 0;
+    report['processingTimeP99'] = 0;
 
     report['successCount'] = 0;
     report['totalCount'] = 0;
@@ -68,30 +80,55 @@ class PerformanceReport {
     report['inferenceTimeAvg'] = report['inferenceTimeSum'] / report['totalCount'];
     report['processingTimeAvg'] = report['processingTimeSum'] / report['totalCount'];
 
+    report['mfccCompTimeP50'] = percentile(this.data['mfccCompTime'], 0.50);
+    report['mfccCompTimeP90'] = percentile(this.data['mfccCompTime'], 0.90);
+    report['mfccCompTimeP99'] = percentile(this.data['mfccCompTime'], 0.99);
+
+    report['inferenceTimeP50'] = percentile(this.data['inferenceTime'], 0.50);
+    report['inferenceTimeP90'] = percentile(this.data['inferenceTime'], 0.90);
+    report['inferenceTimeP99'] = percentile(this.data['inferenceTime'], 0.99);
+
+    report['processingTimeP50'] = percentile(this.data['processingTime'], 0.50);
+    report['processingTimeP90'] = percentile(this.data['processingTime'], 0.90);
+    report['processingTimeP99'] = percentile(this.data['processingTime'], 0.99);
+
     this.report = report;
   }
 
   printReport() {
     console.log('reports for ' + this.dataSet + ' - ' + this.type);
 
-    console.log('\tmfccCompTimeSum', this.report['mfccCompTimeSum']);
-    console.log('\tmfccCompTimeAvg', this.report['mfccCompTimeAvg']);
-    console.log('\tmfccCompTimeMin', this.report['mfccCompTimeMin']);
-    console.log('\tmfccCompTimeMax', this.report['mfccCompTimeMax']);
+    console.log('\tmfcc Comp Time Sum', this.report['mfccCompTimeSum']);
+    console.log('\tmfcc Comp Time Avg', this.report['mfccCompTimeAvg']);
+    console.log('\tmfcc Comp Time Min', this.report['mfccCompTimeMin']);
+    console.log('\tmfcc Comp Time Max', this.report['mfccCompTimeMax']);
+    console.log('\tmfcc Comp Time P50', this.report['mfccCompTimeP50']);
+    console.log('\tmfcc Comp Time P90', this.report['mfccCompTimeP90']);
+    console.log('\tmfcc Comp Time P99', this.report['mfccCompTimeP99']);
+    console.log('\n');
 
-    console.log('\tinferenceTimeSum', this.report['inferenceTimeSum']);
-    console.log('\tinferenceTimeAvg', this.report['inferenceTimeAvg']);
-    console.log('\tinferenceTimeMin', this.report['inferenceTimeMin']);
-    console.log('\tinferenceTimeMax', this.report['inferenceTimeMax']);
+    console.log('\tinference Time Sum', this.report['inferenceTimeSum']);
+    console.log('\tinference Time Avg', this.report['inferenceTimeAvg']);
+    console.log('\tinference Time Min', this.report['inferenceTimeMin']);
+    console.log('\tinference Time Max', this.report['inferenceTimeMax']);
+    console.log('\tinference Time P50', this.report['inferenceTimeP50']);
+    console.log('\tinference Time P90', this.report['inferenceTimeP90']);
+    console.log('\tinference Time P99', this.report['inferenceTimeP99']);
+    console.log('\n');
 
-    console.log('\tprocessingTimeSum', this.report['processingTimeSum']);
-    console.log('\tprocessingTimeAvg', this.report['processingTimeAvg']);
-    console.log('\tprocessingTimeMin', this.report['processingTimeMin']);
-    console.log('\tprocessingTimeMax', this.report['processingTimeMax']);
+    console.log('\tprocessing Time Sum', this.report['processingTimeSum']);
+    console.log('\tprocessing Time Avg', this.report['processingTimeAvg']);
+    console.log('\tprocessing Time Min', this.report['processingTimeMin']);
+    console.log('\tprocessing Time Max', this.report['processingTimeMax']);
+    console.log('\tprocessing Time P50', this.report['processingTimeP50']);
+    console.log('\tprocessing Time P90', this.report['processingTimeP90']);
+    console.log('\tprocessing Time P99', this.report['processingTimeP99']);
+    console.log('\n');
 
     console.log('\tsuccessCount', this.report['successCount']);
     console.log('\ttotalCount', this.report['totalCount']);
     console.log('\taccuracy', this.report['accuracy']);
+    console.log('\n');
   }
 
   updateTable() {
