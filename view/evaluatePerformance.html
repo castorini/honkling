@@ -32,54 +32,121 @@
       <li><a href="./about.html">About</a></li>
     </ul>
     <br/>
+
     <div class="row">
       <div class="col">
-        <p id="statusBar"class="text-center">Message</p>
+        <p id="initSummary" class="text-center"></p>
+        <p id="statusBar" class="text-center"></p>
       </div>
     </div>
-    <div id="evaluateProgressBarWrapper" class="row" style="display:none;">
+    <div class="evaluateProgressBarWrapper row" style="display:none;">
       <div class="col">
         <div class="progress">
-          <div id="evaluateProgressBar" class="progress-bar" role="progressbar progress-bar-striped" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="evaluateProgressBar progress-bar progress-bar-striped" role="progressbar progress-bar-striped" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
     </div>
-    <div id="reportTableWrapper">
-      <div class="row justify-content-center">
-        <div class="col">
-          <H4 class="text-center">Evaluation Summary</H4>
-          <br/>
-          <table id="summaryReportTable" class="table" style="margin:auto;">
-            <tbody>
-            </tbody>
-          </table>
+
+    <div class="valEvaluation">
+      <div class="reportTableWrapper border border-dark rounded bg-light" style="display:none;">
+        <div class="row justify-content-center">
+          <div class="col">
+            <H2 class="text-center">< Evaluation on Validation Set ></H2>
+          </div>
         </div>
-      </div>
-      <br/>
-      <br/>
-      <div class="row justify-content-center">
-        <div class="col">
-          <H4 class="text-center">Positive Keyword Evaluation Summary</H4>
-          <br/>
-          <table id="posReportTable" class="table" style="margin:auto;">
-            <tbody>
-            </tbody>
-          </table>
+        <div class="row justify-content-center">
+          <div class="col">
+            <H4 class="text-center text-secondary">Summary</H4>
+            <br/>
+            <table class="summaryReportTable table" style="margin:auto;">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      <br/>
-      <br/>
-      <div class="row justify-content-center">
-        <div class="col">
-          <H4 class="text-center">Negative Keyword Evaluation Summary</H4>
+        <div class="row justify-content-center positiveReportTableWrapper border-top" style="display:none;">
           <br/>
-          <table id="negReportTable" class="table" style="margin:auto;">
-            <tbody>
-            </tbody>
-          </table>
+          <br/>
+          <div class="col">
+            <H4 class="text-center text-secondary">Positive Keywords</H4>
+            <br/>
+            <table class="positiveReportTable table" style="margin:auto;">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
         </div>
+        <div class="row justify-content-center negativeReportTableWrapper border-top" style="display:none;">
+          <br/>
+          <br/>
+          <div class="col">
+            <H4 class="text-center text-secondary">Negative Keywords</H4>
+            <br/>
+            <table class="negativeReportTable table" style="margin:auto;">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br/>
+        <div class="row justify-content-center">
+          <button type="button" class="positiveTableBtn btn col-centered btn-outline-primary">show positive summary</button>
+          <button type="button" class="negativeTableBtn btn col-centered btn-outline-primary">show negative summary</button>
+        </div>
+        <br/>
       </div>
     </div>
+
+    <div class="testEvaluation">
+      <div class="reportTableWrapper border border-dark rounded bg-light" style="display:none;">
+        <div class="row justify-content-center">
+          <div class="col">
+            <H2 class="text-center">< Evaluation on Test Set ></H2>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col">
+            <H4 class="text-center text-secondary">Summary</H4>
+            <br/>
+            <table class="summaryReportTable table" style="margin:auto;">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="row justify-content-center positiveReportTableWrapper border-top" style="display:none;">
+          <br/>
+          <br/>
+          <div class="col">
+            <H4 class="text-center text-secondary">Positive Keywords</H4>
+            <br/>
+            <table class="positiveReportTable table" style="margin:auto;">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="row justify-content-center negativeReportTableWrapper border-top" style="display:none;">
+          <br/>
+          <br/>
+          <div class="col">
+            <H4 class="text-center text-secondary">Negative Keywords</H4>
+            <br/>
+            <table class="negativeReportTable table" style="margin:auto;">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br/>
+        <div class="row justify-content-center">
+          <button type="button" class="positiveTableBtn btn col-centered btn-outline-primary">show positive summary</button>
+          <button type="button" class="negativeTableBtn btn col-centered btn-outline-primary">show negative summary</button>
+        </div>
+        <br/>
+      </div>
+    </div>
+
     <div class="row">
       <button id="evaluateBtn" type="button" class="btn btn-primary col-centered">EVALUATE</button>
       <button id="stopEvaluateBtn" type="button" class="btn btn-danger col-centered"  style="display:none;">STOP</button>
@@ -92,6 +159,10 @@
   <script src="../common/offlineAudioProcessor.js"></script>
   <script src="../common/SpeechResModel.js"></script>
   <script src="../common/model.js"></script>
+  <script src="../common/tableGenerator.js"></script>
+  <script src="../common/performanceReport.js"></script>
+  <script src="../common/performanceDataCollector.js"></script>
+  <script src="../common/performanceEvaluator.js"></script>
   <script src="../controller/evaluatePerformanceController.js"></script>
 </body>
 </html>
