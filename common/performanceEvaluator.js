@@ -47,7 +47,7 @@ class PerformanceEvaluator {
   getAudioAndMeasurePerf(index) {
     return $.ajax({
       dataType: 'json',
-      url: 'http://honkling.cs.uwaterloo.ca:8080/get_audio',
+      url: 'https://honkling.cs.uwaterloo.ca:8080/get_audio',
       crossDomain: true,
       data: {index:this.currIndex, type:this.type}
     }).done(function(data) {
