@@ -32,19 +32,28 @@ class TableGenerator {
     this.addTableEntry("success count", report["successCount"], "");
     this.addTableEntry("accuracy", this.formatNumber(report["accuracy"] * 100, 2), "%");
 
-    this.addTableEntryWithHeading("total mfcc compute time", this.formatNumber(report["mfccCompTimeSum"]/60000, 2), "m", "MFCC COMPUTATION", 4);
-    this.addTableEntry("avg mfcc compute time", this.formatNumber(report["mfccCompTimeAvg"], 2), "ms");
-    this.addTableEntry("min mfcc compute time", this.formatNumber(report["mfccCompTimeMin"], 2), "ms");
-    this.addTableEntry("max mfcc compute time", this.formatNumber(report["mfccCompTimeMax"], 2), "ms");
+    this.addTableEntryWithHeading("TOTAL", this.formatNumber(report["mfccCompTimeSum"]/60000, 2), "m", "MFCC COMPUTATION TIME", 7);
+    this.addTableEntry("MAXIMUM", this.formatNumber(report["mfccCompTimeMax"], 2), "ms");
+    this.addTableEntry("MINIMUM", this.formatNumber(report["mfccCompTimeMin"], 2), "ms");
+    this.addTableEntry("AVERAGE", this.formatNumber(report["mfccCompTimeAvg"], 2), "ms");
+    this.addTableEntry("P50", this.formatNumber(report["mfccCompTimeP50"], 2), "ms");
+    this.addTableEntry("P90", this.formatNumber(report["mfccCompTimeP90"], 2), "ms");
+    this.addTableEntry("P99", this.formatNumber(report["mfccCompTimeP99"], 2), "ms");
 
-    this.addTableEntryWithHeading("total inference time", this.formatNumber(report["inferenceTimeSum"]/60000, 2), "m", "INFERENCE", 4);
-    this.addTableEntry("avg inference time", this.formatNumber(report["inferenceTimeAvg"], 2), "ms");
-    this.addTableEntry("min inference time", this.formatNumber(report["inferenceTimeMin"], 2), "ms");
-    this.addTableEntry("max inference time", this.formatNumber(report["inferenceTimeMax"], 2), "ms");
+    this.addTableEntryWithHeading("TOTAL", this.formatNumber(report["inferenceTimeSum"]/60000, 2), "m", "INFERENCE TIME", 7);
+    this.addTableEntry("MAXIMUM", this.formatNumber(report["inferenceTimeMax"], 2), "ms");
+    this.addTableEntry("MINIMUM", this.formatNumber(report["inferenceTimeMin"], 2), "ms");
+    this.addTableEntry("AVERAGE", this.formatNumber(report["inferenceTimeAvg"], 2), "ms");
+    this.addTableEntry("P50", this.formatNumber(report["inferenceTimeP50"], 2), "ms");
+    this.addTableEntry("P90", this.formatNumber(report["inferenceTimeP90"], 2), "ms");
+    this.addTableEntry("P99", this.formatNumber(report["inferenceTimeP99"], 2), "ms");
 
-    this.addTableEntryWithHeading("total process time", this.formatNumber(report["processingTimeSum"]/60000, 2), "m", "OVERALL", 4);
-    this.addTableEntry("avg process time", this.formatNumber(report["processingTimeAvg"], 2), "ms");
-    this.addTableEntry("min process time", this.formatNumber(report["processingTimeMin"], 2), "ms");
-    this.addTableEntry("max process time", this.formatNumber(report["processingTimeMax"], 2), "ms");
+    this.addTableEntryWithHeading("TOTAL", this.formatNumber(report["processingTimeSum"]/60000, 2), "m", "OVERALL PROCESS TIME", 7);
+    this.addTableEntry("MAXIMUM", this.formatNumber(report["processingTimeMax"], 2), "ms");
+    this.addTableEntry("MINIMUM", this.formatNumber(report["processingTimeMin"], 2), "ms");
+    this.addTableEntry("AVERAGE", this.formatNumber(report["processingTimeAvg"], 2), "ms");
+    this.addTableEntry("P50", this.formatNumber(report["processingTimeP50"], 2), "ms");
+    this.addTableEntry("P90", this.formatNumber(report["processingTimeP90"], 2), "ms");
+    this.addTableEntry("P99", this.formatNumber(report["processingTimeP99"], 2), "ms");
   }
 }
