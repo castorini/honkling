@@ -181,20 +181,20 @@ const modelConfig = {
 		conv_stride : [1, 1],
 		use_dilation : false
 	},
+	RES8_NARROW : {
+		input_shape : [1, 40, 101], // channelsFirst
+		n_layers : 6,
+		n_feature_maps : 19,
+		res_pool : [3, 4],
+		use_dilation : false,
+		conv_size : [3, 3],
+		conv_stride : [1, 1]
+	},
 	RES15_NARROW : {
 		input_shape : [101, 40, 1],
 		use_dilation : true,
 		n_layers : 13,
 		n_feature_maps : 19,
-		conv_size : [3, 3],
-		conv_stride : [1, 1]
-	},
-	RES8_NARROW : {
-		input_shape : [101, 40, 1],
-		n_layers : 6,
-		n_feature_maps : 19,
-		res_pool : [4, 3],
-		use_dilation : false,
 		conv_size : [3, 3],
 		conv_stride : [1, 1]
 	},

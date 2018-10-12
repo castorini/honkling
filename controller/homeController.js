@@ -75,7 +75,7 @@ function disablePlayBtn() {
 }
 
 // list initialization
-init_view(model.weights['commands']);
+init_view(commands);
 
 // Audio Processing
 
