@@ -232,12 +232,12 @@ class SpeechResModel {
 	load() {
 		function reformatConvKernel(weight) {
 			let reformat = [];
-			for (var rowsIndex = 0; rowsIndex < weight[0][0].length; rowsIndex++) {
+			for (var colsIndex = 0; colsIndex < weight[0][0][0].length; colsIndex++) {
 				reformat.push([]);
-				for (var colsIndex = 0; colsIndex < weight[0][0][0].length; colsIndex++) {
-					reformat[rowsIndex].push([]);
+				for (var rowsIndex = 0; rowsIndex < weight[0][0].length; rowsIndex++) {
+					reformat[colsIndex].push([]);
 					for (var inFilterIndex = 0; inFilterIndex < weight[0].length; inFilterIndex++) {
-						reformat[rowsIndex][colsIndex].push([]);
+						reformat[colsIndex][rowsIndex].push([]);
 					}
 				}
 			}
@@ -246,23 +246,9 @@ class SpeechResModel {
 				for (var inFilterIndex = 0; inFilterIndex < weight[0].length; inFilterIndex++) {
 					for (var rowsIndex = 0; rowsIndex < weight[0][0].length; rowsIndex++) {
 						for (var colsIndex = 0; colsIndex < weight[0][0][0].length; colsIndex++) {
-							reformat[rowsIndex][colsIndex][inFilterIndex].push(weight[outFilterIndex][inFilterIndex][rowsIndex][colsIndex]);
+							reformat[colsIndex][rowsIndex][inFilterIndex].push(weight[outFilterIndex][inFilterIndex][rowsIndex][colsIndex]);
 						}
 					}
-				}
-			}
-			return reformat;
-		}
-
-		function reformatDenseKernel(weight) {
-			let reformat = [];
-			for (var inIndex = 0; inIndex < weight[0].length; inIndex++) {
-				reformat.push([]);
-			}
-
-			for (var outIndex = 0; outIndex < weight.length; outIndex++) {
-				for (var inIndex = 0; inIndex < weight[0].length; inIndex++) {
-					reformat[inIndex].push(weight[outIndex][inIndex]);
 				}
 			}
 			return reformat;
@@ -297,7 +283,7 @@ class SpeechResModel {
 
 				// weight index 0 = kernel
 				let denseKernelShape = this.layers[key].getWeights()[0].shape;
-				let denseKernel = reformatDenseKernel(this.weights[key]['weight']);
+				let denseKernel = transpose2d(this.weights[key]['weight']);
 				w.push(tf.tensor2d(denseKernel, denseKernelShape, 'float32'))
 
 				// weight index 1 = bias

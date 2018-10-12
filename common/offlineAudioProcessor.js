@@ -8,7 +8,7 @@ class OfflineAudioProcessor {
     this.config = config;
     this.audioData = audioData;
 
-    this.mfccDataLength = 4040;
+    this.mfccDataLength = 101;
     this.bufferSize = 512;
     // when audio features are down sampled to SR of 16000, each 30ms window will have size of 480
     // Unfortunately, minimum buffer size that meyda supports is 512.
@@ -46,7 +46,7 @@ class OfflineAudioProcessor {
 
   initMeydaNode() {
     let postProcessing = function(mfcc) {
-      offlineProc.mfcc = offlineProc.mfcc.concat(Array.from(mfcc));
+      offlineProc.mfcc.push(mfcc);
     }
 
     var meydaHopSize = this.config.offlineSampleRate / 1000 * this.config.offlineHopSize;
@@ -69,6 +69,8 @@ class OfflineAudioProcessor {
       offlineProc.meyda.stop();
       offlineProc.audioSource.disconnect();
       offlineProc.mfcc = offlineProc.mfcc.slice(0, offlineProc.mfccDataLength);
+      offlineProc.mfcc = transpose2d(offlineProc.mfcc);
+      offlineProc.mfcc = flatten2d(offlineProc.mfcc);
       offlineProc.deferred.resolve(offlineProc.mfcc);
     }).catch(function(err) {
       console.log('Offline processing failed: ' + err);

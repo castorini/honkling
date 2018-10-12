@@ -68,3 +68,34 @@ function percentile(arr, p) {
   if (upper >= arr.length) return arr[lower];
   return arr[lower] * (1 - weight) + arr[upper] * weight;
 }
+
+function transpose2d(arr) {
+  let row = arr.length;
+  let col = arr[0].length;
+
+  let transposed = [];
+  for (var j = 0; j < col; j++) {
+    transposed.push([]);
+  }
+
+  for (var i = 0; i < row; i++) {
+    for (var j = 0; j < col; j++) {
+      transposed[j].push(arr[i][j]);
+    }
+  }
+  return transposed;
+}
+
+function flatten2d(arr) {
+  let row = arr.length;
+  let col = arr[0].length;
+
+  let flattened = [];
+
+  for (var i = 0; i < row; i++) {
+    for (var j = 0; j < col; j++) {
+      flattened.push(arr[i][j]);
+    }
+  }
+  return flattened;
+}

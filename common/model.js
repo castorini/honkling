@@ -15,7 +15,6 @@ function predict(x, modelName, model) {
 	}
 
 	let config = modelConfig[modelName];
-	let commands = weights[modelName]['commands'];
 
 	let input_shape = config['input_shape'].slice();
 	input_shape.unshift(-1);

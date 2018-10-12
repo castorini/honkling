@@ -139,7 +139,7 @@ $(document).on('click', '#evaluateBtn', function() {
     url : 'https://honkling.cs.uwaterloo.ca:8080/init',
     crossDomain: true,
     data : {
-      commands : model.weights['commands'].toString(),
+      commands : commands.toString(),
       randomSeed :10,
       sampleRate : audioConfig['offlineSampleRate']
    },
@@ -162,8 +162,8 @@ $(document).on('click', '#evaluateBtn', function() {
 });
 
 // warming up model prediction
-for (var i = 0; i < sampleDataLabel.length; i++) {
-  predict(mfccData[sampleDataLabel[i]], modelName, model);
+for (var i = 0; i < 5; i++) {
+  predict(new Array(4040).fill(0), modelName, model);
 }
 
-updateStatus('Keywords for evaluation : ' + model.weights['commands'] + ' ('+ model.weights['commands'].length +')');
+updateStatus('Keywords for evaluation : ' + commands + ' ('+ commands.length +')');
