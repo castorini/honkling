@@ -102,14 +102,19 @@ let valEvalDeferred, testEvalDeferred;
 
 function measurePerformance() {
   $('.evaluateProgressBarWrapper').show();
+  let statusMsg;
   if (type == 'val') {
-    updateStatus('evaluating performance on validation dataset');
+    statusMsg = 'evaluating performance on validation dataset';
+    updateStatus(statusMsg);
     startProgressBarInterval();
     evaluator = valEvaluator;
   } else {
-    updateStatus('evaluating performance on test dataset');
+    statusMsg = 'evaluating performance on test dataset';
     evaluator = testEvaluator;
   }
+
+  console.log(statusMsg);
+  updateStatus(statusMsg);
 
   evaluator.collectMeasurement().done(function() {
     if (type == 'val') {
@@ -162,8 +167,9 @@ $(document).on('click', '#evaluateBtn', function() {
 });
 
 // warming up model prediction
-for (var i = 0; i < 5; i++) {
-  predict(new Array(4040).fill(0), modelName, model);
-}
+let warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
+warmUpProcessor.getMFCC().done(function(mfccData) {
+  predict(mfccData, modelName, model);
+});
 
 updateStatus('Keywords for evaluation : ' + commands + ' ('+ commands.length +')');

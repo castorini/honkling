@@ -8,8 +8,16 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
 var toggleTime = 2000;
 
 function init_view(commands) {
-  // list of commands view
+  reordered = [];
   commands.forEach(function(command) {
+    if (command != "silence" && command != "unknown") {
+      reordered.push(command);
+    }
+  });
+  reordered.push("unknown");
+
+  // list of commands view
+  reordered.forEach(function(command) {
     $('#commandList').append(
       $('<li>').attr('class','list-group-item ' + command + '_button text-center').append(command));
   });
@@ -17,6 +25,10 @@ function init_view(commands) {
 }
 
 function toggleCommand(command) {
+  if (command == 'silence') {
+    command = 'unknown'
+  }
+
   if (command == 'unknown') {
     $('#statusBar').text('Failed to identify keyword spoken. Please try again');
   } else {

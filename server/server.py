@@ -10,7 +10,7 @@ HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8080
 DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
-SILENCE_TAG = '__silence__'
+SILENCE_KEYWORD = 'silence'
 noise_prob = 0.8
 
 def get_noise():
@@ -30,25 +30,28 @@ def get_audio(type, index):
         audio_file_path = os.path.join(DATA_DIR_PATH, audio_file_name)
         features = librosa.core.load(audio_file_path, sr=sample_rate)[0]
     else:
-        audio_file_name = SILENCE_TAG
-        audio_class = SILENCE_TAG
+        audio_file_name = SILENCE_KEYWORD
+        audio_class = SILENCE_KEYWORD
         features = np.zeros(sample_rate, dtype=np.float32)
 
     features = np.pad(features, (0, sample_rate - len(features)), 'constant')
 
     noise_flag = False
-    if type == 'val' and (random.random() < noise_prob or audio_class == SILENCE_TAG):
+    if random.random() < noise_prob or audio_class == SILENCE_KEYWORD:
         a = random.random() * 0.1
         features = np.clip(a * bg_noise + features, -1, 1)
         noise_flag = True
 
-    if audio_class in command_list:
+    if audio_class == SILENCE_KEYWORD:
+        data['command'] = SILENCE_KEYWORD
+        data['commandIndex'] = command_list.index(SILENCE_KEYWORD)
+        data['class'] = 'negative'
+    elif audio_class in command_list:
         data['command'] = audio_class
         data['commandIndex'] = command_list.index(audio_class)
         data['class'] = 'positive'
-    else :
+    else:
         data['command'] = UNKNOWN_KEYWORD
-        # TODO :: should silence be separate index?
         data['commandIndex'] = command_list.index(UNKNOWN_KEYWORD)
         data['class'] = 'negative'
 
