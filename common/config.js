@@ -7,6 +7,7 @@ const audioConfig = {
 }
 
 const modelConfig = {
+	// TODO :: when used, must update to channelsFirst format and width & height flipped
 	CNN_TRAD_POOL2 : {
 		input_shape : [101, 40, 1],
 		dropout_prob : 0.5,
@@ -155,25 +156,25 @@ const modelConfig = {
 
 	// ResNet Config
 
+	RES8 : {
+		input_shape : [1, 40, 101]
+		n_layers : 6,
+		n_feature_maps : 45,
+		res_pool : [3, 4],
+		conv_size : [3, 3],
+		conv_stride : [1, 1],
+		use_dilation : false
+	},
 	RES15 : {
-		input_shape : [101, 40, 1],
+		input_shape : [1, 40, 101]
 		use_dilation : true,
 		n_layers : 13,
 		n_feature_maps : 45,
 		conv_size : [3, 3],
 		conv_stride : [1, 1],
 	},
-	RES8 : {
-		input_shape : [101, 40, 1],
-		n_layers : 6,
-		n_feature_maps : 45,
-		res_pool : [4, 3],
-		conv_size : [3, 3],
-		conv_stride : [1, 1],
-		use_dilation : false
-	},
 	RES26 : {
-		input_shape : [101, 40, 1],
+		input_shape : [1, 40, 101]
 		n_layers : 24,
 		n_feature_maps : 45,
 		res_pool : [2, 2],
@@ -182,7 +183,7 @@ const modelConfig = {
 		use_dilation : false
 	},
 	RES8_NARROW : {
-		input_shape : [1, 40, 101], // channelsFirst
+		input_shape : [1, 40, 101]
 		n_layers : 6,
 		n_feature_maps : 19,
 		res_pool : [3, 4],
@@ -191,7 +192,7 @@ const modelConfig = {
 		conv_stride : [1, 1]
 	},
 	RES15_NARROW : {
-		input_shape : [101, 40, 1],
+		input_shape : [1, 40, 101]
 		use_dilation : true,
 		n_layers : 13,
 		n_feature_maps : 19,
@@ -199,7 +200,7 @@ const modelConfig = {
 		conv_stride : [1, 1]
 	},
 	RES26_NARROW : {
-		input_shape : [101, 40, 1],
+		input_shape : [1, 40, 101]
 		n_layers : 24,
 		n_feature_maps : 19,
 		res_pool : [2, 2],
