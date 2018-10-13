@@ -161,8 +161,9 @@ $(document).on('click', '#evaluateBtn', function() {
     type = 'val';
     measurePerformance();
     hookDisplayUpdate();
-  }).fail(function(err) {
-    updateStatus('initialization faield because ' + err);
+  }).fail(function() {
+    updateStatus('initialization failed because server is unreachable');
+    enableEvaluateBtn();
   });
 });
 
