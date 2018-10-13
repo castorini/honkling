@@ -205,7 +205,7 @@ class SpeechResModel {
 	}
 
 	processWeights(weights) {
-		let processed = {}
+		let processed = {};
 
 		let weightNames = Object.keys(weights);
 		for (var index in weightNames) {
@@ -214,9 +214,9 @@ class SpeechResModel {
 			let layer = nameSplit[0];
 
 			if (!(layer in processed)) {
-				processed[layer] = {}
+				processed[layer] = {};
 			}
-			processed[layer][nameSplit[1]] = weights[weightName]
+			processed[layer][nameSplit[1]] = weights[weightName];
 		}
 
 		return processed;
@@ -258,29 +258,27 @@ class SpeechResModel {
 			if (key.includes("bn")) {
 				// weight index 0 = gamma - 1 (due to Affine = false)
 				let bnGammaShape = this.layers[key].getWeights()[0].shape;
-				w.push(tf.tensor1d(new Array(bnGammaShape[0]).fill(1), 'float32'))
+				w.push(tf.tensor1d(new Array(bnGammaShape[0]).fill(1), 'float32'));
 
 				// weight index 1 = beta - 0 (due to Affine = false)
 				let bnBetaShape = this.layers[key].getWeights()[1].shape;
-				w.push(tf.tensor1d(new Array(bnBetaShape[0]).fill(0), 'float32'))
+				w.push(tf.tensor1d(new Array(bnBetaShape[0]).fill(0), 'float32'));
 
 				// weight indes 2 = moving_mean
-				// let bnMeanShape = this.layers[key].getWeights()[2].shape;
-				w.push(tf.tensor1d(this.weights[key]['running_mean'], 'float32'))
+				w.push(tf.tensor1d(this.weights[key]['running_mean'], 'float32'));
 
 				// weight index 3 = moving_variance
-				// let bnVarShape = this.layers[key].getWeights()[3].shape;
-				w.push(tf.tensor1d(this.weights[key]['running_var'], 'float32'))
+				w.push(tf.tensor1d(this.weights[key]['running_var'], 'float32'));
 			}
 			if (key.includes("output")) {
 
 				// weight index 0 = kernel
 				let denseKernelShape = this.layers[key].getWeights()[0].shape;
 				let denseKernel = transpose2d(this.weights[key]['weight']);
-				w.push(tf.tensor2d(denseKernel, denseKernelShape, 'float32'))
+				w.push(tf.tensor2d(denseKernel, denseKernelShape, 'float32'));
 
 				// weight index 1 = bias
-				w.push(tf.tensor1d(this.weights[key]['bias'], 'float32'))
+				w.push(tf.tensor1d(this.weights[key]['bias'], 'float32'));
 			}
 			this.layers[key].setWeights(w);
 		}
