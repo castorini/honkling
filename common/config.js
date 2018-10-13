@@ -157,7 +157,7 @@ const modelConfig = {
 	// ResNet Config
 
 	RES8 : {
-		input_shape : [1, 40, 101],
+		input_shape : [40, 101, 1],
 		n_layers : 6,
 		n_feature_maps : 45,
 		res_pool : [3, 4],
@@ -166,7 +166,7 @@ const modelConfig = {
 		use_dilation : false
 	},
 	RES15 : {
-		input_shape : [1, 40, 101],
+		input_shape : [40, 101, 1],
 		use_dilation : true,
 		n_layers : 13,
 		n_feature_maps : 45,
@@ -174,7 +174,7 @@ const modelConfig = {
 		conv_stride : [1, 1],
 	},
 	RES26 : {
-		input_shape : [1, 40, 101],
+		input_shape : [40, 101, 1],
 		n_layers : 24,
 		n_feature_maps : 45,
 		res_pool : [2, 2],
@@ -183,7 +183,7 @@ const modelConfig = {
 		use_dilation : false
 	},
 	RES8_NARROW : {
-		input_shape : [1, 40, 101],
+		input_shape : [40, 101, 1],
 		n_layers : 6,
 		n_feature_maps : 19,
 		res_pool : [3, 4],
@@ -192,7 +192,7 @@ const modelConfig = {
 		conv_stride : [1, 1]
 	},
 	RES15_NARROW : {
-		input_shape : [1, 40, 101],
+		input_shape : [40, 101, 1],
 		use_dilation : true,
 		n_layers : 13,
 		n_feature_maps : 19,
@@ -200,7 +200,7 @@ const modelConfig = {
 		conv_stride : [1, 1]
 	},
 	RES26_NARROW : {
-		input_shape : [1, 40, 101],
+		input_shape : [40, 101, 1],
 		n_layers : 24,
 		n_feature_maps : 19,
 		res_pool : [2, 2],

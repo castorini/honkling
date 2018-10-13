@@ -22,7 +22,6 @@ class SpeechResModel {
 			kernelInitializer: 'glorotUniform',
 			biasInitializer: tf.initializers.zeros(),
 			name: "conv0",
-			dataFormat: "channelsFirst"
 		})
 
 		// if "res_pool" in config:
@@ -32,7 +31,6 @@ class SpeechResModel {
 			this.layers['pool'] = tf.layers.averagePooling2d({
 				poolSize: this.config['res_pool'],
 				name: "pool",
-				dataFormat: "channelsFirst"
 			})
 		}
 
@@ -55,7 +53,6 @@ class SpeechResModel {
 					kernelInitializer: 'glorotUniform',
 					biasInitializer: tf.initializers.zeros(),
 					name: "conv"+(i+1),
-					dataFormat: "channelsFirst"
 				})
 			}
 		} else {
@@ -76,7 +73,6 @@ class SpeechResModel {
 					kernelInitializer: 'glorotUniform',
 					biasInitializer: tf.initializers.zeros(),
 					name: "conv"+(i+1),
-					dataFormat: "channelsFirst"
 				})
 			}
 		}
@@ -93,7 +89,6 @@ class SpeechResModel {
 				gammaInitializer: tf.initializers.ones(),
 				betaInitializer: tf.initializers.zeros(),
 				name: "bn"+(i+1),
-				axis: 1
 			})
 		}
 
@@ -113,9 +108,7 @@ class SpeechResModel {
 		}
 
 		// globalAveragePooling layer
-		this.layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({
-			dataFormat: "channelsFirst"
-		});
+		this.layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
 
 		// softmax
 		this.layers['softmax'] = tf.layers.softmax();
