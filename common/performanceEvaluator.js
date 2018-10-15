@@ -1,7 +1,8 @@
 let evaluator;
 
 class PerformanceEvaluator {
-  constructor(type, totalCount) {
+  constructor(appId, type, totalCount) {
+    this.appId = appId;
     this.type = type;
     this.totalCount = totalCount;
     this.deferred = $.Deferred();
@@ -48,8 +49,13 @@ class PerformanceEvaluator {
     return $.ajax({
       dataType: 'json',
       url: 'https://honkling.xyz:443/get_audio',
+      // url: 'http://localhost:8080/get_audio',
       crossDomain: true,
-      data: {index:this.currIndex, type:this.type}
+      data: {
+        index:this.currIndex,
+        type:this.type,
+        appId:this.appId
+      }
     }).done(function(data) {
       evaluator.audio = data
       evaluator.measurePerformance(data['features'])

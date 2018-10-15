@@ -96,6 +96,7 @@ hookTableBtnOps('test', 'negative');
 
 // browser evaluation
 
+let appId = new Date().getTime();
 let type;
 let valEvaluator, testEvaluator;
 let valEvalDeferred, testEvalDeferred;
@@ -142,18 +143,20 @@ $(document).on('click', '#evaluateBtn', function() {
   $.ajax({
     dataType : 'json',
     url: 'https://honkling.xyz:443/init',
+    // url: 'http://localhost:8080/init',
     crossDomain: true,
     data : {
       commands : commands.toString(),
       randomSeed :10,
-      sampleRate : audioConfig['offlineSampleRate']
+      sampleRate : audioConfig['offlineSampleRate'],
+      appId : appId
    },
   }).done(function(initSummary) {
     console.log('server initialization completed', initSummary);
-    $('#initSummary').text('validation size : ' + initSummary['valCount'] + ', test size : ' + initSummary['testCount'])
+    $('#initSummary').text('App ID : ' + appId + ', validation size : ' + initSummary['valCount'] + ', test size : ' + initSummary['testCount'])
 
-    valEvaluator = new PerformanceEvaluator('val', initSummary['valCount']);
-    testEvaluator = new PerformanceEvaluator('test', initSummary['testCount']);
+    valEvaluator = new PerformanceEvaluator(appId, 'val', initSummary['valCount']);
+    testEvaluator = new PerformanceEvaluator(appId, 'test', initSummary['testCount']);
 
     valEvalDeferred = $.Deferred();
     testEvalDeferred = $.Deferred();
