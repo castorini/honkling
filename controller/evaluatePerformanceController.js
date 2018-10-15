@@ -152,7 +152,7 @@ $(document).on('click', '#evaluateBtn', function() {
    },
   }).done(function(initSummary) {
     console.log('server initialization completed', initSummary);
-    $('#initSummary').text('validation size : ' + initSummary['valCount'] + ', test size : ' + initSummary['testCount'])
+    $('#initSummary').text('App ID : ' + appId + ', validation size : ' + initSummary['valCount'] + ', test size : ' + initSummary['testCount'])
 
     valEvaluator = new PerformanceEvaluator(appId, 'val', initSummary['valCount']);
     testEvaluator = new PerformanceEvaluator(appId, 'test', initSummary['testCount']);
