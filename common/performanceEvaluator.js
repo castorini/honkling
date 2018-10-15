@@ -34,8 +34,8 @@ class PerformanceEvaluator {
 
   measurePerformance(data) {
     this.startTime = performance.now();
-    let offlineProcessor = new OfflineAudioProcessor(audioConfig, data);
-    offlineProcessor.getMFCC().done(function(mfccData) {
+    this.offlineProcessor = new OfflineAudioProcessor(audioConfig, data);
+    this.offlineProcessor.getMFCC().done(function(mfccData) {
       evaluator.mfccCompEndTime = performance.now();
       evaluator.prediction = predict(mfccData, modelName, model);
       evaluator.endTime = performance.now();
@@ -73,8 +73,13 @@ class PerformanceEvaluator {
     // base case
     if (this.currIndex == this.totalCount) {
       this.dataCollector.generateReport();
+      this.dataCollector = undefined;
       this.deferred.resolve();
       return;
+    }
+
+    if (this.audioRetrievalDeferred) {
+      this.audioRetrievalDeferred = undefined;
     }
 
     this.audioRetrievalDeferred = $.Deferred();
@@ -85,6 +90,11 @@ class PerformanceEvaluator {
       evaluator.evaluate();
     }).fail(function(err) {
       evaluator.deferred.reject(err);
+    }).always(function() {
+      if (evaluator.offlineProcessor) {
+        evaluator.offlineProcessor = undefined;
+        evaluator.audio = undefined;
+      }
     });
   }
 

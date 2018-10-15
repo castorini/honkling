@@ -37,11 +37,18 @@ class PerformanceDataCollector {
 
   generateReport() {
     this.summaryReport = new PerformanceReport(type, 'summary', this.summary);
-    this.positiveReport = new PerformanceReport(type, 'positive', this.positive);
-    this.negativeReport = new PerformanceReport(type, 'negative', this.negative);
-
+    this.summary = undefined;
     this.summaryReport.updateTable();
+    this.summaryReport = undefined;
+
+    this.positiveReport = new PerformanceReport(type, 'positive', this.positive);
+    this.positive = undefined;
     this.positiveReport.updateTable();
+    this.positiveReport = undefined;
+
+    this.negativeReport = new PerformanceReport(type, 'negative', this.negative);
+    this.negative = undefined;
     this.negativeReport.updateTable();
+    this.negativeReport = undefined;
   }
 }

@@ -1,6 +1,6 @@
 const commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
 
-const weights = {
+weights = {
     "conv0.weight": [
         [
             [

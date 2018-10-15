@@ -72,6 +72,12 @@ class OfflineAudioProcessor {
       offlineProc.mfcc = transpose2d(offlineProc.mfcc);
       offlineProc.mfcc = flatten2d(offlineProc.mfcc);
       offlineProc.deferred.resolve(offlineProc.mfcc);
+
+      offlineProc.audioData = undefined;
+      offlineProc.audioSource = undefined;
+      offlineProc.meyda = undefined;
+      offlineProc.mfcc = undefined;
+
     }).catch(function(err) {
       console.log('Offline processing failed: ' + err);
       // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
