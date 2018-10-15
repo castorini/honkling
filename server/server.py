@@ -20,7 +20,7 @@ def get_noise():
     return bg_noise[start_pos:start_pos + sample_rate]
 
 
-def get_audio(type, index):
+def get_audio(app_id, type, index):
     bg_noise = get_noise()
 
     data = {}
@@ -56,7 +56,7 @@ def get_audio(type, index):
         data['commandIndex'] = command_list.index(UNKNOWN_KEYWORD)
         data['class'] = 'negative'
 
-    print('\n[' + type + ' - ' + data['class'] + '] retrieving ' + str(index) + ' / ' + str(audios[type]['size']) + ' - ' + audio_file_name + ' ( noise = ' + str(noise_flag) + ' )')
+    print('\n ID : ' + str(app_id) + ' - [' + type + ' - ' + data['class'] + '] retrieving ' + str(index) + ' / ' + str(audios[type]['size']) + ' - ' + audio_file_name + ' ( noise = ' + str(noise_flag) + ' )')
 
     data['features'] = features.tolist()
     return data
@@ -95,9 +95,10 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             print('init result', result)
 
         elif path == '/get_audio':
+            app_id = int(params['appId'][0])
             type = params['type'][0]
             index = int(params['index'][0])
-            result = get_audio(type, index)
+            result = get_audio(app_id, type, index)
 
             if index == audios[type]['size']-1:
                 print('===================== audio retrieval for ' + type + ' set ' + str(audios[type]['size']) + ' is completed =====================\n\n')
