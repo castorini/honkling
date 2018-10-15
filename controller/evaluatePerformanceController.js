@@ -141,7 +141,7 @@ $(document).on('click', '#evaluateBtn', function() {
   enableStopEvaluateBtn();
   $.ajax({
     dataType : 'json',
-    url : 'https://honkling.cs.uwaterloo.ca:8080/init',
+    url: 'https://honkling.xyz:443/init',
     crossDomain: true,
     data : {
       commands : commands.toString(),

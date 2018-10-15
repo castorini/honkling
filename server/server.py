@@ -2,6 +2,7 @@ import json
 import librosa
 import os
 import random
+import ssl
 import numpy as np
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
@@ -153,5 +154,10 @@ if __name__ == '__main__':
 
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)
-    print('running server ...')
+    httpd.socket = ssl.wrap_socket (httpd.socket,
+        certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
+        keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
+        server_side=True)
+
+    print('running server on port ', PORT_NUMBER)
     httpd.serve_forever()
