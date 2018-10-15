@@ -48,6 +48,7 @@ function hookDisplayUpdate() {
     $('.valEvaluation .reportTableWrapper').show();
     updateProgressBar();
     updateStatus('performance evaluation on validation dataset is completed');
+    valEvaluator = undefined;
   })
 
   testEvalDeferred.done(function() {
@@ -57,6 +58,7 @@ function hookDisplayUpdate() {
     clearInterval(progressBarInterval);
     $('.evaluateProgressBarWrapper').hide();
     enableEvaluateBtn();
+    testEvaluator = undefined;
   })
 }
 
@@ -167,6 +169,10 @@ $(document).on('click', '#evaluateBtn', function() {
   }).fail(function() {
     updateStatus('initialization failed because server is unreachable');
     enableEvaluateBtn();
+  }).always(function() {
+      if (warmUpProcessor) {
+        warmUpProcessor = undefined;
+      }
   });
 });
 

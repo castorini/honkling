@@ -282,6 +282,8 @@ class SpeechResModel {
 			}
 			this.layers[key].setWeights(w);
 		}
+		this.weights = undefined;
+		weights = undefined;
 	}
 
 	async save() {
