@@ -3,9 +3,8 @@ class SpeechResModel {
 	constructor(modelName) {
 		this.modelName = modelName;
 		this.config = modelConfig[modelName];
-		this.weights = weights[this.modelName];
-
-		this.config['n_labels'] = this.weights['commands'].length;
+		this.weights = this.processWeights(weights);
+		this.config['n_labels'] = commands.length;
 
 		this.layers = {}
 		// layer definition
@@ -83,22 +82,22 @@ class SpeechResModel {
 		//
 		// Affine = False is equal to gamma = 1 and beta = 0 (https://discuss.pytorch.org/t/affine-parameter-in-batchnorm/6005)
 		// Axis must be index of channel dimnsion. Given data_format is channel_last, default (-1) is good
-		for (var i  = 0; i < (this.config['n_layers'] + 1); i++) {
-			this.layers['bn'+ i] = tf.layers.batchNormalization({
+		for (var i  = 0; i < (this.config['n_layers']); i++) {
+			this.layers['bn'+ (i+1)] = tf.layers.batchNormalization({
 				epsilon: 0.00001,
 				momentum: 0.1,
 				gammaInitializer: tf.initializers.ones(),
 				betaInitializer: tf.initializers.zeros(),
-				name: "bn"+i,
+				name: "bn"+(i+1),
 			})
 		}
 
 		// self.output = nn.Linear(n_maps, n_labels)
-		this.layers['dense'] = tf.layers.dense({
+		this.layers['output'] = tf.layers.dense({
 			units: this.config['n_labels'],
 			activation: 'linear',
 			biasInitializer : tf.initializers.zeros(),
-			name: "dense",
+			name: "output",
 		});
 
 		// addition layer
@@ -112,15 +111,14 @@ class SpeechResModel {
 		this.layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
 
 		// softmax
-		this.layers['output'] = tf.layers.softmax();
+		this.layers['softmax'] = tf.layers.softmax();
 	}
 
 	// Our actual model
 	compile() {
 		// input layer
 		const input = tf.input({shape: this.config['input_shape']});
-		let x = input; // [40, 100, 1]
-		x = this.layers['bn0'].apply(x)
+		let x = input;
 
 		let y, old_x;
 
@@ -164,13 +162,13 @@ class SpeechResModel {
 		// generate average of single layer; result shape is (batch, feats)
 		x = this.layers['globalAvgPool'].apply(x);
 
-		x = this.layers['dense'].apply(x);
+		x = this.layers['output'].apply(x);
 
-		const output = this.layers['output'].apply(x);
+		const softmax = this.layers['softmax'].apply(x);
 
 		this.model = tf.model({
 			inputs: input,
-			outputs: output,
+			outputs: softmax,
 		});
 
 		this.model.summary();
@@ -206,33 +204,82 @@ class SpeechResModel {
 		}
 	}
 
+	processWeights(weights) {
+		let processed = {};
+
+		let weightNames = Object.keys(weights);
+		for (var index in weightNames) {
+			let weightName = weightNames[index];
+			let nameSplit = weightName.split(".");
+			let layer = nameSplit[0];
+
+			if (!(layer in processed)) {
+				processed[layer] = {};
+			}
+			processed[layer][nameSplit[1]] = weights[weightName];
+		}
+
+		return processed;
+	}
+
 	load() {
-		let w
-		for (var key in this.layers) {
-			w = [];
-			for (var i = 0; i < this.layers[key].getWeights().length; i++) {
-				let shape = this.layers[key].getWeights()[i].shape
-				switch (shape.length) {
-					case 1:
-					w.push(tf.tensor1d(this.weights[key+'_'+i], 'float32'))
-					break;
-					case 2:
-					w.push(tf.tensor2d(this.weights[key+'_'+i], shape, 'float32'))
-					break;
-					case 3:
-					w.push(tf.tensor3d(this.weights[key+'_'+i], shape, 'float32'))
-					break;
-					case 4:
-					w.push(tf.tensor4d(this.weights[key+'_'+i], shape, 'float32'))
-					break;
-					case 4:
-					w.push(tf.tensor5d(this.weights[key+'_'+i], shape, 'float32'))
-					break;
-					default:
-					console.log('Invalid size of weight shape');
+		function reformatConvKernel(weight) {
+			let reformat = [];
+			for (var colsIndex = 0; colsIndex < weight[0][0][0].length; colsIndex++) {
+				reformat.push([]);
+				for (var rowsIndex = 0; rowsIndex < weight[0][0].length; rowsIndex++) {
+					reformat[colsIndex].push([]);
+					for (var inFilterIndex = 0; inFilterIndex < weight[0].length; inFilterIndex++) {
+						reformat[colsIndex][rowsIndex].push([]);
+					}
 				}
 			}
 
+			for (var outFilterIndex = 0; outFilterIndex < weight.length; outFilterIndex++) {
+				for (var inFilterIndex = 0; inFilterIndex < weight[0].length; inFilterIndex++) {
+					for (var rowsIndex = 0; rowsIndex < weight[0][0].length; rowsIndex++) {
+						for (var colsIndex = 0; colsIndex < weight[0][0][0].length; colsIndex++) {
+							reformat[colsIndex][rowsIndex][inFilterIndex].push(weight[outFilterIndex][inFilterIndex][rowsIndex][colsIndex]);
+						}
+					}
+				}
+			}
+			return reformat;
+		}
+
+		for (var key in this.layers) {
+			let w = [];
+			if (key.includes("conv")) {
+				// weight index 0 = kernel
+				let convKernelShape = this.layers[key].getWeights()[0].shape;
+				let convKernel = reformatConvKernel(this.weights[key]['weight']);
+				w.push(tf.tensor4d(convKernel, convKernelShape, 'float32'));
+			}
+			if (key.includes("bn")) {
+				// weight index 0 = gamma - 1 (due to Affine = false)
+				let bnGammaShape = this.layers[key].getWeights()[0].shape;
+				w.push(tf.tensor1d(new Array(bnGammaShape[0]).fill(1), 'float32'));
+
+				// weight index 1 = beta - 0 (due to Affine = false)
+				let bnBetaShape = this.layers[key].getWeights()[1].shape;
+				w.push(tf.tensor1d(new Array(bnBetaShape[0]).fill(0), 'float32'));
+
+				// weight indes 2 = moving_mean
+				w.push(tf.tensor1d(this.weights[key]['running_mean'], 'float32'));
+
+				// weight index 3 = moving_variance
+				w.push(tf.tensor1d(this.weights[key]['running_var'], 'float32'));
+			}
+			if (key.includes("output")) {
+
+				// weight index 0 = kernel
+				let denseKernelShape = this.layers[key].getWeights()[0].shape;
+				let denseKernel = transpose2d(this.weights[key]['weight']);
+				w.push(tf.tensor2d(denseKernel, denseKernelShape, 'float32'));
+
+				// weight index 1 = bias
+				w.push(tf.tensor1d(this.weights[key]['bias'], 'float32'));
+			}
 			this.layers[key].setWeights(w);
 		}
 	}

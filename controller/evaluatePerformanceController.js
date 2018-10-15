@@ -102,14 +102,19 @@ let valEvalDeferred, testEvalDeferred;
 
 function measurePerformance() {
   $('.evaluateProgressBarWrapper').show();
+  let statusMsg;
   if (type == 'val') {
-    updateStatus('evaluating performance on validation dataset');
+    statusMsg = 'evaluating performance on validation dataset';
+    updateStatus(statusMsg);
     startProgressBarInterval();
     evaluator = valEvaluator;
   } else {
-    updateStatus('evaluating performance on test dataset');
+    statusMsg = 'evaluating performance on test dataset';
     evaluator = testEvaluator;
   }
+
+  console.log(statusMsg);
+  updateStatus(statusMsg);
 
   evaluator.collectMeasurement().done(function() {
     if (type == 'val') {
@@ -136,10 +141,10 @@ $(document).on('click', '#evaluateBtn', function() {
   enableStopEvaluateBtn();
   $.ajax({
     dataType : 'json',
-    url : 'https://honkling.cs.uwaterloo.ca:8080/init',
+    url: 'https://honkling.xyz:443/init',
     crossDomain: true,
     data : {
-      commands : model.weights['commands'].toString(),
+      commands : commands.toString(),
       randomSeed :10,
       sampleRate : audioConfig['offlineSampleRate']
    },
@@ -156,14 +161,16 @@ $(document).on('click', '#evaluateBtn', function() {
     type = 'val';
     measurePerformance();
     hookDisplayUpdate();
-  }).fail(function(err) {
-    updateStatus('initialization faield because ' + err);
+  }).fail(function() {
+    updateStatus('initialization failed because server is unreachable');
+    enableEvaluateBtn();
   });
 });
 
 // warming up model prediction
-for (var i = 0; i < sampleDataLabel.length; i++) {
-  predict(mfccData[sampleDataLabel[i]], modelName, model);
-}
+let warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
+warmUpProcessor.getMFCC().done(function(mfccData) {
+  predict(mfccData, modelName, model);
+});
 
-updateStatus('Keywords for evaluation : ' + model.weights['commands'] + ' ('+ model.weights['commands'].length +')');
+updateStatus('Keywords for evaluation : ' + commands + ' ('+ commands.length +')');

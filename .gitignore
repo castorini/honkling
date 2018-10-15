@@ -11,3 +11,4 @@ weights/RES8_NARROW/*.js
 *.idea
 server/venv
 data/speech_command*
+*.swp
