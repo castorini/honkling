@@ -143,6 +143,7 @@ $(document).on('click', '#evaluateBtn', function() {
   $.ajax({
     dataType : 'json',
     url: 'https://honkling.xyz:443/init',
+    // url: 'http://localhost:8080/init',
     crossDomain: true,
     data : {
       commands : commands.toString(),

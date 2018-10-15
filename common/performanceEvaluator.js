@@ -49,6 +49,7 @@ class PerformanceEvaluator {
     return $.ajax({
       dataType: 'json',
       url: 'https://honkling.xyz:443/get_audio',
+      // url: 'http://localhost:8080/get_audio',
       crossDomain: true,
       data: {
         index:this.currIndex,
