@@ -1,5 +1,6 @@
 class PerformanceDataCollector {
   constructor(type, deferred) {
+    this.type = type;
     this.positive = this.initDataSet();
     this.negative = this.initDataSet();
     this.summary = this.initDataSet();
@@ -36,17 +37,17 @@ class PerformanceDataCollector {
   }
 
   generateReport() {
-    this.summaryReport = new PerformanceReport(type, 'summary', this.summary);
+    this.summaryReport = new PerformanceReport(this.type, 'summary', this.summary);
     this.summary = undefined;
     this.summaryReport.updateTable();
     this.summaryReport = undefined;
 
-    this.positiveReport = new PerformanceReport(type, 'positive', this.positive);
+    this.positiveReport = new PerformanceReport(this.type, 'positive', this.positive);
     this.positive = undefined;
     this.positiveReport.updateTable();
     this.positiveReport = undefined;
 
-    this.negativeReport = new PerformanceReport(type, 'negative', this.negative);
+    this.negativeReport = new PerformanceReport(this.type, 'negative', this.negative);
     this.negative = undefined;
     this.negativeReport.updateTable();
     this.negativeReport = undefined;
