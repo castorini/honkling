@@ -7,6 +7,7 @@ function updateStatus(msg) {
 function enableStopEvaluateBtn() {
   $('#stopEvaluateBtn').show();
   $('#evaluateBtn').hide();
+  $('#continueBtn').hide();
 }
 
 function enableEvaluateBtn() {
@@ -15,9 +16,13 @@ function enableEvaluateBtn() {
 }
 
 function resetDisplay() {
+  $('.typeRadioWrapper').hide();
   $('.evaluateProgressBarWrapper').hide();
   updateProgress(0, 1);
   $('.evaluateProgressBar').text('');
+}
+
+function hideAllTables() {
   $('.valEvaluation .reportTableWrapper').hide();
   $('.testEvaluation .reportTableWrapper').hide();
 }
@@ -32,8 +37,18 @@ function updateProgress(curr, total) {
 }
 
 function updateProgressBar() {
-  let curr = valEvaluator.currIndex + testEvaluator.currIndex;
-  let total = valEvaluator.totalCount + testEvaluator.totalCount;
+  let curr;
+  let total;
+  if (targetType == 'all') {
+    curr = valEvaluator.currIndex + testEvaluator.currIndex;
+    total = valEvaluator.totalCount + testEvaluator.totalCount;
+  } else if (targetType == 'val') {
+    curr = valEvaluator.currIndex;
+    total = valEvaluator.totalCount;
+  } else {
+    curr = testEvaluator.currIndex;
+    total = testEvaluator.totalCount;
+  }
   updateProgress(curr, total);
 }
 
@@ -43,22 +58,28 @@ function startProgressBarInterval() {
   }, 1000);
 }
 
+function displayCompleteEvaluation() {
+  $('.evaluateProgressBarWrapper').hide();
+  $('.typeRadioWrapper').show();
+  enableEvaluateBtn();
+  updateStatus('performance evaluation is completed');
+}
+
 function hookDisplayUpdate() {
   valEvalDeferred.done(function() {
     $('.valEvaluation .reportTableWrapper').show();
-    updateProgressBar();
     updateStatus('performance evaluation on validation dataset is completed');
-    valEvaluator = undefined;
+    if (targetType == 'val') {
+      displayCompleteEvaluation();
+    }
   })
 
   testEvalDeferred.done(function() {
     $('.testEvaluation .reportTableWrapper').show();
-    updateStatus('performance evaluation is completed');
-  }).always(function() {
-    clearInterval(progressBarInterval);
-    $('.evaluateProgressBarWrapper').hide();
-    enableEvaluateBtn();
-    testEvaluator = undefined;
+    updateStatus('performance evaluation on test dataset is completed');
+    if (targetType != 'val') {
+      displayCompleteEvaluation();
+    }
   })
 }
 
@@ -99,17 +120,26 @@ hookTableBtnOps('test', 'negative');
 // browser evaluation
 
 let appId = new Date().getTime();
-let type;
+let targetType, currType;
 let valEvaluator, testEvaluator;
 let valEvalDeferred, testEvalDeferred;
+
+function setTargetType() {
+  let radios = $('.typeRadio');
+  for (var i = 0; i < radios.length; i++) {
+    if ($(radios[i]).is(':checked')) {
+      targetType = radios[i].getAttribute("value");
+    }
+  }
+}
 
 function measurePerformance() {
   $('.evaluateProgressBarWrapper').show();
   let statusMsg;
-  if (type == 'val') {
+  startProgressBarInterval();
+  if (currType == 'val') {
     statusMsg = 'evaluating performance on validation dataset';
     updateStatus(statusMsg);
-    startProgressBarInterval();
     evaluator = valEvaluator;
   } else {
     statusMsg = 'evaluating performance on test dataset';
@@ -120,17 +150,23 @@ function measurePerformance() {
   updateStatus(statusMsg);
 
   evaluator.collectMeasurement().done(function() {
-    if (type == 'val') {
+    if (currType == 'val') {
       valEvalDeferred.resolve();
-      type = 'test';
-      measurePerformance();
+      if (targetType != 'val') {
+        currType = 'test';
+        measurePerformance();
+      }
     } else {
       testEvalDeferred.resolve();
     }
   }).fail(function(msg) {
     valEvalDeferred.reject(msg);
     testEvalDeferred.reject(msg);
-    updateStatus(msg)
+    clearInterval(progressBarInterval);
+    updateStatus(msg);
+    $('.typeRadioWrapper').show();
+    $('#continueBtn').show();
+    enableEvaluateBtn();
   })
 }
 
@@ -138,8 +174,29 @@ $(document).on('click', '#stopEvaluateBtn', function() {
   evaluator.stopEvaluation();
 });
 
+$(document).on('click', '#continueBtn', function() {
+  enableStopEvaluateBtn();
+  if (valEvalDeferred) {
+    valEvalDeferred = undefined;
+  }
+  if (testEvalDeferred) {
+    testEvalDeferred = undefined;
+  }
+  valEvalDeferred = $.Deferred();
+  testEvalDeferred = $.Deferred();
+  measurePerformance();
+  hookDisplayUpdate();
+});
+
 // triggering audio file list initialization
 $(document).on('click', '#evaluateBtn', function() {
+  if (valEvaluator) {
+    valEvaluator = undefined;
+  }
+  if (testEvaluator) {
+    testEvaluator = undefined;
+  }
+  setTargetType();
   resetDisplay();
   enableStopEvaluateBtn();
   $.ajax({
@@ -163,7 +220,18 @@ $(document).on('click', '#evaluateBtn', function() {
     valEvalDeferred = $.Deferred();
     testEvalDeferred = $.Deferred();
 
-    type = 'val';
+    if (targetType == 'all') {
+      currType = 'val';
+      $('.valEvaluation .reportTableWrapper').hide();
+      $('.testEvaluation .reportTableWrapper').hide();
+    } else if (targetType == 'test') {
+      currType = 'test';
+      $('.testEvaluation .reportTableWrapper').hide();
+    } else {
+      currType = 'val';
+      $('.valEvaluation .reportTableWrapper').hide();
+    }
+
     measurePerformance();
     hookDisplayUpdate();
   }).fail(function() {

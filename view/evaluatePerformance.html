@@ -16,13 +16,15 @@
 <body>
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-2">
+      <div class="col-2" style="padding-right:1vw;">
         <img id="logo" src="../logo/Logomark black.png"/>
       </div>
-      <div class="col-4">
-        <h1 class="display-1 text-center">Honkling</h1>
-        <p class="lead text-center"><small>Keyword spotting with JavaScript</small></p>
+      <div class="col-6" style="padding-left:1vw;">
+        <h1 style="font-size:8vw;">Honkling</h1>
       </div>
+    </div>
+    <div class="row justify-content-center" style="margin:0;">
+      <p class="lead" style="font-size:2vw;">Keyword spotting with JavaScript</p>
     </div>
     <ul class="nav">
       <li><a href="../index.html">Home</a></li>
@@ -147,9 +149,27 @@
       </div>
     </div>
 
-    <div class="row">
-      <button id="evaluateBtn" type="button" class="btn btn-primary col-centered">EVALUATE</button>
-      <button id="stopEvaluateBtn" type="button" class="btn btn-danger col-centered"  style="display:none;">STOP</button>
+    <div class="typeRadioWrapper row justify-content-center">
+      <div class="col-6 text-center border border-dark rounded bg-light">
+        <label class="radio-inline" style="margin:1vw;">
+          <input class="typeRadio" type="radio" name="type" value="val">
+          Validation Set
+        </label>
+        <label class="radio-inline" style="margin:1vw;">
+          <input class="typeRadio" type="radio" name="type" value="test">
+          Test Set
+        </label>
+        <label class="radio-inline" style="margin:1vw;">
+          <input class="typeRadio" type="radio" name="type" value="all" checked>
+          Validation & Test Set
+        </label>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <button id="evaluateBtn" type="button" class="btn btn-primary" style="margin:1vw;">EVALUATE</button>
+      <button id="continueBtn" type="button" class="btn btn-primary"  style="display:none;margin:1vw;">CONTINUE</button>
+      <button id="stopEvaluateBtn" type="button" class="btn btn-danger"  style="display:none;margin:1vw;">STOP</button>
     </div>
   </div>
   <script src="../common/sampleTrainingData.js"></script>
