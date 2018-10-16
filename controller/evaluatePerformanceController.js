@@ -49,12 +49,14 @@ function hookDisplayUpdate() {
     $('.valEvaluation .reportTableWrapper').show();
     updateProgressBar();
     updateStatus('performance evaluation on validation dataset is completed');
+    valEvaluator = undefined;
   })
 
   testEvalDeferred.done(function() {
     $('.testEvaluation .reportTableWrapper').show();
     updateStatus('performance evaluation is completed');
     enableEvaluateBtn();
+    testEvaluator = undefined;
   })
 }
 
