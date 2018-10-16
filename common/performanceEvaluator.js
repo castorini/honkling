@@ -60,13 +60,15 @@ class PerformanceEvaluator {
       evaluator.audio = data
       evaluator.measurePerformance(data['features'])
     }).fail(function() {
-      evaluator.audioRetrievalDeferred.reject('audio retrieval for ' + index + ' th audio failed');
+      evaluator.audioRetrievalDeferred.reject('audio retrieval for ' + evaluator.currIndex + ' th audio failed');
     });
   }
 
   evaluate() {
     if (this.interrupt) {
       this.deferred.reject('evaluation is interrupted');
+      this.interrupt = false;
+      this.deferred = $.Deferred();
       return;
     }
 

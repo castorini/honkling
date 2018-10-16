@@ -7,6 +7,7 @@ function updateStatus(msg) {
 function enableStopEvaluateBtn() {
   $('#stopEvaluateBtn').show();
   $('#evaluateBtn').hide();
+  $('#continueBtn').hide();
 }
 
 function enableEvaluateBtn() {
@@ -48,17 +49,12 @@ function hookDisplayUpdate() {
     $('.valEvaluation .reportTableWrapper').show();
     updateProgressBar();
     updateStatus('performance evaluation on validation dataset is completed');
-    valEvaluator = undefined;
   })
 
   testEvalDeferred.done(function() {
     $('.testEvaluation .reportTableWrapper').show();
     updateStatus('performance evaluation is completed');
-  }).always(function() {
-    clearInterval(progressBarInterval);
-    $('.evaluateProgressBarWrapper').hide();
     enableEvaluateBtn();
-    testEvaluator = undefined;
   })
 }
 
@@ -106,10 +102,10 @@ let valEvalDeferred, testEvalDeferred;
 function measurePerformance() {
   $('.evaluateProgressBarWrapper').show();
   let statusMsg;
+  startProgressBarInterval();
   if (type == 'val') {
     statusMsg = 'evaluating performance on validation dataset';
     updateStatus(statusMsg);
-    startProgressBarInterval();
     evaluator = valEvaluator;
   } else {
     statusMsg = 'evaluating performance on test dataset';
@@ -130,7 +126,10 @@ function measurePerformance() {
   }).fail(function(msg) {
     valEvalDeferred.reject(msg);
     testEvalDeferred.reject(msg);
+    clearInterval(progressBarInterval);
     updateStatus(msg)
+    $('#continueBtn').show();
+    enableEvaluateBtn();
   })
 }
 
@@ -138,8 +137,29 @@ $(document).on('click', '#stopEvaluateBtn', function() {
   evaluator.stopEvaluation();
 });
 
+$(document).on('click', '#continueBtn', function() {
+  enableStopEvaluateBtn();
+  if (valEvalDeferred) {
+    valEvalDeferred = undefined;
+  }
+  if (testEvalDeferred) {
+    testEvalDeferred = undefined;
+  }
+  valEvalDeferred = $.Deferred();
+  testEvalDeferred = $.Deferred();
+  measurePerformance();
+  hookDisplayUpdate();
+});
+
 // triggering audio file list initialization
 $(document).on('click', '#evaluateBtn', function() {
+  if (valEvaluator) {
+    valEvaluator = undefined;
+  }
+  if (testEvaluator) {
+    testEvaluator = undefined;
+  }
+
   resetDisplay();
   enableStopEvaluateBtn();
   $.ajax({
