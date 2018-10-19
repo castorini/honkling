@@ -6,7 +6,6 @@ class PerformanceEvaluator {
     this.type = type;
     this.totalCount = totalCount;
     this.deferred = $.Deferred();
-    this.dataCollector = new PerformanceDataCollector(type, this.deferred);
     this.interrupt = false;
     this.currIndex = 0;
   }
@@ -21,15 +20,25 @@ class PerformanceEvaluator {
 
   collectData() {
     let data = {
+      'appId' : this.appId,
+      'type' : this.type,
       'command' : this.audio['command'],
       'class' : this.audio['class'],
       'mfccCompTime' : this.mfccCompEndTime - this.startTime,
       'inferenceTime' : this.endTime - this.mfccCompEndTime,
-      'processingTime' : this.endTime - this.startTime,
       'result' : this.audio['command'] == this.prediction
     }
 
-    this.dataCollector.insert(data);
+    $.ajax({
+      dataType: 'json',
+      url: serverURL+'/store_data',
+      crossDomain: true,
+      data: data
+    }).done(function() {
+      evaluator.evaluate();
+    }).fail(function() {
+      evaluator.deferred.reject('Failed to deliver measurement to server');
+    });
   }
 
   measurePerformance(data) {
@@ -48,8 +57,7 @@ class PerformanceEvaluator {
   getAudioAndMeasurePerf(index) {
     return $.ajax({
       dataType: 'json',
-      url: 'https://honkling.xyz:443/get_audio',
-      // url: 'http://localhost:8080/get_audio',
+      url: serverURL+'/get_audio',
       crossDomain: true,
       data: {
         index:this.currIndex,
@@ -74,8 +82,6 @@ class PerformanceEvaluator {
 
     // base case
     if (this.currIndex == this.totalCount) {
-      this.dataCollector.generateReport();
-      this.dataCollector = undefined;
       this.deferred.resolve();
       return;
     }
@@ -89,14 +95,8 @@ class PerformanceEvaluator {
     this.audioRetrievalDeferred.done(function() {
       evaluator.currIndex++;
       evaluator.collectData();
-      evaluator.evaluate();
     }).fail(function(err) {
       evaluator.deferred.reject(err);
-    }).always(function() {
-      if (evaluator.offlineProcessor) {
-        evaluator.offlineProcessor = undefined;
-        evaluator.audio = undefined;
-      }
     });
   }
 
