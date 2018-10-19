@@ -65,18 +65,54 @@ function displayCompleteEvaluation() {
   updateStatus('performance evaluation is completed');
 }
 
+function drawTable(type, dataSet, data) {
+  let table = $('.'+type+'Evaluation .' + dataSet + 'ReportTable');
+  let tableGenerator = new TableGenerator(table);
+  tableGenerator.generateTable(data);
+}
+
+function retrieveReport(type) {
+  let wrapper = $('.'+type+'Evaluation .reportTableWrapper');
+  $.ajax({
+    dataType : 'json',
+    url: 'https://honkling.xyz:443/get_report',
+    // url: 'http://localhost:8080/get_report',
+    crossDomain: true,
+    data : {
+      'appId' : appId,
+      'type' : type
+    }
+  }).done(function(data) {
+    wrapper.find('.reportName').text('Summary');
+
+    let dataSetKeys = Object.keys(data);
+    for (var i in dataSetKeys) {
+      let dataSet = dataSetKeys[i];
+      drawTable(type, dataSet, data[dataSet]);
+    }
+    wrapper.find('.showBtns').show();
+  }).fail(function() {
+    wrapper.find('.reportName').text('Failed to retrieve report');
+    wrapper.find('.showBtns').hide();
+  }).always(function() {
+    $('.'+type+'Evaluation .reportTableWrapper').show();
+  });
+}
+
 function hookDisplayUpdate() {
   valEvalDeferred.done(function() {
-    $('.valEvaluation .reportTableWrapper').show();
     updateStatus('performance evaluation on validation dataset is completed');
+    retrieveReport(currType);
+
     if (targetType == 'val') {
       displayCompleteEvaluation();
     }
   })
 
   testEvalDeferred.done(function() {
-    $('.testEvaluation .reportTableWrapper').show();
     updateStatus('performance evaluation on test dataset is completed');
+    retrieveReport(currType);
+
     if (targetType != 'val') {
       displayCompleteEvaluation();
     }

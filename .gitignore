@@ -12,3 +12,4 @@ weights/RES8_NARROW/*.js
 server/venv
 data/speech_command*
 *.swp
+**/__pycache__
