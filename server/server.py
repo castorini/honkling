@@ -10,6 +10,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8080
+TESTING = False
 DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
 SILENCE_KEYWORD = 'silence'
@@ -116,7 +117,10 @@ def get_report(app_id, type):
 
         val.pop('collector', None)
 
-    # data_collectors.pop(app_id, None)
+    with open('result/'+str(app_id)+'-'+type+'.json', 'w') as f:
+        json.dump(report, f, sort_keys=True, indent=4)
+
+    data_collectors[app_id].pop(type, None)
 
     return report
 
@@ -185,7 +189,7 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             type = params['type'][0]
             result = get_report(app_id, type)
 
-            # print('===================== audio retrieval for ' + type + ' set ' + str(audios[type]['size']) + ' is completed =====================\n\n')
+            print('===================== audio retrieval for ' + str(app_id) + ' - ' + type + ' is completed =====================\n\n')
 
         # send headers
         self.send_response(200, "ok")
@@ -214,17 +218,25 @@ if __name__ == '__main__':
 
     val_file_list = 'dev_set.txt'
     val_size = 3091
+    if TESTING:
+        val_size = 20
     with open(val_file_list) as f:
         content = f.readlines()
     val_set = [x.strip() for x in content]
     random.shuffle(val_set)
+    if TESTING:
+        val_set[:16]
 
     test_file_list = 'test_set.txt'
     test_size = 3079
+    if TESTING:
+        test_size = 20
     with open(test_file_list) as f:
         content = f.readlines()
     test_set = [x.strip() for x in content]
     random.shuffle(test_set)
+    if TESTING:
+        test_set[:16]
 
     audios = {
         'val': {
@@ -239,10 +251,11 @@ if __name__ == '__main__':
 
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)
-    httpd.socket = ssl.wrap_socket (httpd.socket,
-        certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
-        keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
-        server_side=True)
+    if not TESTING:
+        httpd.socket = ssl.wrap_socket (httpd.socket,
+            certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
+            keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
+            server_side=True)
 
     print('running server on port ', PORT_NUMBER)
     httpd.serve_forever()

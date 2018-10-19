@@ -10,6 +10,7 @@ training/*.tar.gz
 weights/RES8_NARROW/*.js
 *.idea
 server/venv
+server/result/*.json
 data/speech_command*
 *.swp
 **/__pycache__
