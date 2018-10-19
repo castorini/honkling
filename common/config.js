@@ -1,3 +1,6 @@
+const serverURL = 'https://honkling.xyz:443';
+// const serverURL = 'http://localhost:8080';
+
 const audioConfig = {
 	'offlineSampleRate' : 16000,
 	'offlineHopSize' : 10, // in ms

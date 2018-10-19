@@ -75,8 +75,7 @@ function retrieveReport(type) {
   let wrapper = $('.'+type+'Evaluation .reportTableWrapper');
   $.ajax({
     dataType : 'json',
-    url: 'https://honkling.xyz:443/get_report',
-    // url: 'http://localhost:8080/get_report',
+    url: serverURL+'/get_report',
     crossDomain: true,
     data : {
       'appId' : appId,
@@ -237,8 +236,7 @@ $(document).on('click', '#evaluateBtn', function() {
   enableStopEvaluateBtn();
   $.ajax({
     dataType : 'json',
-    url: 'https://honkling.xyz:443/init',
-    // url: 'http://localhost:8080/init',
+    url: serverURL+'/init',
     crossDomain: true,
     data : {
       commands : commands.toString(),
@@ -280,10 +278,19 @@ $(document).on('click', '#evaluateBtn', function() {
   });
 });
 
-// warming up model prediction
-let warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
-warmUpProcessor.getMFCC().done(function(mfccData) {
-  predict(mfccData, modelName, model);
-});
+let warmUpCount = 5;
+let warmUpProcessor;
+function warmUpCompuation() {
+  // warming up model prediction
+  warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
+  warmUpProcessor.getMFCC().done(function(mfccData) {
+    predict(mfccData, modelName, model);
+    warmUpCount--;
+    if (warmUpCount != 0) {
+      warmUpCompuation();
+    }
+  });
+}
+warmUpCompuation();
 
-updateStatus('Keywords for evaluation : ' + commands + ' ('+ commands.length +')');
+updateStatus('Application ID : ' + appId);
