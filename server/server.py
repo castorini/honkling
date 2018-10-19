@@ -11,6 +11,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8080
 TESTING = False
+# TESTING = True
 DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
 SILENCE_KEYWORD = 'silence'
@@ -83,7 +84,7 @@ def store_data(params):
     audio_class = params['class'][0]
     mfcc_time = float(params['mfccCompTime'][0])
     inference_time = float(params['inferenceTime'][0])
-    result = bool(params['result'][0])
+    result = params['result'][0] == "true"
     total_time = mfcc_time + inference_time
 
     report = data_collectors[app_id][type]
