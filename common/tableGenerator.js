@@ -34,7 +34,7 @@ class TableGenerator {
       if (key == "total") {
         this.addTableEntryWithHeading("total", this.formatNumber(report["total"]/60000, 2), "m", sectionName, 7);
       } else {
-        this.addTableEntry(key, this.formatNumber(report[key], 2), "ms");
+        this.addTableEntry(key, report[key], "ms");
       }
     }
   }

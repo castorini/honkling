@@ -273,6 +273,7 @@ $(document).on('click', '#evaluateBtn', function() {
     enableEvaluateBtn();
   }).always(function() {
       if (warmUpProcessor) {
+        audioData = undefined;
         warmUpProcessor = undefined;
       }
   });
