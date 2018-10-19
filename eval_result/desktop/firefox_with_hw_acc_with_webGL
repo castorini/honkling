@@ -1,0 +1,118 @@
+
+firefox
+with hardware acc
+with webGL
+
+< Evaluation on Validation Set >
+Summary
+
+ACCURACY	total count	3091	
+success count	2737	
+accuracy	88.55	%
+MFCC COMPUTATION TIME	TOTAL	1.45	m
+MAXIMUM	62	ms
+MINIMUM	24	ms
+AVERAGE	28.23	ms
+P50	27	ms
+P90	34	ms
+P99	46	ms
+INFERENCE TIME	TOTAL	0.37	m
+MAXIMUM	32	ms
+MINIMUM	3	ms
+AVERAGE	7.25	ms
+P50	7	ms
+P90	11	ms
+P99	17	ms
+OVERALL PROCESS TIME	TOTAL	1.83	m
+MAXIMUM	72	ms
+MINIMUM	28	ms
+AVERAGE	35.48	ms
+P50	33	ms
+P90	44	ms
+P99	56	ms
+
+
+< Evaluation on Test Set >
+Summary
+
+ACCURACY	total count	3079	
+success count	2745	
+accuracy	89.15	%
+MFCC COMPUTATION TIME	TOTAL	1.47	m
+MAXIMUM	67	ms
+MINIMUM	24	ms
+AVERAGE	28.58	ms
+P50	27	ms
+P90	35	ms
+P99	49	ms
+INFERENCE TIME	TOTAL	0.5	m
+MAXIMUM	39	ms
+MINIMUM	4	ms
+AVERAGE	9.68	ms
+P50	9	ms
+P90	14	ms
+P99	21	ms
+OVERALL PROCESS TIME	TOTAL	1.96	m
+MAXIMUM	92	ms
+MINIMUM	30	ms
+AVERAGE	38.26	ms
+P50	36	ms
+P90	47.2	ms
+P99	61.22	ms
+
+
+Positive Keywords
+
+ACCURACY	total count	2567	
+success count	2294	
+accuracy	89.37	%
+MFCC COMPUTATION TIME	TOTAL	1.22	m
+MAXIMUM	67	ms
+MINIMUM	24	ms
+AVERAGE	28.63	ms
+P50	27	ms
+P90	35	ms
+P99	49	ms
+INFERENCE TIME	TOTAL	0.41	m
+MAXIMUM	39	ms
+MINIMUM	4	ms
+AVERAGE	9.5	ms
+P50	9	ms
+P90	14	ms
+P99	20	ms
+OVERALL PROCESS TIME	TOTAL	1.63	m
+MAXIMUM	78	ms
+MINIMUM	30	ms
+AVERAGE	38.13	ms
+P50	36	ms
+P90	48	ms
+P99	60	ms
+
+
+Negative Keywords
+
+ACCURACY	total count	512	
+success count	451	
+accuracy	88.09	%
+MFCC COMPUTATION TIME	TOTAL	0.24	m
+MAXIMUM	65	ms
+MINIMUM	24	ms
+AVERAGE	28.3	ms
+P50	27	ms
+P90	34	ms
+P99	48.89	ms
+INFERENCE TIME	TOTAL	0.09	m
+MAXIMUM	34	ms
+MINIMUM	4	ms
+AVERAGE	10.57	ms
+P50	10	ms
+P90	15	ms
+P99	22.78	ms
+OVERALL PROCESS TIME	TOTAL	0.33	m
+MAXIMUM	92	ms
+MINIMUM	30	ms
+AVERAGE	38.88	ms
+P50	37	ms
+P90	47	ms
+P99	64.89	ms
+
