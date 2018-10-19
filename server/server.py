@@ -4,15 +4,19 @@ import os
 import random
 import ssl
 import numpy as np
+import data_collector as dc
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
 HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8080
+TESTING = False
+# TESTING = True
 DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
 SILENCE_KEYWORD = 'silence'
 noise_prob = 0.8
+data_collectors = {}
 
 def get_noise():
     bg_noise = random.choice(background_noise)
@@ -74,6 +78,82 @@ def init_bg_noise():
 
     print('background_noise initialization completed')
 
+def store_data(params):
+    app_id = int(params['appId'][0])
+    type = params['type'][0]
+    audio_class = params['class'][0]
+    mfcc_time = float(params['mfccCompTime'][0])
+    inference_time = float(params['inferenceTime'][0])
+    result = params['result'][0] == "true"
+    total_time = mfcc_time + inference_time
+
+    report = data_collectors[app_id][type]
+
+    report["summary"]["total_count"] = report["summary"]["total_count"] + 1
+    report[audio_class]["total_count"] = report[audio_class]["total_count"] + 1
+    if result:
+        report["summary"]["success_count"] = report["summary"]["success_count"] + 1
+        report[audio_class]["success_count"] = report[audio_class]["success_count"] + 1
+
+    report["summary"]["collector"]["mfcc"].insert(mfcc_time)
+    report["summary"]["collector"]["inference"].insert(inference_time)
+    report["summary"]["collector"]["process"].insert(total_time)
+
+    report[audio_class]["collector"]["mfcc"].insert(mfcc_time)
+    report[audio_class]["collector"]["inference"].insert(inference_time)
+    report[audio_class]["collector"]["process"].insert(total_time)
+
+def get_report(app_id, type):
+    report = data_collectors[app_id][type]
+
+    for key, val in report.items():
+        if val["total_count"] != 0:
+            val["accuracy"] = val["success_count"]/val["total_count"]
+        else:
+            val["accuracy"] = 0
+
+        val["mfcc"] = val["collector"]["mfcc"].get_summary()
+        val["inference"] = val["collector"]["inference"].get_summary()
+        val["process"] = val["collector"]["process"].get_summary()
+
+        val.pop('collector', None)
+
+    with open('result/'+str(app_id)+'-'+type+'.json', 'w') as f:
+        json.dump(report, f, sort_keys=True, indent=4)
+
+    data_collectors[app_id].pop(type, None)
+
+    return report
+
+def init_data_collectors(app_id):
+    global data_collectors
+
+    def init_collector_set():
+        return {
+            "mfcc": dc.DataCollector("mfcc computation time", "ms", 3),
+            "inference": dc.DataCollector("inference time", "ms", 3),
+            "process": dc.DataCollector("overall process time", "ms", 3),
+        }
+
+    def init_report_set():
+        return {
+            "total_count" : 0,
+            "success_count" : 0,
+            "collector" : init_collector_set(),
+        }
+
+    data_collectors[app_id] = {
+        "val" : {
+            "summary" : init_report_set(),
+            "positive" : init_report_set(),
+            "negative" : init_report_set()
+        },
+        "test" : {
+            "summary" : init_report_set(),
+            "positive" : init_report_set(),
+            "negative" : init_report_set()
+        }
+    }
 
 class AudioRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -88,10 +168,12 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
         result = None
 
         if path == '/init':
+            app_id = int(params['appId'][0])
             sample_rate = int(params['sampleRate'][0])
             command_list = unquote(params['commands'][0]).split(',')
             init_bg_noise()
             result = {'testCount' : audios['test']['size'], 'valCount' : audios['val']['size']}
+            init_data_collectors(app_id)
             print('init result', result)
 
         elif path == '/get_audio':
@@ -100,8 +182,15 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             index = int(params['index'][0])
             result = get_audio(app_id, type, index)
 
-            if index == audios[type]['size']-1:
-                print('===================== audio retrieval for ' + type + ' set ' + str(audios[type]['size']) + ' is completed =====================\n\n')
+        elif path == '/store_data':
+            store_data(params)
+
+        elif path == '/get_report':
+            app_id = int(params['appId'][0])
+            type = params['type'][0]
+            result = get_report(app_id, type)
+
+            print('===================== audio retrieval for ' + str(app_id) + ' - ' + type + ' is completed =====================\n\n')
 
         # send headers
         self.send_response(200, "ok")
@@ -130,17 +219,25 @@ if __name__ == '__main__':
 
     val_file_list = 'dev_set.txt'
     val_size = 3091
+    if TESTING:
+        val_size = 20
     with open(val_file_list) as f:
         content = f.readlines()
     val_set = [x.strip() for x in content]
     random.shuffle(val_set)
+    if TESTING:
+        val_set[:16]
 
     test_file_list = 'test_set.txt'
     test_size = 3079
+    if TESTING:
+        test_size = 20
     with open(test_file_list) as f:
         content = f.readlines()
     test_set = [x.strip() for x in content]
     random.shuffle(test_set)
+    if TESTING:
+        test_set[:16]
 
     audios = {
         'val': {
@@ -155,10 +252,11 @@ if __name__ == '__main__':
 
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)
-    httpd.socket = ssl.wrap_socket (httpd.socket,
-        certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
-        keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
-        server_side=True)
+    if not TESTING:
+        httpd.socket = ssl.wrap_socket (httpd.socket,
+            certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
+            keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
+            server_side=True)
 
     print('running server on port ', PORT_NUMBER)
     httpd.serve_forever()

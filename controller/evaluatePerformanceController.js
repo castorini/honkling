@@ -65,18 +65,53 @@ function displayCompleteEvaluation() {
   updateStatus('performance evaluation is completed');
 }
 
+function drawTable(type, dataSet, data) {
+  let table = $('.'+type+'Evaluation .' + dataSet + 'ReportTable');
+  let tableGenerator = new TableGenerator(table);
+  tableGenerator.generateTable(data);
+}
+
+function retrieveReport(type) {
+  let wrapper = $('.'+type+'Evaluation .reportTableWrapper');
+  $.ajax({
+    dataType : 'json',
+    url: serverURL+'/get_report',
+    crossDomain: true,
+    data : {
+      'appId' : appId,
+      'type' : type
+    }
+  }).done(function(data) {
+    wrapper.find('.reportName').text('Summary');
+
+    let dataSetKeys = Object.keys(data);
+    for (var i in dataSetKeys) {
+      let dataSet = dataSetKeys[i];
+      drawTable(type, dataSet, data[dataSet]);
+    }
+    wrapper.find('.showBtns').show();
+  }).fail(function() {
+    wrapper.find('.reportName').text('Failed to retrieve report');
+    wrapper.find('.showBtns').hide();
+  }).always(function() {
+    $('.'+type+'Evaluation .reportTableWrapper').show();
+  });
+}
+
 function hookDisplayUpdate() {
   valEvalDeferred.done(function() {
-    $('.valEvaluation .reportTableWrapper').show();
     updateStatus('performance evaluation on validation dataset is completed');
+    retrieveReport(currType);
+
     if (targetType == 'val') {
       displayCompleteEvaluation();
     }
   })
 
   testEvalDeferred.done(function() {
-    $('.testEvaluation .reportTableWrapper').show();
     updateStatus('performance evaluation on test dataset is completed');
+    retrieveReport(currType);
+
     if (targetType != 'val') {
       displayCompleteEvaluation();
     }
@@ -201,8 +236,7 @@ $(document).on('click', '#evaluateBtn', function() {
   enableStopEvaluateBtn();
   $.ajax({
     dataType : 'json',
-    url: 'https://honkling.xyz:443/init',
-    // url: 'http://localhost:8080/init',
+    url: serverURL+'/init',
     crossDomain: true,
     data : {
       commands : commands.toString(),
@@ -239,15 +273,25 @@ $(document).on('click', '#evaluateBtn', function() {
     enableEvaluateBtn();
   }).always(function() {
       if (warmUpProcessor) {
+        audioData = undefined;
         warmUpProcessor = undefined;
       }
   });
 });
 
-// warming up model prediction
-let warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
-warmUpProcessor.getMFCC().done(function(mfccData) {
-  predict(mfccData, modelName, model);
-});
+let warmUpCount = 5;
+let warmUpProcessor;
+function warmUpCompuation() {
+  // warming up model prediction
+  warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
+  warmUpProcessor.getMFCC().done(function(mfccData) {
+    predict(mfccData, modelName, model);
+    warmUpCount--;
+    if (warmUpCount != 0) {
+      warmUpCompuation();
+    }
+  });
+}
+warmUpCompuation();
 
-updateStatus('Keywords for evaluation : ' + commands + ' ('+ commands.length +')');
+updateStatus('Application ID : ' + appId);
