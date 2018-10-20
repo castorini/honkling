@@ -87,6 +87,7 @@ function retrieveReport(type) {
     let dataSetKeys = Object.keys(data);
     for (var i in dataSetKeys) {
       let dataSet = dataSetKeys[i];
+      if (dataSet == "type") continue;
       drawTable(type, dataSet, data[dataSet]);
     }
     wrapper.find('.showBtns').show();
