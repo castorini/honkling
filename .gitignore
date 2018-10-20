@@ -14,3 +14,4 @@ server/result/*.json
 data/speech_command*
 *.swp
 **/__pycache__
+**/node_modules

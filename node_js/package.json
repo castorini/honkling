@@ -1,0 +1,11 @@
+{
+  "name": "honkling",
+  "version": "1.0.0",
+  "description": "Keyword spotting with JavaScript",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brandon Lee",
+  "license": "ISC"
+}
