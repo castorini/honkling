@@ -1,8 +1,8 @@
-const tf = require('@tensorflow/tfjs');
 require('@tensorflow/tfjs-node');
-require('./weights.js');
 require('./config.js');
 require('./util.js');
+require('./weights.js');
+const tf = require('@tensorflow/tfjs');
 
 function SpeechResModel() {
 
@@ -208,6 +208,12 @@ function SpeechResModel() {
     }
     layers[key].setWeights(w);
   }
+
+  weights = undefined;
+}
+
+SpeechResModel.prototype.predict = function(x) {
+	return this.model.predict(x);
 }
 
 module.exports = SpeechResModel;

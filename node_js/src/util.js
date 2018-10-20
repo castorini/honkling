@@ -8,8 +8,6 @@ encodeData = function(url, data) {
       encoded += '&';
     }
   }
-
-  console.log(encoded);
   return encoded;
 }
 
@@ -28,4 +26,36 @@ transpose2d = function(arr) {
     }
   }
   return transposed;
+}
+
+flatten2d = function(arr) {
+  let row = arr.length;
+  let col = arr[0].length;
+
+  let flattened = [];
+
+  for (var i = 0; i < row; i++) {
+    for (var j = 0; j < col; j++) {
+      flattened.push(arr[i][j]);
+    }
+  }
+  return flattened;
+}
+
+transposeFlatten2d = function(arr) {
+  let row = arr.length;
+  let col = arr[0].length;
+
+  let flattened = [];
+
+  for (var j = 0; j < col; j++) {
+    for (var i = 0; i < row; i++) {
+      flattened.push(arr[i][j]);
+    }
+  }
+  return flattened;
+}
+
+hrtimeToMs = function(arr) {
+  return (arr[0] * 1000) + (arr[1] / 1000000);
 }

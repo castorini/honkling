@@ -107,6 +107,9 @@ def get_report(app_id, type):
     report = data_collectors[app_id][type]
 
     for key, val in report.items():
+        if key == "type":
+            continue;
+
         if val["total_count"] != 0:
             val["accuracy"] = val["success_count"]/val["total_count"]
         else:
@@ -118,8 +121,9 @@ def get_report(app_id, type):
 
         val.pop('collector', None)
 
-    with open('result/'+str(app_id)+'-'+type+'.json', 'w') as f:
-        json.dump(report, f, sort_keys=True, indent=4)
+    if not TESTING:
+        with open('result/'+str(app_id)+'-'+type+'.json', 'w') as f:
+            json.dump(report, f, sort_keys=True, indent=4)
 
     data_collectors[app_id].pop(type, None)
 
@@ -144,11 +148,13 @@ def init_data_collectors(app_id):
 
     data_collectors[app_id] = {
         "val" : {
+            "type" : "val",
             "summary" : init_report_set(),
             "positive" : init_report_set(),
             "negative" : init_report_set()
         },
         "test" : {
+            "type" : "test",
             "summary" : init_report_set(),
             "positive" : init_report_set(),
             "negative" : init_report_set()

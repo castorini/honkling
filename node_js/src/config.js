@@ -15,6 +15,7 @@ modelConfig = {
 }
 
 audioConfig = {
+  'meydaBufferSize' : 512,
 	'offlineSampleRate' : 16000,
 	'offlineHopSize' : 10, // in ms
 	'offlineWindowSize' : 30, // in ms
