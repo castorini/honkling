@@ -1,5 +1,5 @@
-// serverURL = 'https://honkling.xyz:443';
-serverURL = 'http://localhost:8080';
+serverURL = 'https://honkling.xyz:443';
+// serverURL = 'http://localhost:8080';
 
 commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
 
