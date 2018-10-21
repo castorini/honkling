@@ -1,4 +1,4 @@
-Model Name : RES8_NARROW_40, App ID : 1540155277600, validation size : 3091, test size : 3079
+Model Name : RES8_NARROW_40, App ID : 1540161126345, validation size : 3091, test size : 3079
 
 performance evaluation is completed
 
@@ -6,85 +6,87 @@ performance evaluation is completed
 Summary
 
 ACCURACY	total count	3091	
-success count	2684	
-accuracy	86.83	%
-MFCC COMPUTATION TIME	total	1.5	m
-minimum	23.5	ms
-maximum	66	ms
-average	29.189	ms
-P50	27.8	ms
-P90	32.4	ms
-P99	53.54	ms
-INFERENCE TIME	total	0.29	m
-minimum	3.6	ms
-maximum	28.7	ms
-average	5.564	ms
-P50	4.8	ms
-P90	7	ms
-P99	16.61	ms
-OVERALL PROCESS TIME	total	1.79	m
-minimum	28.4	ms
-maximum	78.5	ms
-average	34.753	ms
-P50	32.8	ms
-P90	43.6	ms
-P99	59.73	ms
+success count	2682	
+accuracy	86.77	%
+MFCC COMPUTATION TIME	total	1.52	m
+minimum	23.3	ms
+maximum	67.2	ms
+average	29.439	ms
+P50	27.9	ms
+P90	33.4	ms
+P99	55.61	ms
+INFERENCE TIME	total	0.35	m
+minimum	3.8	ms
+maximum	20.3	ms
+average	6.728	ms
+P50	5.2	ms
+P90	13.4	ms
+P99	18	ms
+OVERALL PROCESS TIME	total	1.86	m
+minimum	28.6	ms
+maximum	80.6	ms
+average	36.167	ms
+P50	33.3	ms
+P90	46.5	ms
+P99	63.61	ms
 
 
 Positive Keywords
 
 ACCURACY	total count	2577	
-success count	2254	
-accuracy	87.47	%
+success count	2247	
+accuracy	87.19	%
 MFCC COMPUTATION TIME	total	1.26	m
-minimum	23.5	ms
-maximum	66	ms
-average	29.253	ms
-P50	27.8	ms
-P90	33	ms
-P99	52.264	ms
-INFERENCE TIME	total	0.24	m
-minimum	3.6	ms
-maximum	28.7	ms
-average	5.497	ms
-P50	4.8	ms
-P90	6.9	ms
-P99	16.4	ms
-OVERALL PROCESS TIME	total	1.49	m
-minimum	28.4	ms
-maximum	74.9	ms
-average	34.75	ms
-P50	32.8	ms
-P90	43.6	ms
-P99	59.272	ms
+minimum	23.7	ms
+maximum	63.1	ms
+average	29.398	ms
+P50	27.9	ms
+P90	33.6	ms
+P99	53.624	ms
+INFERENCE TIME	total	0.29	m
+minimum	3.8	ms
+maximum	20.3	ms
+average	6.696	ms
+P50	5.3	ms
+P90	13.1	ms
+P99	18.1	ms
+OVERALL PROCESS TIME	total	1.55	m
+minimum	28.6	ms
+maximum	77	ms
+average	36.094	ms
+P50	33.3	ms
+P90	46.5	ms
+P99	62.248	ms
 
 
 Negative Keywords
 
 ACCURACY	total count	514	
-success count	430	
-accuracy	83.66	%
+success count	435	
+accuracy	84.63	%
 MFCC COMPUTATION TIME	total	0.25	m
-minimum	23.9	ms
-maximum	65.2	ms
-average	28.873	ms
-P50	27.6	ms
-P90	31.4	ms
-P99	61.488	ms
-INFERENCE TIME	total	0.05	m
-minimum	3.7	ms
-maximum	18.3	ms
-average	5.897	ms
-P50	4.9	ms
-P90	8	ms
-P99	17.1	ms
-OVERALL PROCESS TIME	total	0.3	m
-minimum	29.2	ms
-maximum	78.5	ms
-average	34.769	ms
-P50	32.9	ms
-P90	43.07	ms
-P99	66.553	ms
+minimum	23.3	ms
+maximum	67.2	ms
+average	29.644	ms
+P50	27.7	ms
+P90	32.9	ms
+P99	61.335	ms
+INFERENCE TIME	total	0.06	m
+minimum	3.9	ms
+maximum	19.6	ms
+average	6.889	ms
+P50	5.2	ms
+P90	14.07	ms
+P99	17.561	ms
+OVERALL PROCESS TIME	total	0.31	m
+minimum	29.7	ms
+maximum	80.6	ms
+average	36.533	ms
+P50	33.1	ms
+P90	46.67	ms
+P99	66.661	ms
+
+
 
 Model Name : RES8_NARROW_40, App ID : 1540155658956, validation size : 3091, test size : 3079
 
