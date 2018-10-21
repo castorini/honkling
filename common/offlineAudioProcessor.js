@@ -19,7 +19,7 @@ class OfflineAudioProcessor {
     this.deferred = $.Deferred();
     this.mfcc = [];
 
-    this.audioContext = new OfflineAudioContext(1, config.offlineSampleRate + (this.bufferSize * 5), config.offlineSampleRate);
+    this.audioContext = new OfflineAudioContext(1, config.offlineSampleRate + (this.bufferSize * 20), config.offlineSampleRate);
     // make length of the context long enough that mfcc always gets enough buffers to process
 
     this.initBufferSourceNode();
@@ -69,8 +69,12 @@ class OfflineAudioProcessor {
       offlineProc.meyda.stop();
       offlineProc.audioSource.disconnect();
       offlineProc.mfcc = offlineProc.mfcc.slice(0, offlineProc.mfccDataLength);
-      offlineProc.mfcc = transpose2d(offlineProc.mfcc);
-      offlineProc.mfcc = flatten2d(offlineProc.mfcc);
+      if (offlineProc.mfcc.length < offlineProc.mfccDataLength) {
+        while (offlineProc.mfcc.length != offlineProc.mfccDataLength) {
+          offlineProc.mfcc.push(new Array(40).fill(0));
+        }
+      }
+      offlineProc.mfcc = transposeFlatten2d(offlineProc.mfcc);
       offlineProc.deferred.resolve(offlineProc.mfcc);
 
     }).catch(function(err) {

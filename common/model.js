@@ -6,8 +6,6 @@
 let modelName = "RES8_NARROW";
 
 let model = new SpeechResModel(modelName);
-model.compile();
-model.load();
 
 function predict(x, modelName, model) {
 	if (!(x instanceof tf.Tensor)) {
