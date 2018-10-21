@@ -1,0 +1,177 @@
+
+< Evaluation on Validation Set >
+Summary
+
+ACCURACY	total count	3091	
+success count	2680	
+accuracy	86.7	%
+MFCC COMPUTATION TIME	total	1.24	m
+minimum	16	ms
+maximum	73	ms
+average	24.003	ms
+P50	23	ms
+P90	29	ms
+P99	49.1	ms
+INFERENCE TIME	total	2.6	m
+minimum	30	ms
+maximum	209	ms
+average	50.485	ms
+P50	40	ms
+P90	70	ms
+P99	91.1	ms
+OVERALL PROCESS TIME	total	3.84	m
+minimum	50	ms
+maximum	278	ms
+average	74.488	ms
+P50	70	ms
+P90	95	ms
+P99	139.1	ms
+
+
+Positive Keywords
+
+ACCURACY	total count	2577	
+success count	2248	
+accuracy	87.23	%
+MFCC COMPUTATION TIME	total	1.02	m
+minimum	16	ms
+maximum	73	ms
+average	23.834	ms
+P50	23	ms
+P90	28	ms
+P99	48.24	ms
+INFERENCE TIME	total	2.09	m
+minimum	30	ms
+maximum	136	ms
+average	48.632	ms
+P50	38	ms
+P90	69	ms
+P99	88	ms
+OVERALL PROCESS TIME	total	3.11	m
+minimum	50	ms
+maximum	201	ms
+average	72.466	ms
+P50	63	ms
+P90	93	ms
+P99	134	ms
+
+
+Negative Keywords
+
+ACCURACY	total count	514	
+success count	432	
+accuracy	84.05	%
+MFCC COMPUTATION TIME	total	0.21	m
+minimum	17	ms
+maximum	69	ms
+average	24.852	ms
+P50	23	ms
+P90	31	ms
+P99	60	ms
+INFERENCE TIME	total	0.51	m
+minimum	31	ms
+maximum	209	ms
+average	59.776	ms
+P50	66	ms
+P90	74	ms
+P99	108.87	ms
+OVERALL PROCESS TIME	total	0.72	m
+minimum	51	ms
+maximum	278	ms
+average	84.628	ms
+P50	89	ms
+P90	103	ms
+P99	171.48	ms
+
+
+
+
+
+Model Name : RES8_NARROW_40, App ID : 1540152833215, validation size : 3091, test size : 3079
+
+performance evaluation is completed
+< Evaluation on Test Set >
+Summary
+
+ACCURACY	total count	3079	
+success count	2660	
+accuracy	86.39	%
+MFCC COMPUTATION TIME	total	1.25	m
+minimum	17	ms
+maximum	92	ms
+average	24.352	ms
+P50	23	ms
+P90	30	ms
+P99	51.22	ms
+INFERENCE TIME	total	2.3	m
+minimum	30	ms
+maximum	197	ms
+average	44.842	ms
+P50	36	ms
+P90	70	ms
+P99	88.22	ms
+OVERALL PROCESS TIME	total	3.55	m
+minimum	50	ms
+maximum	271	ms
+average	69.194	ms
+P50	60	ms
+P90	94	ms
+P99	133.22	ms
+
+
+Positive Keywords
+
+ACCURACY	total count	2567	
+success count	2239	
+accuracy	87.22	%
+MFCC COMPUTATION TIME	total	1.04	m
+minimum	17	ms
+maximum	92	ms
+average	24.22	ms
+P50	23	ms
+P90	30	ms
+P99	51	ms
+INFERENCE TIME	total	1.81	m
+minimum	30	ms
+maximum	141	ms
+average	42.263	ms
+P50	35	ms
+P90	67	ms
+P99	82.34	ms
+OVERALL PROCESS TIME	total	2.84	m
+minimum	50	ms
+maximum	206	ms
+average	66.483	ms
+P50	59	ms
+P90	91	ms
+P99	126.34	ms
+
+
+Negative Keywords
+
+ACCURACY	total count	512	
+success count	421	
+accuracy	82.23	%
+MFCC COMPUTATION TIME	total	0.21	m
+minimum	17	ms
+maximum	81	ms
+average	25.016	ms
+P50	23	ms
+P90	32	ms
+P99	62.46	ms
+INFERENCE TIME	total	0.49	m
+minimum	30	ms
+maximum	197	ms
+average	57.77	ms
+P50	68	ms
+P90	76	ms
+P99	117.57	ms
+OVERALL PROCESS TIME	total	0.71	m
+minimum	51	ms
+maximum	271	ms
+average	82.785	ms
+P50	90	ms
+P90	102	ms
+P99	164.46	ms
+
+
