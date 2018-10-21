@@ -5,6 +5,8 @@ class SpeechResModel {
 		this.config = modelConfig[modelName];
 		this.config['n_labels'] = commands.length;
 
+		console.log('model name : ', this.modelName);
+
 		// layer definition
 		let layers = {};
 
