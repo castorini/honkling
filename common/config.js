@@ -1,8 +1,6 @@
 const serverURL = 'https://honkling.xyz:443';
 // const serverURL = 'http://localhost:8080';
 
-let modelName = "RES8_NARROW_40";
-
 const commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
 
 const audioConfig = {
