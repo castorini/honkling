@@ -4,7 +4,7 @@ class SpeechResModel {
 		this.modelName = modelName;
 		this.config = modelConfig[modelName];
 		this.config['n_labels'] = commands.length;
-		
+
 		// layer definition
 		let layers = {};
 
@@ -209,30 +209,6 @@ class SpeechResModel {
 		}
 
 		weights = undefined;
-	}
-
-	// to be removed in the future
-	// simply used as code reference & verification of the model link
-	async train(x) {
-		// let batch_size = x.length;
-		let batch_size = 1;
-		let n_labels = this.config['n_labels']
-		for (var j = 0; j < 5; j++) {
-			let batch_x = tf.tensor4d(x, [1,40,100,1], 'float32');
-			let raw_batch_y = [];
-			for (var i = 0; i < batch_size; i++) {
-				let item = Array.from(Array(n_labels), () => 0);
-				item[0] = 1;
-				raw_batch_y.push(item);
-			}
-			let batch_y = tf.tensor(raw_batch_y);
-
-			await this.model.fit(batch_x, batch_y, {batchSize: batch_size});
-			// console.log(j + 'th Model weights:',
-			// 	this.model.trainableWeights); // access to weight of each layer
-			// 	// to see actual numbers, you must dataSync()
-			console.log(j + 'th Model conv0 weights:', this.model.trainableWeights[0].read().dataSync());
-		}
 	}
 
 	async save() {
