@@ -1,0 +1,177 @@
+Model Name : RES8_NARROW_40, App ID : 1540155277600, validation size : 3091, test size : 3079
+
+performance evaluation is completed
+
+< Evaluation on Validation Set >
+Summary
+
+ACCURACY	total count	3091	
+success count	2684	
+accuracy	86.83	%
+MFCC COMPUTATION TIME	total	1.5	m
+minimum	23.5	ms
+maximum	66	ms
+average	29.189	ms
+P50	27.8	ms
+P90	32.4	ms
+P99	53.54	ms
+INFERENCE TIME	total	0.29	m
+minimum	3.6	ms
+maximum	28.7	ms
+average	5.564	ms
+P50	4.8	ms
+P90	7	ms
+P99	16.61	ms
+OVERALL PROCESS TIME	total	1.79	m
+minimum	28.4	ms
+maximum	78.5	ms
+average	34.753	ms
+P50	32.8	ms
+P90	43.6	ms
+P99	59.73	ms
+
+
+Positive Keywords
+
+ACCURACY	total count	2577	
+success count	2254	
+accuracy	87.47	%
+MFCC COMPUTATION TIME	total	1.26	m
+minimum	23.5	ms
+maximum	66	ms
+average	29.253	ms
+P50	27.8	ms
+P90	33	ms
+P99	52.264	ms
+INFERENCE TIME	total	0.24	m
+minimum	3.6	ms
+maximum	28.7	ms
+average	5.497	ms
+P50	4.8	ms
+P90	6.9	ms
+P99	16.4	ms
+OVERALL PROCESS TIME	total	1.49	m
+minimum	28.4	ms
+maximum	74.9	ms
+average	34.75	ms
+P50	32.8	ms
+P90	43.6	ms
+P99	59.272	ms
+
+
+Negative Keywords
+
+ACCURACY	total count	514	
+success count	430	
+accuracy	83.66	%
+MFCC COMPUTATION TIME	total	0.25	m
+minimum	23.9	ms
+maximum	65.2	ms
+average	28.873	ms
+P50	27.6	ms
+P90	31.4	ms
+P99	61.488	ms
+INFERENCE TIME	total	0.05	m
+minimum	3.7	ms
+maximum	18.3	ms
+average	5.897	ms
+P50	4.9	ms
+P90	8	ms
+P99	17.1	ms
+OVERALL PROCESS TIME	total	0.3	m
+minimum	29.2	ms
+maximum	78.5	ms
+average	34.769	ms
+P50	32.9	ms
+P90	43.07	ms
+P99	66.553	ms
+
+Model Name : RES8_NARROW_40, App ID : 1540155658956, validation size : 3091, test size : 3079
+
+performance evaluation is completed
+
+< Evaluation on Test Set >
+Summary
+
+ACCURACY	total count	3079	
+success count	2677	
+accuracy	86.94	%
+MFCC COMPUTATION TIME	total	1.52	m
+minimum	23.7	ms
+maximum	67.8	ms
+average	29.538	ms
+P50	28.1	ms
+P90	33.2	ms
+P99	54.944	ms
+INFERENCE TIME	total	0.33	m
+minimum	3.7	ms
+maximum	22.3	ms
+average	6.384	ms
+P50	5	ms
+P90	12.1	ms
+P99	17.2	ms
+OVERALL PROCESS TIME	total	1.84	m
+minimum	28.6	ms
+maximum	81	ms
+average	35.921	ms
+P50	33.4	ms
+P90	45.8	ms
+P99	63.422	ms
+
+
+Positive Keywords
+
+ACCURACY	total count	2567	
+success count	2249	
+accuracy	87.61	%
+MFCC COMPUTATION TIME	total	1.26	m
+minimum	23.7	ms
+maximum	66.2	ms
+average	29.543	ms
+P50	28.1	ms
+P90	33.6	ms
+P99	54.104	ms
+INFERENCE TIME	total	0.27	m
+minimum	3.7	ms
+maximum	19.4	ms
+average	6.366	ms
+P50	5	ms
+P90	12.1	ms
+P99	17.234	ms
+OVERALL PROCESS TIME	total	1.54	m
+minimum	28.6	ms
+maximum	81	ms
+average	35.909	ms
+P50	33.4	ms
+P90	45.7	ms
+P99	63	ms
+
+
+Negative Keywords
+
+ACCURACY	total count	512	
+success count	428	
+accuracy	83.59	%
+MFCC COMPUTATION TIME	total	0.25	m
+minimum	23.9	ms
+maximum	67.8	ms
+average	29.51	ms
+P50	28.2	ms
+P90	32.49	ms
+P99	60.06	ms
+INFERENCE TIME	total	0.06	m
+minimum	4	ms
+maximum	22.3	ms
+average	6.472	ms
+P50	4.9	ms
+P90	12.77	ms
+P99	17.189	ms
+OVERALL PROCESS TIME	total	0.31	m
+minimum	29	ms
+maximum	80.9	ms
+average	35.982	ms
+P50	33.4	ms
+P90	46.18	ms
+P99	66.412	ms
+
+
