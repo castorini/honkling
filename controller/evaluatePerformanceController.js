@@ -5,6 +5,7 @@ function updateStatus(msg) {
 }
 
 function enableStopEvaluateBtn() {
+  $('#appIdInputWrapper').hide();
   $('#stopEvaluateBtn').show();
   $('#evaluateBtn').hide();
   $('#continueBtn').hide();
@@ -63,6 +64,7 @@ function displayCompleteEvaluation() {
   $('.typeRadioWrapper').show();
   enableEvaluateBtn();
   updateStatus('performance evaluation is completed');
+  $('#appIdInputWrapper').show();
 }
 
 function drawTable(type, dataSet, data) {
@@ -226,6 +228,8 @@ $(document).on('click', '#continueBtn', function() {
 
 // triggering audio file list initialization
 $(document).on('click', '#evaluateBtn', function() {
+  appId = $('#appIdInput').val();
+
   if (valEvaluator) {
     valEvaluator = undefined;
   }
@@ -247,10 +251,10 @@ $(document).on('click', '#evaluateBtn', function() {
    },
   }).done(function(initSummary) {
     console.log('server initialization completed', initSummary);
-    $('#initSummary').text('App ID : ' + appId + ', validation size : ' + initSummary['valCount'] + ', test size : ' + initSummary['testCount'])
+    $('#initSummary').text('App ID : ' + appId + ', validation size : ' + initSummary['valTotal'] + ', test size : ' + initSummary['testTotal'])
 
-    valEvaluator = new PerformanceEvaluator(appId, 'val', initSummary['valCount']);
-    testEvaluator = new PerformanceEvaluator(appId, 'test', initSummary['testCount']);
+    valEvaluator = new PerformanceEvaluator(appId, 'val', initSummary['valCount'], initSummary['valTotal']);
+    testEvaluator = new PerformanceEvaluator(appId, 'test', initSummary['testCount'], initSummary['testTotal']);
 
     valEvalDeferred = $.Deferred();
     testEvalDeferred = $.Deferred();
@@ -295,4 +299,4 @@ function warmUpCompuation() {
 }
 warmUpCompuation();
 
-updateStatus('Application ID : ' + appId);
+$('#appIdInput').val(appId);
