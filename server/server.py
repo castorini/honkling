@@ -286,7 +286,7 @@ if __name__ == '__main__':
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)
     if not TESTING:
-       httpd.socket = ssl.wrap_socket (httpd.socket,
+        httpd.socket = ssl.wrap_socket (httpd.socket,
            certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
            keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
            server_side=True)
