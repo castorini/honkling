@@ -1,6 +1,4 @@
-const commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
-
-weights = {
+weights['RES8_NARROW'] = {
     "conv0.weight": [
         [
             [

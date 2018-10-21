@@ -1,5 +1,7 @@
-const serverURL = 'https://honkling.xyz:443';
-// const serverURL = 'http://localhost:8080';
+// const serverURL = 'https://honkling.xyz:443';
+const serverURL = 'http://localhost:8080';
+
+const commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
 
 const audioConfig = {
 	'offlineSampleRate' : 16000,
@@ -8,6 +10,8 @@ const audioConfig = {
 	'micInputWaitTime' : 5, // in s
 	'noiseThreshold' : 0.015
 }
+
+weights = {}; // placeholder for dynamic weights loading
 
 const modelConfig = {
 	// TODO :: when used, must update to channelsFirst format and width & height flipped
@@ -211,4 +215,24 @@ const modelConfig = {
 	// 	conv_size : [3, 3],
 	// 	conv_stride : [1, 1]
 	// }
+	RES8_NARROW_40 : {
+		input_shape : [40, 101, 1],
+		n_layers : 6,
+		n_feature_maps : 19,
+		n_kept_feature : 12,
+		res_pool : [3, 4],
+		use_dilation : false,
+		conv_size : [3, 3],
+		conv_stride : [1, 1]
+	},
+	RES8_NARROW_80 : {
+		input_shape : [40, 101, 1],
+		n_layers : 6,
+		n_feature_maps : 19,
+		n_kept_feature : 4,
+		res_pool : [3, 4],
+		use_dilation : false,
+		conv_size : [3, 3],
+		conv_stride : [1, 1]
+	},
 }

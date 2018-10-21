@@ -43,8 +43,12 @@ class SpeechResModel {
 			}
 		} else {
 			for (var i  = 0; i < (this.config['n_layers']); i++) {
+				let numFilters = this.config['n_feature_maps'];
+				if (this.config['n_kept_feature'] && (i % 2 == 0)) {
+					numFilters = this.config['n_kept_feature'];
+				}
 				layers['conv'+ (i+1)] = tf.layers.conv2d({
-					filters: this.config['n_feature_maps'],
+					filters: numFilters,
 					kernelSize: this.config['conv_size'],
 					padding: "same",
 					dilation: 1,
@@ -82,21 +86,6 @@ class SpeechResModel {
 
 		layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
 		layers['softmax'] = tf.layers.softmax();
-
-		// preprocee weights before assignment
-		let processedWeights = {};
-
-		let weightNames = Object.keys(weights);
-		for (var index in weightNames) {
-			let weightName = weightNames[index];
-			let nameSplit = weightName.split(".");
-			let layer = nameSplit[0];
-
-			if (!(layer in processedWeights)) {
-				processedWeights[layer] = {};
-			}
-			processedWeights[layer][nameSplit[1]] = weights[weightName];
-		}
 
 		// compile model
 
@@ -145,8 +134,22 @@ class SpeechResModel {
 
 		this.model.summary();
 
-
 		// weights loading
+
+		// preprocee weights before assignment
+		let processedWeights = {};
+
+		let weightNames = Object.keys(weights[modelName]);
+		for (var index in weightNames) {
+			let weightName = weightNames[index];
+			let nameSplit = weightName.split(".");
+			let layer = nameSplit[0];
+
+			if (!(layer in processedWeights)) {
+				processedWeights[layer] = {};
+			}
+			processedWeights[layer][nameSplit[1]] = weights[modelName][weightName];
+		}
 
 		function reformatConvKernel(weight) {
 			let reformat = [];
@@ -181,9 +184,17 @@ class SpeechResModel {
 				w.push(tf.tensor4d(convKernel, convKernelShape, 'float32'));
 			}
 			if (key.includes("bn")) {
-				// weight index 0 = gamma - 1 (due to Affine = false)
+
+				// set gamma to scaled weights for odd layers
 				let bnGammaShape = layers[key].getWeights()[0].shape;
-				w.push(tf.tensor1d(new Array(bnGammaShape[0]).fill(1), 'float32'));
+				let index = parseInt(key.substring(2));
+				let scaleWeightKey = "scale" + index;
+
+				if (processedWeights[scaleWeightKey]) {
+					w.push(tf.tensor1d(processedWeights[scaleWeightKey]['scale'], 'float32'));
+				} else {
+					w.push(tf.tensor1d(new Array(bnGammaShape[0]).fill(1), 'float32'));
+				}
 
 				// weight index 1 = beta - 0 (due to Affine = false)
 				let bnBetaShape = layers[key].getWeights()[1].shape;
