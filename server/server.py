@@ -9,7 +9,6 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
 HOST_NAME = '0.0.0.0'
-PORT_NUMBER = 8080
 TESTING = False
 # TESTING = True
 DATA_DIR_PATH = '../data/speech_commands'
@@ -283,13 +282,17 @@ if __name__ == '__main__':
     }
     init_bg_noise()
 
-    server_address = (HOST_NAME, PORT_NUMBER)
-    httpd = HTTPServer(server_address, AudioRequestHandler)
-    if not TESTING:
+    if TESTING:
+        server_address = (HOST_NAME, 8080)
+        httpd = HTTPServer(server_address, AudioRequestHandler)
+        print('dev server on port 8080')
+    else:
+        server_address = (HOST_NAME, 443)
+        httpd = HTTPServer(server_address, AudioRequestHandler)
         httpd.socket = ssl.wrap_socket (httpd.socket,
            certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
            keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
            server_side=True)
+       print('prod server on port 443')
 
-    print('running server on port ', PORT_NUMBER)
     httpd.serve_forever()
