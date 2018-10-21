@@ -99,3 +99,17 @@ function flatten2d(arr) {
   }
   return flattened;
 }
+
+function transposeFlatten2d(arr) {
+  let row = arr.length;
+  let col = arr[0].length;
+
+  let flattened = [];
+
+  for (var j = 0; j < col; j++) {
+    for (var i = 0; i < row; i++) {
+      flattened.push(arr[i][j]);
+    }
+  }
+  return flattened;
+}
