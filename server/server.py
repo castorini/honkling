@@ -9,8 +9,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
 HOST_NAME = '0.0.0.0'
-TESTING = False
-# TESTING = True
+# ENV = "DEV"
+# ENV = "TEST"
+ENV = "PROD"
 DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
 SILENCE_KEYWORD = 'silence'
@@ -121,7 +122,7 @@ def get_report(app_id, type):
 
         val.pop('collector', None)
 
-    if not TESTING:
+    if ENV != "DEV":
         with open('result/'+str(app_id)+'-'+type+'.json', 'w') as f:
             json.dump(report, f, sort_keys=True, indent=4)
 
@@ -250,24 +251,24 @@ if __name__ == '__main__':
 
     val_file_list = 'dev_set.txt'
     val_size = 3091
-    if TESTING:
+    if ENV == "DEV":
         val_size = 20
     with open(val_file_list) as f:
         content = f.readlines()
     val_set = [x.strip() for x in content]
     random.shuffle(val_set)
-    if TESTING:
+    if ENV == "DEV":
         val_set[:16]
 
     test_file_list = 'test_set.txt'
     test_size = 3079
-    if TESTING:
+    if ENV == "DEV":
         test_size = 20
     with open(test_file_list) as f:
         content = f.readlines()
     test_set = [x.strip() for x in content]
     random.shuffle(test_set)
-    if TESTING:
+    if ENV == "DEV":
         test_set[:16]
 
     audios = {
@@ -282,11 +283,7 @@ if __name__ == '__main__':
     }
     init_bg_noise()
 
-    if TESTING:
-        server_address = (HOST_NAME, 8080)
-        httpd = HTTPServer(server_address, AudioRequestHandler)
-        print('dev server on port 8080')
-    else:
+    if ENV == "PROD":
         server_address = (HOST_NAME, 443)
         httpd = HTTPServer(server_address, AudioRequestHandler)
         httpd.socket = ssl.wrap_socket (httpd.socket,
@@ -294,5 +291,9 @@ if __name__ == '__main__':
            keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
            server_side=True)
         print('prod server on port 443')
+    else:
+        server_address = (HOST_NAME, 8080)
+        httpd = HTTPServer(server_address, AudioRequestHandler)
+        print('dev server on port 8080')
 
     httpd.serve_forever()
