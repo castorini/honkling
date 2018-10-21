@@ -1,3 +1,7 @@
+function isNumeric(str) {
+  return !isNaN(str)
+}
+
 function isAllZero(data) {
   return data.every(function(elem) {return elem == 0})
 }

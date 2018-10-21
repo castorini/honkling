@@ -293,6 +293,6 @@ if __name__ == '__main__':
            certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
            keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
            server_side=True)
-       print('prod server on port 443')
+        print('prod server on port 443')
 
     httpd.serve_forever()

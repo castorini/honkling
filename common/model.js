@@ -1,10 +1,6 @@
 // Model Definition
 
-// let speechModel = new SpeechModel(modelConfig["CNN_TSTRIDE8"]);
-// speechModel.compile();
-
-let modelName = "RES8_NARROW";
-
+let modelName = "RES8_NARROW_40";
 let model = new SpeechResModel(modelName);
 
 function predict(x, modelName, model) {

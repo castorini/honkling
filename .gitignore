@@ -7,7 +7,6 @@ training/train_data
 training/log
 training/training_data
 training/*.tar.gz
-weights/RES8_NARROW/*.js
 *.idea
 server/venv
 server/result/*.json
