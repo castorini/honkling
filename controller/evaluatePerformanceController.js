@@ -251,7 +251,7 @@ $(document).on('click', '#evaluateBtn', function() {
    },
   }).done(function(initSummary) {
     console.log('server initialization completed', initSummary);
-    $('#initSummary').text('App ID : ' + appId + ', validation size : ' + initSummary['valTotal'] + ', test size : ' + initSummary['testTotal'])
+    $('#initSummary').text('ModelName : ' + modelName + ', App ID : ' + appId + ', validation size : ' + initSummary['valTotal'] + ', test size : ' + initSummary['testTotal'])
 
     valEvaluator = new PerformanceEvaluator(appId, 'val', initSummary['valCount'], initSummary['valTotal']);
     testEvaluator = new PerformanceEvaluator(appId, 'test', initSummary['testCount'], initSummary['testTotal']);
@@ -300,3 +300,5 @@ function warmUpCompuation() {
 warmUpCompuation();
 
 $('#appIdInput').val(appId);
+
+updateStatus('model name : ' + modelName);

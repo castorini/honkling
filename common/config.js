@@ -1,5 +1,7 @@
-// const serverURL = 'https://honkling.xyz:443';
-const serverURL = 'http://localhost:8080';
+const serverURL = 'https://honkling.xyz:443';
+// const serverURL = 'http://localhost:8080';
+
+let modelName = "RES8_NARROW_40";
 
 const commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
 
@@ -163,15 +165,35 @@ const modelConfig = {
 	//
 	// // ResNet Config
 	//
-	// RES8 : {
-	// 	input_shape : [40, 101, 1],
-	// 	n_layers : 6,
-	// 	n_feature_maps : 45,
-	// 	res_pool : [3, 4],
-	// 	conv_size : [3, 3],
-	// 	conv_stride : [1, 1],
-	// 	use_dilation : false
-	// },
+	RES8 : {
+		input_shape : [40, 101, 1],
+		n_layers : 6,
+		n_feature_maps : 45,
+		res_pool : [3, 4],
+		conv_size : [3, 3],
+		conv_stride : [1, 1],
+		use_dilation : false
+	},
+	RES8_40 : {
+		input_shape : [40, 101, 1],
+		n_layers : 6,
+		n_feature_maps : 45,
+		n_kept_feature : 27,
+		res_pool : [3, 4],
+		conv_size : [3, 3],
+		conv_stride : [1, 1],
+		use_dilation : false
+	},
+	RES8_80 : {
+		input_shape : [40, 101, 1],
+		n_layers : 6,
+		n_feature_maps : 45,
+		n_kept_feature : 9,
+		res_pool : [3, 4],
+		conv_size : [3, 3],
+		conv_stride : [1, 1],
+		use_dilation : false
+	},
 	// RES15 : {
 	// 	input_shape : [40, 101, 1],
 	// 	use_dilation : true,
