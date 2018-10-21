@@ -1,13 +1,13 @@
 let evaluator;
 
 class PerformanceEvaluator {
-  constructor(appId, type, totalCount) {
+  constructor(appId, type, index, totalCount) {
     this.appId = appId;
     this.type = type;
+    this.currIndex = index;
     this.totalCount = totalCount;
     this.deferred = $.Deferred();
     this.interrupt = false;
-    this.currIndex = 0;
   }
 
   printData(data) {
