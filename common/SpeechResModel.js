@@ -220,8 +220,6 @@ class SpeechResModel {
 			}
 			layers[key].setWeights(w);
 		}
-
-		weights = undefined;
 	}
 
 	async save() {

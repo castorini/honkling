@@ -104,7 +104,7 @@ $(document).on('click', '#recordBtn:enabled', function() {
 
     offlineProcessor.getMFCC().done(function(mfccData) {
       printData('mfcc data', mfccData);
-      toggleCommand(predict(mfccData, modelName, model));
+      toggleCommand(predict(mfccData, model));
     })
 
   }).fail(function() {
@@ -126,7 +126,7 @@ $(document).on('click', '#playBtn:enabled', function() {
     let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
     offlineProcessor.getMFCC().done(function(mfccData) {
       printData('mfcc data', mfccData);
-      toggleCommand(predict(mfccData, modelName, model));
+      toggleCommand(predict(mfccData, model));
     })
 
     setTimeout(function(){
@@ -145,7 +145,7 @@ $(document).keyup(function( event ) {
       let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
       offlineProcessor.getMFCC().done(function(mfccData) {
         printData('mfcc data', mfccData);
-        toggleCommand(predict(mfccData, modelName, model));
+        toggleCommand(predict(mfccData, model));
       })
     }).fail(function() {
       // silence
@@ -161,3 +161,5 @@ $(document).keyup(function( event ) {
     audio.startRecording();
   }
 });
+
+let model = new SpeechResModel("RES8_NARROW");

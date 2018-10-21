@@ -1,14 +1,8 @@
-// Model Definition
-let model = new SpeechResModel(modelName);
-
-function predict(x, modelName, model) {
+function predict(x, model) {
 	if (!(x instanceof tf.Tensor)) {
 		x = tf.tensor(x);
 	}
-
-	let config = modelConfig[modelName];
-
-	let input_shape = config['input_shape'].slice();
+	let input_shape = model.config['input_shape'].slice();
 	input_shape.unshift(-1);
 
 	let output = model.predict(x.reshape(input_shape));

@@ -5,13 +5,14 @@ function updateStatus(msg) {
 }
 
 function enableStopEvaluateBtn() {
-  $('#appIdInputWrapper').hide();
+  $('#evalSettingInputWrapper').hide();
   $('#stopEvaluateBtn').show();
   $('#evaluateBtn').hide();
   $('#continueBtn').hide();
 }
 
 function enableEvaluateBtn() {
+  $('#evalSettingInputWrapper').show();
   $('#stopEvaluateBtn').hide();
   $('#evaluateBtn').show();
 }
@@ -64,7 +65,6 @@ function displayCompleteEvaluation() {
   $('.typeRadioWrapper').show();
   enableEvaluateBtn();
   updateStatus('performance evaluation is completed');
-  $('#appIdInputWrapper').show();
 }
 
 function drawTable(type, dataSet, data) {
@@ -157,7 +157,9 @@ hookTableBtnOps('test', 'negative');
 
 // browser evaluation
 
+let model = new SpeechResModel("RES8_NARROW"); // default model for wermup
 let appId = new Date().getTime();
+let modelName;
 let targetType, currType;
 let valEvaluator, testEvaluator;
 let valEvalDeferred, testEvalDeferred;
@@ -229,6 +231,8 @@ $(document).on('click', '#continueBtn', function() {
 // triggering audio file list initialization
 $(document).on('click', '#evaluateBtn', function() {
   appId = $('#appIdInput').val();
+  modelName = $('.modelSelect').val();
+  model = new SpeechResModel(modelName);
 
   if (valEvaluator) {
     valEvaluator = undefined;
@@ -290,7 +294,7 @@ function warmUpCompuation() {
   // warming up model prediction
   warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
   warmUpProcessor.getMFCC().done(function(mfccData) {
-    predict(mfccData, modelName, model);
+    predict(mfccData, model);
     warmUpCount--;
     if (warmUpCount != 0) {
       warmUpCompuation();
@@ -300,5 +304,9 @@ function warmUpCompuation() {
 warmUpCompuation();
 
 $('#appIdInput').val(appId);
+let modelList = Object.keys(weights);
 
-updateStatus('Model Name : ' + modelName);
+for (var i = 0; i < modelList.length; i++) {
+  let modelName = modelList[i];
+  $('.modelSelect').append('<option value="'+modelName+'">'+modelName+'</option>')
+}

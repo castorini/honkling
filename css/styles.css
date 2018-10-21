@@ -77,3 +77,8 @@ th{
 .negativeReportTableWrapper {
   padding-top: 20px;
 }
+
+.modelSelect {
+  padding: 3px;
+  width: 200px;
+}
