@@ -1,6 +1,4 @@
 // Model Definition
-
-let modelName = "RES8_NARROW_40";
 let model = new SpeechResModel(modelName);
 
 function predict(x, modelName, model) {
