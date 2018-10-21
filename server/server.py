@@ -16,6 +16,7 @@ DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
 SILENCE_KEYWORD = 'silence'
 noise_prob = 0.8
+sample_rate = 16000
 data_collectors = {}
 
 def get_noise():
@@ -146,24 +147,40 @@ def init_data_collectors(app_id):
             "collector" : init_collector_set(),
         }
 
-    data_collectors[app_id] = {
-        "val" : {
-            "type" : "val",
-            "summary" : init_report_set(),
-            "positive" : init_report_set(),
-            "negative" : init_report_set()
-        },
-        "test" : {
-            "type" : "test",
-            "summary" : init_report_set(),
-            "positive" : init_report_set(),
-            "negative" : init_report_set()
+    if app_id not in data_collectors:
+        data_collectors[app_id] = {
+            "val" : {
+                "type" : "val",
+                "summary" : init_report_set(),
+                "positive" : init_report_set(),
+                "negative" : init_report_set()
+            },
+            "test" : {
+                "type" : "test",
+                "summary" : init_report_set(),
+                "positive" : init_report_set(),
+                "negative" : init_report_set()
+            }
         }
-    }
+    else:
+        if 'val' not in data_collectors[app_id]:
+            data_collectors[app_id]["val"] = {
+                "type" : "val",
+                "summary" : init_report_set(),
+                "positive" : init_report_set(),
+                "negative" : init_report_set()
+            }
+        if 'test' not in data_collectors[app_id]:
+            data_collectors[app_id]["test"] = {
+                "type" : "test",
+                "summary" : init_report_set(),
+                "positive" : init_report_set(),
+                "negative" : init_report_set()
+            }
 
 class AudioRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        global sample_rate, command_list
+        global command_list
 
         print(urlparse(self.path))
         parsed_url = urlparse(self.path)
@@ -175,10 +192,19 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
 
         if path == '/init':
             app_id = int(params['appId'][0])
-            sample_rate = int(params['sampleRate'][0])
             command_list = unquote(params['commands'][0]).split(',')
-            init_bg_noise()
-            result = {'testCount' : audios['test']['size'], 'valCount' : audios['val']['size']}
+
+            result = {
+                'testCount' : 0,
+                'valCount' : 0,
+                'testTotal' : audios['test']['size'],
+                'valTotal' : audios['val']['size']
+            }
+            if app_id in data_collectors:
+                if 'val' in data_collectors[app_id]:
+                    result['valCount'] = data_collectors[app_id]['val']['summary']['total_count']
+                if 'test' in data_collectors[app_id]:
+                    result['testCount'] = data_collectors[app_id]['test']['summary']['total_count']
             init_data_collectors(app_id)
             print('init result', result)
 
@@ -255,14 +281,15 @@ if __name__ == '__main__':
             'list' : test_set
         }
     }
+    init_bg_noise()
 
     server_address = (HOST_NAME, PORT_NUMBER)
     httpd = HTTPServer(server_address, AudioRequestHandler)
     if not TESTING:
-        httpd.socket = ssl.wrap_socket (httpd.socket,
-            certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
-            keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
-            server_side=True)
+       httpd.socket = ssl.wrap_socket (httpd.socket,
+           certfile='/etc/letsencrypt/live/honkling.xyz/fullchain.pem',
+           keyfile='/etc/letsencrypt/live/honkling.xyz/privkey.pem',
+           server_side=True)
 
     print('running server on port ', PORT_NUMBER)
     httpd.serve_forever()
