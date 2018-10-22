@@ -43,7 +43,7 @@ def get_audio(app_id, type, index):
     features = np.pad(features, (0, sample_rate - len(features)), 'constant')
 
     noise_flag = False
-    if random.random() < noise_prob or audio_class == SILENCE_KEYWORD:
+    if audio_class == SILENCE_KEYWORD:
         a = random.random() * 0.1
         features = np.clip(a * bg_noise + features, -1, 1)
         noise_flag = True
