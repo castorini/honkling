@@ -18,15 +18,16 @@ SILENCE_KEYWORD = 'silence'
 noise_prob = 0.8
 sample_rate = 16000
 data_collectors = {}
+random_obj = {}
 
-def get_noise():
-    bg_noise = random.choice(background_noise)
-    start_pos = random.randint(0, len(bg_noise) - sample_rate - 1)
+def get_noise(rand):
+    bg_noise = rand.choice(background_noise)
+    start_pos = rand.randint(0, len(bg_noise) - sample_rate - 1)
     return bg_noise[start_pos:start_pos + sample_rate]
 
 
 def get_audio(app_id, type, index):
-    bg_noise = get_noise()
+    bg_noise = get_noise(random_obj[app_id])
 
     data = {}
     data['index'] = index
@@ -43,8 +44,8 @@ def get_audio(app_id, type, index):
     features = np.pad(features, (0, sample_rate - len(features)), 'constant')
 
     noise_flag = False
-    if random.random() < noise_prob or audio_class == SILENCE_KEYWORD:
-        a = random.random() * 0.1
+    if audio_class == SILENCE_KEYWORD:
+        a = random_obj[app_id].random() * 0.1
         features = np.clip(a * bg_noise + features, -1, 1)
         noise_flag = True
 
@@ -180,7 +181,7 @@ def init_data_collectors(app_id):
 
 class AudioRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        global command_list
+        global command_list, random_obj
 
         print(urlparse(self.path))
         parsed_url = urlparse(self.path)
@@ -206,6 +207,7 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
                 if 'test' in data_collectors[app_id]:
                     result['testCount'] = data_collectors[app_id]['test']['summary']['total_count']
             init_data_collectors(app_id)
+            random_obj[app_id] = random.Random(10)
             print('init result', result)
 
         elif path == '/get_audio':
@@ -248,6 +250,8 @@ if __name__ == '__main__':
     test_set 3079
     test_set audio_files 2823
     """
+
+    random.seed(0)
 
     val_file_list = 'dev_set.txt'
     val_size = 3091
