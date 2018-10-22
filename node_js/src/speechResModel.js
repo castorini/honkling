@@ -1,12 +1,18 @@
-require('@tensorflow/tfjs-node');
 require('./config.js');
 require('./util.js');
 require('./weights/weights.js');
 const tf = require('@tensorflow/tfjs');
 
+if (process.argv[2] == 'gpu') {
+  require('@tensorflow/tfjs-node-gpu');
+} else {
+  require('@tensorflow/tfjs-node');
+}
+
 function SpeechResModel(modelName) {
- this.modelConfig = modelConfig[modelName];
- this.modelConfig['n_labels'] = commands.length;
+  this.modelConfig = modelConfig[modelName];
+  this.modelConfig['n_labels'] = commands.length;
+
   // layer definition
   layers = {}
 
