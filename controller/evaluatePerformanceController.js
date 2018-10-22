@@ -249,7 +249,6 @@ $(document).on('click', '#evaluateBtn', function() {
     crossDomain: true,
     data : {
       commands : commands.toString(),
-      randomSeed :10,
       sampleRate : audioConfig['offlineSampleRate'],
       appId : appId
    },
