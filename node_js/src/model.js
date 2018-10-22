@@ -2,15 +2,15 @@ require('./config.js');
 const tf = require('@tensorflow/tfjs');
 var SpeechResModel = require('./speechResModel.js');
 
-function Model() {
-  this.model = new SpeechResModel();
+function Model(modelName) {
+  this.model = new SpeechResModel(modelName);
 };
 
 Model.prototype.predict = function(x) {
   if (!(x instanceof tf.Tensor)) {
     x = tf.tensor(x);
   }
-  let input_shape = modelConfig['input_shape'].slice();
+  let input_shape = this.model.modelConfig['input_shape'].slice();
   input_shape.unshift(-1);
   let output = this.model.predict(x.reshape(input_shape));
 

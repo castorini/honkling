@@ -1,18 +1,25 @@
-require('@tensorflow/tfjs-node');
 require('./config.js');
 require('./util.js');
-require('./weights.js');
+require('./weights/weights.js');
 const tf = require('@tensorflow/tfjs');
 
-function SpeechResModel() {
+if (process.argv[2] == 'gpu') {
+  require('@tensorflow/tfjs-node-gpu');
+} else {
+  require('@tensorflow/tfjs-node');
+}
+
+function SpeechResModel(modelName) {
+  this.modelConfig = modelConfig[modelName];
+  this.modelConfig['n_labels'] = commands.length;
 
   // layer definition
   layers = {}
 
   layers['conv0'] = tf.layers.conv2d({
-    filters: modelConfig['n_feature_maps'],
-    kernelSize: modelConfig['conv_size'],
-    strides: modelConfig['conv_stride'],
+    filters: this.modelConfig['n_feature_maps'],
+    kernelSize: this.modelConfig['conv_size'],
+    strides: this.modelConfig['conv_stride'],
     padding: "same",
     useBias: false,
     activation: 'relu',
@@ -21,18 +28,18 @@ function SpeechResModel() {
     name: "conv0",
   })
 
-  if (modelConfig['res_pool']) {
+  if (this.modelConfig['res_pool']) {
     layers['pool'] = tf.layers.averagePooling2d({
-      poolSize: modelConfig['res_pool'],
+      poolSize: this.modelConfig['res_pool'],
       name: "pool",
     })
   }
 
-  if (modelConfig['use_dilation']) {
-    for (var i  = 0; i < (modelConfig['n_layers']); i++) {
+  if (this.modelConfig['use_dilation']) {
+    for (var i  = 0; i < (this.modelConfig['n_layers']); i++) {
       layers['conv'+ (i+1)] = tf.layers.conv2d({
-        filters: modelConfig['n_feature_maps'],
-        kernelSize: modelConfig['conv_size'],
+        filters: this.modelConfig['n_feature_maps'],
+        kernelSize: this.modelConfig['conv_size'],
         padding: "same",
         dilation: Math.pow(2, Math.floor(i/3)),
         useBias: false,
@@ -43,10 +50,14 @@ function SpeechResModel() {
       })
     }
   } else {
-    for (var i  = 0; i < (modelConfig['n_layers']); i++) {
+    for (var i  = 0; i < (this.modelConfig['n_layers']); i++) {
+			let numFilters = this.modelConfig['n_feature_maps'];
+			if (this.modelConfig['n_kept_feature'] && (i % 2 == 0)) {
+				numFilters = this.modelConfig['n_kept_feature'];
+			}
       layers['conv'+ (i+1)] = tf.layers.conv2d({
-        filters: modelConfig['n_feature_maps'],
-        kernelSize: modelConfig['conv_size'],
+        filters: numFilters,
+        kernelSize: this.modelConfig['conv_size'],
         padding: "same",
         dilation: 1,
         useBias: false,
@@ -58,7 +69,7 @@ function SpeechResModel() {
     }
   }
 
-  for (var i  = 0; i < (modelConfig['n_layers']); i++) {
+  for (var i  = 0; i < (this.modelConfig['n_layers']); i++) {
     layers['bn'+ (i+1)] = tf.layers.batchNormalization({
       epsilon: 0.00001,
       momentum: 0.1,
@@ -68,45 +79,31 @@ function SpeechResModel() {
     })
   }
 
-  layers['output'] = tf.layers.dense({
-    units: modelConfig['n_labels'],
-    activation: 'linear',
-    biasInitializer : tf.initializers.zeros(),
-    name: "output",
-  });
-
-  for (var i  = 2; i < (modelConfig['n_layers'] + 1); i++) {
+  for (var i  = 2; i < (this.modelConfig['n_layers'] + 1); i++) {
     if (i % 2 == 0) {
       layers['add'+i] = tf.layers.add({name: "add" + i});
     }
   }
 
   layers['globalAvgPool'] = tf.layers.globalAveragePooling2d({});
+
+  layers['output'] = tf.layers.dense({
+    units: this.modelConfig['n_labels'],
+    activation: 'linear',
+    biasInitializer : tf.initializers.zeros(),
+    name: "output",
+  });
+
   layers['softmax'] = tf.layers.softmax();
-
-  // preprocee weights before assignment
-  let processedWeights = {};
-
-  let weightNames = Object.keys(weights);
-  for (var index in weightNames) {
-    let weightName = weightNames[index];
-    let nameSplit = weightName.split(".");
-    let layer = nameSplit[0];
-
-    if (!(layer in processedWeights)) {
-      processedWeights[layer] = {};
-    }
-    processedWeights[layer][nameSplit[1]] = weights[weightName];
-  }
 
   // compile model
 
-  const input = tf.input({shape: modelConfig['input_shape']});
+  const input = tf.input({shape: this.modelConfig['input_shape']});
   let x = input;
 
   let y, old_x;
 
-  for (var i  = 0; i < (modelConfig['n_layers'] + 1); i++) {
+  for (var i  = 0; i < (this.modelConfig['n_layers'] + 1); i++) {
     y = layers['conv'+ i].apply(x);
 
     if (i == 0) {
@@ -138,16 +135,27 @@ function SpeechResModel() {
     outputs: softmax,
   });
 
-  this.model.summary();
-
   this.model.compile({
     optimizer: 'sgd',
     loss: 'categoricalCrossentropy',
     metrics: ['accuracy'],
   });
 
-
   // weights loading
+
+  // preprocee weights before assignment
+  let processedWeights = {};
+  let weightNames = Object.keys(weights[modelName]);
+  for (var index in weightNames) {
+    let weightName = weightNames[index];
+    let nameSplit = weightName.split(".");
+    let layer = nameSplit[0];
+
+    if (!(layer in processedWeights)) {
+      processedWeights[layer] = {};
+    }
+    processedWeights[layer][nameSplit[1]] = weights[modelName][weightName];
+  }
 
   function reformatConvKernel(weight) {
     let reformat = [];
@@ -175,6 +183,7 @@ function SpeechResModel() {
 
   for (var key in layers) {
     let w = [];
+
     if (key.includes("conv")) {
       // weight index 0 = kernel
       let convKernelShape = layers[key].getWeights()[0].shape;
@@ -182,9 +191,16 @@ function SpeechResModel() {
       w.push(tf.tensor4d(convKernel, convKernelShape, 'float32'));
     }
     if (key.includes("bn")) {
-      // weight index 0 = gamma - 1 (due to Affine = false)
+      // set gamma to scaled weights for odd layers
       let bnGammaShape = layers[key].getWeights()[0].shape;
-      w.push(tf.tensor1d(new Array(bnGammaShape[0]).fill(1), 'float32'));
+      let index = parseInt(key.substring(2));
+      let scaleWeightKey = "scale" + index;
+
+      if (processedWeights[scaleWeightKey]) {
+        w.push(tf.tensor1d(processedWeights[scaleWeightKey]['scale'], 'float32'));
+      } else {
+        w.push(tf.tensor1d(new Array(bnGammaShape[0]).fill(1), 'float32'));
+      }
 
       // weight index 1 = beta - 0 (due to Affine = false)
       let bnBetaShape = layers[key].getWeights()[1].shape;
@@ -208,8 +224,6 @@ function SpeechResModel() {
     }
     layers[key].setWeights(w);
   }
-
-  weights = undefined;
 }
 
 SpeechResModel.prototype.predict = function(x) {
