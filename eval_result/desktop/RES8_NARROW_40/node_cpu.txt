@@ -1,0 +1,222 @@
+====== evaluation of model RES8_NARROW_40, ID : 1540232543384 ======
+
+validation set size :  3091
+test set size :  3079
+===========================================
+
+	5 % completed
+	10 % completed
+	15 % completed
+	20 % completed
+	25 % completed
+	30 % completed
+	35 % completed
+	40 % completed
+	45 % completed
+	50 % completed
+	55 % completed
+	60 % completed
+	65 % completed
+	70 % completed
+	75 % completed
+	80 % completed
+	85 % completed
+	90 % completed
+	95 % completed
+//// validation dataset evaluation completed ////
+
+{ type: 'val',
+  summary: 
+   { total_count: 3091,
+     success_count: 2776,
+     accuracy: 0.8980912326108056,
+     mfcc: 
+      { total: 68352.497,
+        minimum: 17.962,
+        maximum: 32.51,
+        average: 22.113,
+        P50: 21.854,
+        P90: 24.176,
+        P99: 28.238 },
+     inference: 
+      { total: 146269.535,
+        minimum: 6.06,
+        maximum: 23438.369,
+        average: 47.321,
+        P50: 6.843,
+        P90: 8.339,
+        P99: 10.413 },
+     process: 
+      { total: 214622.032,
+        minimum: 25.959,
+        maximum: 23459.575,
+        average: 69.434,
+        P50: 28.893,
+        P90: 31.78,
+        P99: 35.72 } },
+  positive: 
+   { total_count: 2577,
+     success_count: 2319,
+     accuracy: 0.89988358556461,
+     mfcc: 
+      { total: 57017.53,
+        minimum: 17.962,
+        maximum: 32.51,
+        average: 22.126,
+        P50: 21.838,
+        P90: 24.195,
+        P99: 28.261 },
+     inference: 
+      { total: 122330.499,
+        minimum: 6.06,
+        maximum: 23438.369,
+        average: 47.47,
+        P50: 6.809,
+        P90: 8.326,
+        P99: 10.35 },
+     process: 
+      { total: 179348.029,
+        minimum: 25.959,
+        maximum: 23459.575,
+        average: 69.596,
+        P50: 28.868,
+        P90: 31.855,
+        P99: 35.729 } },
+  negative: 
+   { total_count: 514,
+     success_count: 457,
+     accuracy: 0.8891050583657587,
+     mfcc: 
+      { total: 11334.967,
+        minimum: 18.164,
+        maximum: 29.414,
+        average: 22.052,
+        P50: 21.919,
+        P90: 24,
+        P99: 27.249 },
+     inference: 
+      { total: 23939.036,
+        minimum: 6.192,
+        maximum: 20235.161,
+        average: 46.574,
+        P50: 6.988,
+        P90: 8.385,
+        P99: 10.445 },
+     process: 
+      { total: 35274.003,
+        minimum: 26.121,
+        maximum: 20256.908,
+        average: 68.626,
+        P50: 28.973,
+        P90: 31.565,
+        P99: 35.708 } } }
+==================
+
+	5 % completed
+	10 % completed
+	15 % completed
+	20 % completed
+	25 % completed
+	30 % completed
+	35 % completed
+	40 % completed
+	45 % completed
+	50 % completed
+	55 % completed
+	60 % completed
+	65 % completed
+	70 % completed
+	75 % completed
+	80 % completed
+	85 % completed
+	90 % completed
+	95 % completed
+//// test dataset evaluation completed ////
+
+{ type: 'test',
+  summary: 
+   { total_count: 3079,
+     success_count: 2777,
+     accuracy: 0.9019162065605716,
+     mfcc: 
+      { total: 68570.604,
+        minimum: 17.838,
+        maximum: 41.573,
+        average: 22.27,
+        P50: 22.036,
+        P90: 24.3,
+        P99: 28.171 },
+     inference: 
+      { total: 162922.611,
+        minimum: 6.336,
+        maximum: 30717.822,
+        average: 52.914,
+        P50: 7.446,
+        P90: 9.072,
+        P99: 11.61 },
+     process: 
+      { total: 231493.214,
+        minimum: 25.205,
+        maximum: 30738.718,
+        average: 75.185,
+        P50: 29.613,
+        P90: 32.625,
+        P99: 36.651 } },
+  positive: 
+   { total_count: 2567,
+     success_count: 2326,
+     accuracy: 0.9061160888196338,
+     mfcc: 
+      { total: 57157.191,
+        minimum: 17.838,
+        maximum: 41.573,
+        average: 22.266,
+        P50: 22.038,
+        P90: 24.312,
+        P99: 28.041 },
+     inference: 
+      { total: 158928.154,
+        minimum: 6.336,
+        maximum: 30717.822,
+        average: 61.912,
+        P50: 7.41,
+        P90: 9.059,
+        P99: 11.636 },
+     process: 
+      { total: 216085.346,
+        minimum: 25.205,
+        maximum: 30738.718,
+        average: 84.178,
+        P50: 29.592,
+        P90: 32.618,
+        P99: 36.566 } },
+  negative: 
+   { total_count: 512,
+     success_count: 451,
+     accuracy: 0.880859375,
+     mfcc: 
+      { total: 11413.412,
+        minimum: 18.666,
+        maximum: 34.78,
+        average: 22.292,
+        P50: 22.03,
+        P90: 24.18,
+        P99: 28.507 },
+     inference: 
+      { total: 3994.457,
+        minimum: 6.35,
+        maximum: 12.52,
+        average: 7.802,
+        P50: 7.596,
+        P90: 9.197,
+        P99: 11.47 },
+     process: 
+      { total: 15407.869,
+        minimum: 26.419,
+        maximum: 42.873,
+        average: 30.093,
+        P50: 29.722,
+        P90: 32.794,
+        P99: 37.146 } } }
+==================
+
