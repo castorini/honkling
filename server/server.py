@@ -262,7 +262,7 @@ if __name__ == '__main__':
     val_set = [x.strip() for x in content]
     random.shuffle(val_set)
     if ENV == "DEV":
-        val_set[:16]
+        val_set = val_set[:16]
 
     test_file_list = 'test_set.txt'
     test_size = 3079
@@ -273,7 +273,7 @@ if __name__ == '__main__':
     test_set = [x.strip() for x in content]
     random.shuffle(test_set)
     if ENV == "DEV":
-        test_set[:16]
+        test_set = test_set[:16]
 
     audios = {
         'val': {
