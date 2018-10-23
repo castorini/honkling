@@ -1,0 +1,99 @@
+{
+    "negative": {
+        "accuracy": 0.8560311284046692,
+        "inference": {
+            "P50": 741.5,
+            "P90": 1072.7,
+            "P99": 1136.74,
+            "average": 798.171,
+            "maximum": 1269.0,
+            "minimum": 338.0,
+            "total": 410260.0
+        },
+        "mfcc": {
+            "P50": 306.0,
+            "P90": 517.0,
+            "P99": 565.48,
+            "average": 359.146,
+            "maximum": 597.0,
+            "minimum": 242.0,
+            "total": 184601.0
+        },
+        "process": {
+            "P50": 1090.5,
+            "P90": 1583.1,
+            "P99": 1676.22,
+            "average": 1157.317,
+            "maximum": 1866.0,
+            "minimum": 594.0,
+            "total": 594861.0
+        },
+        "success_count": 440,
+        "total_count": 514
+    },
+    "positive": {
+        "accuracy": 0.8963911525029103,
+        "inference": {
+            "P50": 698.0,
+            "P90": 1068.4,
+            "P99": 1137.72,
+            "average": 782.997,
+            "maximum": 1478.0,
+            "minimum": 328.0,
+            "total": 2017782.0
+        },
+        "mfcc": {
+            "P50": 299.0,
+            "P90": 518.0,
+            "P99": 578.24,
+            "average": 350.409,
+            "maximum": 1296.0,
+            "minimum": 243.0,
+            "total": 903003.0
+        },
+        "process": {
+            "P50": 1008.0,
+            "P90": 1586.0,
+            "P99": 1714.96,
+            "average": 1133.405,
+            "maximum": 2173.0,
+            "minimum": 594.0,
+            "total": 2920785.0
+        },
+        "success_count": 2310,
+        "total_count": 2577
+    },
+    "summary": {
+        "accuracy": 0.8896797153024911,
+        "inference": {
+            "P50": 701.0,
+            "P90": 1069.0,
+            "P99": 1137.2,
+            "average": 785.52,
+            "maximum": 1478.0,
+            "minimum": 328.0,
+            "total": 2428042.0
+        },
+        "mfcc": {
+            "P50": 300.0,
+            "P90": 518.0,
+            "P99": 577.1,
+            "average": 351.862,
+            "maximum": 1296.0,
+            "minimum": 242.0,
+            "total": 1087604.0
+        },
+        "process": {
+            "P50": 1014.0,
+            "P90": 1586.0,
+            "P99": 1705.0,
+            "average": 1137.381,
+            "maximum": 2173.0,
+            "minimum": 594.0,
+            "total": 3515646.0
+        },
+        "success_count": 2750,
+        "total_count": 3091
+    },
+    "type": "val"
+}
