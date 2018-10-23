@@ -1,6 +1,6 @@
 
 
-Model Name : RES8_NARROW_40, App ID : 1540239780502, validation size : 3091, test size : 3079
+Model Name : RES8_NARROW_40, App ID : 1540256860478, validation size : 3091, test size : 3079
 
 performance evaluation is completed
 < Evaluation on Validation Set >
@@ -9,27 +9,27 @@ Summary
 ACCURACY	total count	3091	
 success count	2750	
 accuracy	88.97	%
-MFCC COMPUTATION TIME	total	1.35	m
+MFCC COMPUTATION TIME	total	1.3	m
 minimum	19	ms
-maximum	50	ms
-average	26.135	ms
-P50	26	ms
+maximum	54	ms
+average	25.292	ms
+P50	25	ms
 P90	29	ms
-P99	33	ms
-INFERENCE TIME	total	1.78	m
-minimum	29	ms
-maximum	82	ms
-average	34.569	ms
-P50	34	ms
-P90	37	ms
-P99	42	ms
-OVERALL PROCESS TIME	total	3.13	m
+P99	34	ms
+INFERENCE TIME	total	1.82	m
+minimum	30	ms
+maximum	81	ms
+average	35.288	ms
+P50	35	ms
+P90	38	ms
+P99	44	ms
+OVERALL PROCESS TIME	total	3.12	m
 minimum	53	ms
-maximum	132	ms
-average	60.704	ms
+maximum	135	ms
+average	60.58	ms
 P50	60	ms
-P90	64	ms
-P99	71.1	ms
+P90	65	ms
+P99	75	ms
 
 
 Positive Keywords
@@ -37,27 +37,27 @@ Positive Keywords
 ACCURACY	total count	2577	
 success count	2310	
 accuracy	89.64	%
-MFCC COMPUTATION TIME	total	1.13	m
+MFCC COMPUTATION TIME	total	1.09	m
 minimum	19	ms
-maximum	50	ms
-average	26.409	ms
-P50	26	ms
+maximum	54	ms
+average	25.289	ms
+P50	25	ms
 P90	29	ms
-P99	33	ms
-INFERENCE TIME	total	1.48	m
-minimum	29	ms
-maximum	82	ms
-average	34.558	ms
-P50	34	ms
-P90	37	ms
-P99	42	ms
-OVERALL PROCESS TIME	total	2.62	m
+P99	34	ms
+INFERENCE TIME	total	1.52	m
+minimum	30	ms
+maximum	81	ms
+average	35.293	ms
+P50	35	ms
+P90	38	ms
+P99	44	ms
+OVERALL PROCESS TIME	total	2.6	m
 minimum	53	ms
-maximum	132	ms
-average	60.967	ms
+maximum	135	ms
+average	60.582	ms
 P50	60	ms
-P90	64	ms
-P99	71	ms
+P90	65	ms
+P99	75	ms
 
 
 Negative Keywords
@@ -65,27 +65,27 @@ Negative Keywords
 ACCURACY	total count	514	
 success count	440	
 accuracy	85.6	%
-MFCC COMPUTATION TIME	total	0.21	m
-minimum	19	ms
-maximum	40	ms
-average	24.765	ms
-P50	24	ms
+MFCC COMPUTATION TIME	total	0.22	m
+minimum	20	ms
+maximum	48	ms
+average	25.309	ms
+P50	25	ms
 P90	28	ms
 P99	31	ms
 INFERENCE TIME	total	0.3	m
-minimum	30	ms
-maximum	70	ms
-average	34.623	ms
-P50	34	ms
-P90	37	ms
-P99	41	ms
-OVERALL PROCESS TIME	total	0.51	m
+minimum	31	ms
+maximum	80	ms
+average	35.261	ms
+P50	35	ms
+P90	38	ms
+P99	42	ms
+OVERALL PROCESS TIME	total	0.52	m
 minimum	53	ms
-maximum	104	ms
-average	59.387	ms
-P50	59	ms
-P90	63	ms
-P99	71.74	ms
+maximum	128	ms
+average	60.57	ms
+P50	60	ms
+P90	64	ms
+P99	69	ms
 
 
 
