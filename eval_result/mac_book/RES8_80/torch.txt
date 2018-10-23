@@ -1,0 +1,58 @@
+evaluation on validation set
+final test accuracy: 0.9145907759666443
+< summary for mfcc computation ( unit : ms ) >
+	length :  3091
+	total :  5331.281999999999
+	minimum :  1.611
+	maximum :  4.745
+	average :  1.7247758007117435
+	P50 :  1.653
+	P90 :  1.83
+	P99 :  2.8023999999999996
+< summary for validation evaluation time ( unit : ms ) >
+	length :  3091
+	total :  6746.702
+	minimum :  1.996
+	maximum :  14.378
+	average :  2.1826923325784535
+	P50 :  2.106
+	P90 :  2.331
+	P99 :  3.4223999999999997
+< summary for validation evaluation time ( unit : ms ) >
+	length :  3091
+	total :  12077.984
+	minimum :  3.624
+	maximum :  18.27
+	average :  3.9074681332901973
+	P50 :  3.795
+	P90 :  4.115
+	P99 :  6.1488999999999985
+evaluation on test set
+final test accuracy: 0.9136083126068115
+< summary for mfcc computation ( unit : ms ) >
+	length :  3079
+	total :  5234.712
+	minimum :  1.594
+	maximum :  3.743
+	average :  1.7001338096784673
+	P50 :  1.663
+	P90 :  1.796
+	P99 :  2.23922
+< summary for test evaluation time ( unit : ms ) >
+	length :  3079
+	total :  6537.4220000000005
+	minimum :  1.995
+	maximum :  5.227
+	average :  2.12322897044495
+	P50 :  2.082
+	P90 :  2.239
+	P99 :  2.7169399999999944
+< summary for test evaluation time ( unit : ms ) >
+	length :  3079
+	total :  11772.134
+	minimum :  3.633
+	maximum :  7.366
+	average :  3.823362780123417
+	P50 :  3.78
+	P90 :  3.971
+	P99 :  4.860959999999997
