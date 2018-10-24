@@ -1,0 +1,196 @@
+{
+    "negative": {
+        "accuracy": 0.939453125,
+        "inference": {
+            "P50": 8.215,
+            "P90": 9.929,
+            "P99": 13.19,
+            "average": 8.626,
+            "maximum": 29.62,
+            "minimum": 7.336,
+            "total": 4416.445
+        },
+        "mfcc": {
+            "P50": 19.027,
+            "P90": 22.053,
+            "P99": 29.539,
+            "average": 19.83,
+            "maximum": 34.645,
+            "minimum": 18.027,
+            "total": 10153.116
+        },
+        "process": {
+            "P50": 27.663,
+            "P90": 31.681,
+            "P99": 37.954,
+            "average": 28.456,
+            "maximum": 48.287,
+            "minimum": 25.657,
+            "total": 14569.561
+        },
+        "success_count": 481,
+        "total_count": 512
+    },
+    "positive": {
+        "accuracy": 0.9400077911959486,
+        "inference": {
+            "P50": 8.19,
+            "P90": 9.81,
+            "P99": 14.073,
+            "average": 8.576,
+            "maximum": 28.209,
+            "minimum": 7.347,
+            "total": 22013.947
+        },
+        "mfcc": {
+            "P50": 18.979,
+            "P90": 21.925,
+            "P99": 30.566,
+            "average": 19.852,
+            "maximum": 36.553,
+            "minimum": 18.018,
+            "total": 50959.089
+        },
+        "process": {
+            "P50": 27.654,
+            "P90": 31.508,
+            "P99": 40.767,
+            "average": 28.427,
+            "maximum": 51.527,
+            "minimum": 25.537,
+            "total": 72973.035
+        },
+        "success_count": 2413,
+        "total_count": 2567
+    },
+    "summary": {
+        "accuracy": 0.9399155569990256,
+        "inference": {
+            "P50": 8.192,
+            "P90": 9.83,
+            "P99": 13.973,
+            "average": 8.584,
+            "maximum": 29.62,
+            "minimum": 7.336,
+            "total": 26430.392
+        },
+        "mfcc": {
+            "P50": 18.983,
+            "P90": 21.946,
+            "P99": 30.517,
+            "average": 19.848,
+            "maximum": 36.553,
+            "minimum": 18.018,
+            "total": 61112.205
+        },
+        "process": {
+            "P50": 27.656,
+            "P90": 31.552,
+            "P99": 40.703,
+            "average": 28.432,
+            "maximum": 51.527,
+            "minimum": 25.537,
+            "total": 87542.597
+        },
+        "success_count": 2894,
+        "total_count": 3079
+    },
+    "type": "test"
+}{
+    "negative": {
+        "accuracy": 0.9591439688715954,
+        "inference": {
+            "P50": 8.345,
+            "P90": 10.739,
+            "P99": 16.194,
+            "average": 8.934,
+            "maximum": 23.891,
+            "minimum": 7.402,
+            "total": 4592.268
+        },
+        "mfcc": {
+            "P50": 19.416,
+            "P90": 23.421,
+            "P99": 34.652,
+            "average": 20.53,
+            "maximum": 46.651,
+            "minimum": 16.13,
+            "total": 10552.391
+        },
+        "process": {
+            "P50": 28.038,
+            "P90": 34.429,
+            "P99": 46.403,
+            "average": 29.464,
+            "maximum": 57.176,
+            "minimum": 25.215,
+            "total": 15144.659
+        },
+        "success_count": 493,
+        "total_count": 514
+    },
+    "positive": {
+        "accuracy": 0.9410166860690725,
+        "inference": {
+            "P50": 8.496,
+            "P90": 11.202,
+            "P99": 14.759,
+            "average": 9.101,
+            "maximum": 30.979,
+            "minimum": 7.377,
+            "total": 23453.58
+        },
+        "mfcc": {
+            "P50": 19.913,
+            "P90": 24.705,
+            "P99": 33.421,
+            "average": 20.985,
+            "maximum": 56.859,
+            "minimum": 16.792,
+            "total": 54079.222
+        },
+        "process": {
+            "P50": 28.834,
+            "P90": 35.244,
+            "P99": 43.714,
+            "average": 30.086,
+            "maximum": 71.618,
+            "minimum": 25.592,
+            "total": 77532.802
+        },
+        "success_count": 2425,
+        "total_count": 2577
+    },
+    "summary": {
+        "accuracy": 0.9440310579100615,
+        "inference": {
+            "P50": 8.467,
+            "P90": 11.158,
+            "P99": 14.941,
+            "average": 9.073,
+            "maximum": 30.979,
+            "minimum": 7.377,
+            "total": 28045.848
+        },
+        "mfcc": {
+            "P50": 19.812,
+            "P90": 24.624,
+            "P99": 33.684,
+            "average": 20.91,
+            "maximum": 56.859,
+            "minimum": 16.13,
+            "total": 64631.613
+        },
+        "process": {
+            "P50": 28.73,
+            "P90": 35.198,
+            "P99": 44.316,
+            "average": 29.983,
+            "maximum": 71.618,
+            "minimum": 25.215,
+            "total": 92677.461
+        },
+        "success_count": 2918,
+        "total_count": 3091
+    },
+    "type": "val"
