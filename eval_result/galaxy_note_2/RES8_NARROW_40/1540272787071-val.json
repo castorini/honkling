@@ -1,0 +1,99 @@
+{
+    "negative": {
+        "accuracy": 0.8560311284046692,
+        "inference": {
+            "P50": 549.5,
+            "P90": 779.7,
+            "P99": 844.74,
+            "average": 599.465,
+            "maximum": 910.0,
+            "minimum": 259.0,
+            "total": 308125.0
+        },
+        "mfcc": {
+            "P50": 257.0,
+            "P90": 406.0,
+            "P99": 467.35,
+            "average": 289.757,
+            "maximum": 531.0,
+            "minimum": 192.0,
+            "total": 148935.0
+        },
+        "process": {
+            "P50": 825.5,
+            "P90": 1194.1,
+            "P99": 1282.74,
+            "average": 889.222,
+            "maximum": 1368.0,
+            "minimum": 474.0,
+            "total": 457060.0
+        },
+        "success_count": 440,
+        "total_count": 514
+    },
+    "positive": {
+        "accuracy": 0.8963911525029103,
+        "inference": {
+            "P50": 530.0,
+            "P90": 785.0,
+            "P99": 850.24,
+            "average": 587.712,
+            "maximum": 882.0,
+            "minimum": 255.0,
+            "total": 1514535.0
+        },
+        "mfcc": {
+            "P50": 264.0,
+            "P90": 409.0,
+            "P99": 477.0,
+            "average": 293.608,
+            "maximum": 558.0,
+            "minimum": 190.0,
+            "total": 756628.0
+        },
+        "process": {
+            "P50": 806.0,
+            "P90": 1190.4,
+            "P99": 1290.44,
+            "average": 881.321,
+            "maximum": 1423.0,
+            "minimum": 470.0,
+            "total": 2271163.0
+        },
+        "success_count": 2310,
+        "total_count": 2577
+    },
+    "summary": {
+        "accuracy": 0.8896797153024911,
+        "inference": {
+            "P50": 532.0,
+            "P90": 784.0,
+            "P99": 850.0,
+            "average": 589.667,
+            "maximum": 910.0,
+            "minimum": 255.0,
+            "total": 1822660.0
+        },
+        "mfcc": {
+            "P50": 263.0,
+            "P90": 409.0,
+            "P99": 476.1,
+            "average": 292.968,
+            "maximum": 558.0,
+            "minimum": 190.0,
+            "total": 905563.0
+        },
+        "process": {
+            "P50": 809.0,
+            "P90": 1191.0,
+            "P99": 1289.6,
+            "average": 882.634,
+            "maximum": 1423.0,
+            "minimum": 470.0,
+            "total": 2728223.0
+        },
+        "success_count": 2750,
+        "total_count": 3091
+    },
+    "type": "val"
+}
