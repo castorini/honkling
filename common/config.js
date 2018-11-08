@@ -8,7 +8,7 @@ const audioConfig = {
 	'offlineHopSize' : 10, // in ms
 	'offlineWindowSize' : 30, // in ms
 	'micInputWaitTime' : 5, // in s
-	'noiseThreshold' : 0.015
+	'noiseThreshold' : 0.050
 }
 
 weights = {}; // placeholder for dynamic weights loading

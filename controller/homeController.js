@@ -14,14 +14,24 @@ function init_view(commands) {
       reordered.push(command);
     }
   });
-  reordered.push("unknown");
 
-  // list of commands view
-  reordered.forEach(function(command) {
-    $('#commandList').append(
-      $('<li>').attr('class','list-group-item ' + command + '_button text-center').append(command));
-  });
-  $('#commandList .unknown_button').addClass('list-group-item-dark');
+  let split = Math.floor(reordered.length/2)
+  for (var i = 0; i < split; i++) {
+      $('#commandList1').append(
+        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
+
+  }
+
+  for (var i = split; i < reordered.length; i++) {
+      $('#commandList2').append(
+        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
+
+  }
+
+  $('#commandList3').append(
+    $('<li>').attr('class','list-group-item unknown_button text-center').append("unknown"));
+
+  $('.unknown_button').addClass('list-group-item-dark');
 }
 
 function toggleCommand(command) {
@@ -35,10 +45,10 @@ function toggleCommand(command) {
     $('#statusBar').text('keyword spoken is ... ' + command.toUpperCase() + ' !!');
   }
 
-  $('#commandList .active').removeClass('active');
-  $('#commandList .'+command+'_button').addClass('active');
+  $('.commandList .active').removeClass('active');
+  $('.commandList .'+command+'_button').addClass('active');
   setTimeout(function(){
-    $('#commandList .'+command+'_button').removeClass('active');
+    $('.commandList .'+command+'_button').removeClass('active');
   }, toggleTime);
 }
 

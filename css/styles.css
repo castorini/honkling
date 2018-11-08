@@ -26,7 +26,8 @@ audio {
 }
 
 #logo {
-  width:90%;
+  width: 100px;
+  height: 120px;
 }
 
 #commandList {
@@ -57,11 +58,6 @@ audio {
   color:black;
 }
 
-.vcenter {
-    display: flex;
-    align-items: center;
-}
-
 th{
   vertical-align: middle !important
 }
@@ -82,3 +78,31 @@ th{
   padding: 3px;
   width: 200px;
 }
+
+.vertical-text-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.list-group {
+  display: list-item;
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+}
+
+.unknown_button {
+  width: 450px !important;
+}
+
+.list-group li {
+  display: inline-block;
+  padding: 2px;
+  width: 150px;
+}
+
+a { color: inherit; }
