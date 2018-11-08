@@ -14,6 +14,11 @@ var isFirefox = typeof InstallTrigger !== 'undefined';
 // Chrome 1+
 var isChrome = !!window.chrome && !!window.chrome.webstore;
 
-if (!isFirefox && !isChrome) {
-  alert('Honkling is not supported on this browser.\nWe recommand Firefox or Chrome');
+// iOS
+var isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+if (isiOS) {
+  alert('Honkling is not supported on iOS');
+} else if (!isFirefox && !isChrome) {
+  alert('Honkling is not supported on this browser\nWe recommand Firefox or Chrome');
 }
