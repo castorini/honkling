@@ -309,3 +309,5 @@ for (var i = 0; i < modelList.length; i++) {
   let modelName = modelList[i];
   $('.modelSelect').append('<option value="'+modelName+'">'+modelName+'</option>')
 }
+
+updateStatus('Please select model and data set to use');
