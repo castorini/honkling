@@ -28,7 +28,7 @@ class TableGenerator {
   }
 
   generateSection(sectionName, report) {
-    let entryKeys = Object.keys(report);
+    let entryKeys = Object.keys(report).sort().reverse();
     for (var i in entryKeys) {
       let key = entryKeys[i];
       if (key == "total") {
