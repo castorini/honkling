@@ -10,7 +10,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 HOST_NAME = '0.0.0.0'
 # ENV = "DEV"
-# ENV = "TEST"
+# ENV = "EVAL"
 ENV = "PROD"
 DATA_DIR_PATH = '../data/speech_commands'
 UNKNOWN_KEYWORD = 'unknown'
@@ -123,7 +123,7 @@ def get_report(app_id, type):
 
         val.pop('collector', None)
 
-    if ENV != "DEV":
+    if ENV == "EVAL":
         with open('result/'+str(app_id)+'-'+type+'.json', 'w') as f:
             json.dump(report, f, sort_keys=True, indent=4)
 
@@ -257,23 +257,32 @@ if __name__ == '__main__':
     val_size = 3091
     if ENV == "DEV":
         val_size = 20
+    elif ENV == "PROD":
+        val_size = 50
+
     with open(val_file_list) as f:
         content = f.readlines()
     val_set = [x.strip() for x in content]
     random.shuffle(val_set)
     if ENV == "DEV":
         val_set = val_set[:16]
+    elif ENV == "PROD":
+        val_set = val_set[:46]
 
     test_file_list = 'test_set.txt'
     test_size = 3079
     if ENV == "DEV":
         test_size = 20
+    elif ENV == "PROD":
+        test_size = 50
     with open(test_file_list) as f:
         content = f.readlines()
     test_set = [x.strip() for x in content]
     random.shuffle(test_set)
     if ENV == "DEV":
         test_set = test_set[:16]
+    elif ENV == "PROD":
+        test_set = test_set[:46]
 
     audios = {
         'val': {
