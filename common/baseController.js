@@ -8,14 +8,16 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
   isMobile = true;
 }
 
-// Firefox 1.0+
-var isFirefox = typeof InstallTrigger !== 'undefined';
+var ua = navigator.userAgent;
 
-// Chrome 1+
-var isChrome = !!window.chrome && !!window.chrome.webstore;
+// Firefox
+var isFirefox = /Firefox/i.test(ua);
+
+// Chrome
+var isChrome = /Chrome/i.test(ua);
 
 // iOS
-var isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+var isiOS = /iPad|iPhone|iPod/i.test(ua) && !window.MSStream;
 
 if (isiOS) {
   alert('Honkling is not supported on iOS');
