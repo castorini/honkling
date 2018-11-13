@@ -227,6 +227,26 @@ class SpeechResModel {
 		console.log('saving model has completed', saveResult);
 	}
 
+	async train(x, y) {
+		let batchSize = y.length;
+		if (x.length != batchSize) {
+			console.log('mismatching size of input. (X : ' + x.length + ', Y : ' + y.length + ')');
+		}
+		let data_shape = [batchSize].concat(this.config['input_shape']);
+		console.log('batch size : ', data_shape);
+
+		x = math.reshape(x, data_shape);
+		let batch_x = tf.tensor4d(x, data_shape, 'float32');
+		let batch_y = tf.oneHot(y, this.config['n_labels']);
+		await this.model.fit(batch_x, batch_y, {batchSize: batchSize});
+
+		console.log('training completed');
+		let axis = 1;
+		let output = this.model.predict(batch_x);
+		let predictions = output.argMax(axis).dataSync()[0];
+		console.log('prediction : ', commands[predictions]);
+	}
+
 	predict(x) {
 		return this.model.predict(x);
 	}
