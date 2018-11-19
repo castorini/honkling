@@ -32,7 +32,7 @@ class TableGenerator {
     for (var i in entryKeys) {
       let key = entryKeys[i];
       if (key == "total") {
-        this.addTableEntryWithHeading("total", this.formatNumber(report["total"]/60000, 2), "m", sectionName, 7);
+        this.addTableEntryWithHeading("total", this.formatNumber(report["total"]/60000, 2), "m", sectionName, entryKeys.length);
       } else {
         this.addTableEntry(key, report[key], "ms");
       }
