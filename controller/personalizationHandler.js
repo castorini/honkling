@@ -27,11 +27,13 @@ $.ajax({
       batch_size: 10
     }
   }).done(function(data) {
-    console.log(data)
-    // y = [commands.indexOf(data.command)]
-    // // TODO :: server only returns raw audio. support MFCC audio retrival as well
-    // x = [data.features.slice(0,4040)];
-    // model.train(x, y);
+
+    y = []
+    for (var i = 0; i < data.batch_size; i++) {
+      y.push(commands.indexOf(data.command[i]))
+    }
+    x = data.features
+    model.train(x, y);
 
   }).fail(function() {
     console.log('audio retrieval failed');

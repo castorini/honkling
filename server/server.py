@@ -35,13 +35,7 @@ def get_noise(rand):
     start_pos = rand.randint(0, len(bg_noise) - sample_rate - 1)
     return bg_noise[start_pos:start_pos + sample_rate]
 
-def get_mfcc_audio_batch(app_id, type, index, batch_size):
-    return get_raw_audio_batch(app_id, type, index, batch_size)
-
-def get_mfcc_audio(app_id, type, index):
-    return get_raw_audio(app_id, tpye, index)
-
-def get_raw_audio_batch(app_id, type, index, batch_size):
+def get_audio_batch(app_id, type, index, mfcc, batch_size):
     batch = {}
     batch['command'] = []
     batch['commandIndex'] = []
@@ -50,7 +44,7 @@ def get_raw_audio_batch(app_id, type, index, batch_size):
 
     for i in range(batch_size):
         curr_index = index + i
-        audio_data = get_raw_audio(app_id, type, curr_index)
+        audio_data = get_audio(app_id, type, curr_index, mfcc)
 
         if audio_data is None:
             break;
@@ -67,7 +61,7 @@ def get_raw_audio_batch(app_id, type, index, batch_size):
 
     return batch
 
-def get_raw_audio(app_id, type, index):
+def get_audio(app_id, type, index, mfcc):
     if index >= audios[type]['size']:
         return None
 
@@ -106,9 +100,14 @@ def get_raw_audio(app_id, type, index):
         data['commandIndex'] = command_list.index(UNKNOWN_KEYWORD)
         data['class'] = 'negative'
 
-    print('\n ID : ' + str(app_id) + ' - [' + type + ' - ' + data['class'] + '] retrieving ' + str(index + 1) + ' / ' + str(audios[type]['size']) + ' - ' + audio_file_name + ' ( noise = ' + str(noise_flag) + ' )')
+    if mfcc:
+        features = librosa.feature.melspectrogram(features, sr=sample_rate, n_mels=40, hop_length=160, n_fft=480, fmin=20, fmax=4000)
+        features[features > 0] = np.log(features[features > 0])
 
     data['features'] = features.tolist()
+
+    print('\n ID : ' + str(app_id) + ' - [' + type + ' - ' + data['class'] + '] retrieving ' + str(index + 1) + ' / ' + str(audios[type]['size']) + ' - ' + audio_file_name + ' ( noise = ' + str(noise_flag) + ' )')
+
     return data
 
 def init_bg_noise():
@@ -258,24 +257,18 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             app_id = int(params['appId'][0])
             type = params['type'][0]
             index = int(params['index'][0])
-            mfcc = bool(params['mfcc'][0])
+            mfcc = params['mfcc'][0] == 'true'
 
-            if mfcc:
-                result = get_mfcc_audio(app_id, type, index)
-            else:
-                result = get_raw_audio(app_id, type, index)
+            result = get_audio(app_id, type, index, mfcc)
 
         elif path == '/get_audio_batch':
             app_id = int(params['appId'][0])
             type = params['type'][0]
             index = int(params['index'][0])
-            mfcc = bool(params['mfcc'][0])
+            mfcc = params['mfcc'][0] == 'true'
             batch_size = int(params['batch_size'][0])
 
-            if mfcc:
-                result = get_mfcc_audio_batch(app_id, type, index, batch_size)
-            else:
-                result = get_raw_audio_batch(app_id, type, index, batch_size)
+            result = get_audio_batch(app_id, type, index, mfcc, batch_size)
 
         elif path == '/store_data':
             store_data(params)
