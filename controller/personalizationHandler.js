@@ -17,24 +17,26 @@ $.ajax({
   // sample code for test training
   $.ajax({
     dataType: 'json',
-    url: serverURL+'/get_audio',
+    url: serverURL+'/get_audio_batch',
     crossDomain: true,
     data: {
-      index: 10,
+      index: 13,
       type: 'test',
-      appId: appId
+      appId: appId,
+      mfcc: true,
+      batch_size: 10
     }
   }).done(function(data) {
     console.log(data)
-    y = [commands.indexOf(data.command)]
-    // TODO :: server only returns raw audio. support MFCC audio retrival as well
-    x = [data.features.slice(0,4040)];
-    model.train(x, y);
+    // y = [commands.indexOf(data.command)]
+    // // TODO :: server only returns raw audio. support MFCC audio retrival as well
+    // x = [data.features.slice(0,4040)];
+    // model.train(x, y);
 
   }).fail(function() {
     console.log('audio retrieval failed');
   });
 
 }).fail(function() {
-  console('initialization failed because server is unreachable');
+  console.log('initialization failed because server is unreachable');
 });

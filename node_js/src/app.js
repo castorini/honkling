@@ -121,7 +121,8 @@ function warmUp() {
     request(encodeData(serverURL+'/get_audio', {
       index : 0,
       type : 'test',
-      appId : appId
+      appId : appId,
+      mfcc : false
     }), function (error, response, body) {
       if (error != null) {
         let msg = 'retrieving audio data for warm up failed : ' + error;
