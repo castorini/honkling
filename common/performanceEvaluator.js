@@ -60,9 +60,10 @@ class PerformanceEvaluator {
       url: serverURL+'/get_audio',
       crossDomain: true,
       data: {
-        index:this.currIndex,
-        type:this.type,
-        appId:this.appId
+        index: this.currIndex,
+        type: this.type,
+        appId: this.appId,
+        mfcc: false
       }
     }).done(function(data) {
       evaluator.audio = data
