@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from scipy import stats
 
@@ -18,7 +19,8 @@ class DataCollector:
             self.summary = {}
         else:
             mean = np.mean(self.collection)
-            std = np.std(self.collection) 
+            std = np.std(self.collection)
+            CI_scale = std / math.sqrt(len(self.collection))
 
             self.summary = {
                 "total" : np.sum(self.collection),
@@ -30,9 +32,9 @@ class DataCollector:
                 "P90" : np.percentile(self.collection, 90),
                 "P95" : np.percentile(self.collection, 95),
                 "P99" : np.percentile(self.collection, 99),
-                "90% confidence interval" : list(stats.norm.interval(0.90, loc=mean, scale=std)),
-                "95% confidence interval" : list(stats.norm.interval(0.95, loc=mean, scale=std)),
-                "99% confidence interval" : list(stats.norm.interval(0.99, loc=mean, scale=std)),
+                "90% confidence interval" : list(stats.norm.interval(0.90, loc=mean, scale=CI_scale)),
+                "95% confidence interval" : list(stats.norm.interval(0.95, loc=mean, scale=CI_scale)),
+                "99% confidence interval" : list(stats.norm.interval(0.99, loc=mean, scale=CI_scale)),
             }
 
         if self.sigfig is not None:
