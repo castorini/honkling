@@ -20,13 +20,51 @@ sample_rate = 16000
 data_collectors = {}
 random_obj = {}
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 def get_noise(rand):
     bg_noise = rand.choice(background_noise)
     start_pos = rand.randint(0, len(bg_noise) - sample_rate - 1)
     return bg_noise[start_pos:start_pos + sample_rate]
 
+def get_audio_batch(app_id, type, index, mfcc, batch_size):
+    batch = {}
+    batch['command'] = []
+    batch['commandIndex'] = []
+    batch['class'] = []
+    batch['features'] = []
 
-def get_audio(app_id, type, index):
+    for i in range(batch_size):
+        curr_index = index + i
+        audio_data = get_audio(app_id, type, curr_index, mfcc)
+
+        if audio_data is None:
+            break;
+        batch['command'].append(audio_data['command'])
+        batch['commandIndex'].append(audio_data['commandIndex'])
+        batch['class'].append(audio_data['class'])
+        batch['features'].append(audio_data['features'])
+
+    assert len(batch['command']) == len(batch['commandIndex'])
+    assert len(batch['command']) == len(batch['class'])
+    assert len(batch['command']) == len(batch['features'])
+
+    batch['batch_size'] = len(batch['command'])
+
+    return batch
+
+def get_audio(app_id, type, index, mfcc):
+    if index >= audios[type]['size']:
+        return None
+
     bg_noise = get_noise(random_obj[app_id])
 
     data = {}
@@ -62,9 +100,14 @@ def get_audio(app_id, type, index):
         data['commandIndex'] = command_list.index(UNKNOWN_KEYWORD)
         data['class'] = 'negative'
 
-    print('\n ID : ' + str(app_id) + ' - [' + type + ' - ' + data['class'] + '] retrieving ' + str(index) + ' / ' + str(audios[type]['size']) + ' - ' + audio_file_name + ' ( noise = ' + str(noise_flag) + ' )')
+    if mfcc:
+        features = librosa.feature.melspectrogram(features, sr=sample_rate, n_mels=40, hop_length=160, n_fft=480, fmin=20, fmax=4000)
+        features[features > 0] = np.log(features[features > 0])
 
     data['features'] = features.tolist()
+
+    print('\n ID : ' + str(app_id) + ' - [' + type + ' - ' + data['class'] + '] retrieving ' + str(index + 1) + ' / ' + str(audios[type]['size']) + ' - ' + audio_file_name + ' ( noise = ' + str(noise_flag) + ' )')
+
     return data
 
 def init_bg_noise():
@@ -214,7 +257,18 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             app_id = int(params['appId'][0])
             type = params['type'][0]
             index = int(params['index'][0])
-            result = get_audio(app_id, type, index)
+            mfcc = params['mfcc'][0] == 'true'
+
+            result = get_audio(app_id, type, index, mfcc)
+
+        elif path == '/get_audio_batch':
+            app_id = int(params['appId'][0])
+            type = params['type'][0]
+            index = int(params['index'][0])
+            mfcc = params['mfcc'][0] == 'true'
+            batch_size = int(params['batch_size'][0])
+
+            result = get_audio_batch(app_id, type, index, mfcc, batch_size)
 
         elif path == '/store_data':
             store_data(params)
@@ -224,7 +278,8 @@ class AudioRequestHandler(BaseHTTPRequestHandler):
             type = params['type'][0]
             result = get_report(app_id, type)
 
-            print('===================== audio retrieval for ' + str(app_id) + ' - ' + type + ' is completed =====================\n\n')
+        else:
+            print(bcolors.WARNING + "[WARNING] path is not identified - " + path + bcolors.ENDC)
 
         # send headers
         self.send_response(200, "ok")

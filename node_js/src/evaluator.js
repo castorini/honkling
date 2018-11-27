@@ -17,7 +17,8 @@ Evaluator.prototype.evaluate = function() {
   request(encodeData(serverURL+'/get_audio', {
     index : this.currIndex,
     type : this.type,
-    appId : this.appId
+    appId : this.appId,
+    mfcc : false
   }), function (error, response, body) {
     if (error != null) {
       let msg = 'retrieving audio data for '

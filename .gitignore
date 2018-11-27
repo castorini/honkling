@@ -10,7 +10,8 @@ training/*.tar.gz
 *.idea
 server/venv
 server/result/*.json
-data/speech_command*
+data/speech_commands
+data/personalized_speech_commands
 *.swp
 **/__pycache__
 **/node_modules
