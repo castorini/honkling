@@ -1,4 +1,4 @@
-var toggleTime = 2000;
+let toggleTime = 1500;
 
 function init_view(commands) {
   reordered = [];
@@ -12,13 +12,11 @@ function init_view(commands) {
   for (var i = 0; i < split; i++) {
       $('#commandList1').append(
         $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
-
   }
 
   for (var i = split; i < reordered.length; i++) {
       $('#commandList2').append(
         $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
-
   }
 
   $('#commandList3').append(
@@ -27,142 +25,48 @@ function init_view(commands) {
   $('.unknown_button').addClass('list-group-item-dark');
 }
 
+let lastCommand;
+let lastToggleTime = 0;
+
 function toggleCommand(command) {
-  if (command == 'silence') {
-    command = 'unknown'
-  }
-
-  if (command == 'unknown') {
-    $('#statusBar').text('Failed to identify keyword spoken. Please try again');
-  } else {
-    $('#statusBar').text('keyword spoken is ... ' + command.toUpperCase() + ' !!');
-  }
-
+  lastCommand = command;
+  lastToggleTime = new Date().getTime();
   $('.commandList .active').removeClass('active');
   $('.commandList .'+command+'_button').addClass('active');
-  setTimeout(function(){
-    $('.commandList .'+command+'_button').removeClass('active');
-  }, toggleTime);
 }
 
-function enableRecordBtn() {
-  $('#recordBtn').removeClass('btn-secondary');
-  $('#recordBtn').addClass('btn-primary');
-  $('#recordBtn').prop('disabled', false);
-  if (isMobile) {
-    $('#statusBar').text('Press RECORD button to record a keyword listed below');
-  } else {
-    $('#statusBar').text('Press RECORD button or hold spacebar to record a keyword listed below');
+function updateToggledCommand(command) {
+  if (command == 'silence') {
+    command = 'unknown';
+  }
+
+  currentTime = new Date().getTime();
+
+  if (command != 'unknown') {
+    if (lastCommand != command) {
+      $('#statusBar').text('keyword spoken is ... ' + command.toUpperCase() + ' !!');
+      toggleCommand(command);
+    }
+  } else if (lastCommand != 'unknown' && currentTime > lastToggleTime + toggleTime) {
+    // current command is unknown
+    $('#statusBar').text('Say one of the following keywords');
+    toggleCommand(command);
   }
 }
 
-function disableRecordBtn() {
-  $('#recordBtn').removeClass('btn-danger');
-  $('#recordBtn').prop('disabled', true);
-  $('#statusBar').text('interpreting ...');
-}
+let micAudioProcessor = new MicAudioProcessor(audioConfig);
+let model = new SpeechResModel("RES8_NARROW");
 
-function enableRecordingBtn() {
-  $('#recordBtn').removeClass('btn-primary');
-  $('#recordBtn').addClass('btn-danger');
-  $('#recordBtn').prop('disabled', false);
-}
-
-function displayRemainingRecordTime(remaining) {
-  $('#statusBar').text('Recording ... say a keyword listed below within ' + remaining + ' seconds');
-}
-
-function displayRecordingMsg(remaining) {
-  $('#statusBar').text('Recording ... release spacebar after saying a keyword');
-}
-
-function enablePlayBtn() {
-  $('#playBtn').removeClass('btn-secondary');
-  $('#playBtn').addClass('btn-primary');
-  $('#playBtn').prop('disabled', false);
-  $('#statusBar').text('Press PLAY button to trigger audio');
-}
-
-function disablePlayBtn() {
-  $('#playBtn').removeClass('btn-primary');
-  $('#playBtn').prop('disabled', true);
-  $('#statusBar').text('interpreting ...');
-}
+micAudioProcessor.getMicPermission().done(function() {
+  setInterval(function() {
+    let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
+    offlineProcessor.getMFCC().done(function(mfccData) {
+      updateToggledCommand(predict(mfccData, model));
+    })
+  }, predictionFrequency);
+}).fail(function() {
+  alert('mic permission is required, please enable the mic usage!')
+})
 
 // list initialization
 init_view(commands);
-
-// Audio Processing
-
-let audio = new OnlineAudioProcessor(audioConfig);
-
-// predictions
-$(document).on('click', '#recordBtn:enabled', function() {
-  var deferred = audio.processMicData();
-
-  deferred.done(function(downSampledData) {
-    printData('down-sampled data', downSampledData);
-    // TODO :: delete offlineProcessor & clean up async calls
-    let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
-
-    offlineProcessor.getMFCC().done(function(mfccData) {
-      printData('mfcc data', mfccData);
-      toggleCommand(predict(mfccData, model));
-    })
-
-  }).fail(function() {
-    // silence
-    toggleCommand('unknown');
-  }).always(function() {
-    setTimeout(function(){
-      enableRecordBtn();
-    }, toggleTime);
-  });
-});
-
-$(document).on('click', '#playBtn:enabled', function() {
-  var deferred = audio.processAudioData();
-
-  deferred.done(function(downSampledData) {
-    printData('down-sampled data', downSampledData);
-
-    let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
-    offlineProcessor.getMFCC().done(function(mfccData) {
-      printData('mfcc data', mfccData);
-      toggleCommand(predict(mfccData, model));
-    })
-
-    setTimeout(function(){
-      enablePlayBtn();
-    }, toggleTime);
-  })
-});
-
-$(document).keyup(function( event ) {
-  if ( event.which == 32 ) {
-    var deferred = audio.stopRecording();
-
-    deferred.done(function(downSampledData) {
-      printData('down-sampled data', downSampledData);
-
-      let offlineProcessor = new OfflineAudioProcessor(audioConfig, downSampledData);
-      offlineProcessor.getMFCC().done(function(mfccData) {
-        printData('mfcc data', mfccData);
-        toggleCommand(predict(mfccData, model));
-      })
-    }).fail(function() {
-      // silence
-      toggleCommand('unknown');
-    }).always(function() {
-      setTimeout(function(){
-        enableRecordBtn();
-      }, toggleTime);
-    });
-  }
-}).keydown(function( event ) {
-  if ( event.which == 32 ) {
-    audio.startRecording();
-  }
-});
-
-let model = new SpeechResModel("RES8_NARROW");

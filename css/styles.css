@@ -6,10 +6,6 @@ body {
   text-align: center;
 }
 
-audio {
-  width:100%;
-}
-
 .col-centered {
   float: none;
   margin: 0 auto;
@@ -28,10 +24,6 @@ audio {
 #logo {
   width: 100px;
   height: 120px;
-}
-
-#commandList {
-  margin-bottom: 15px;
 }
 
 .nav{
@@ -58,7 +50,7 @@ audio {
   color:black;
 }
 
-th{
+th {
   vertical-align: middle !important
 }
 
