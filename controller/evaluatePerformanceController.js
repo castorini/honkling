@@ -157,7 +157,7 @@ hookTableBtnOps('test', 'negative');
 
 // browser evaluation
 
-let model = new SpeechResModel("RES8_NARROW"); // default model for wermup
+let model = new SpeechResModel("RES8_NARROW", commands); // default model for warmup
 let appId = new Date().getTime();
 let modelName;
 let targetType, currType;
@@ -232,7 +232,7 @@ $(document).on('click', '#continueBtn', function() {
 $(document).on('click', '#evaluateBtn', function() {
   appId = $('#appIdInput').val();
   modelName = $('.modelSelect').val();
-  model = new SpeechResModel(modelName);
+  model = new SpeechResModel(modelName, commands);
 
   if (valEvaluator) {
     valEvaluator = undefined;

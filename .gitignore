@@ -12,6 +12,7 @@ server/venv
 server/result/*.json
 data/speech_commands
 data/personalized_speech_commands
+data/*.gz
 *.swp
 **/__pycache__
 **/node_modules
