@@ -17,7 +17,15 @@ const audioConfig = {
 weights = {}; // placeholder for dynamic weights loading
 
 const modelConfig = {
-	// TODO :: when used, must update to channelsFirst format and width & height flipped
+	2048 : {
+		input_shape : [40, 101, 1],
+		n_layers : 6,
+		n_feature_maps : 19,
+		res_pool : [3, 4],
+		use_dilation : false,
+		conv_size : [3, 3],
+		conv_stride : [1, 1]
+	},
 	// CNN_TRAD_POOL2 : {
 	// 	input_shape : [101, 40, 1],
 	// 	dropout_prob : 0.5,

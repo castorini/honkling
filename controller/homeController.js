@@ -55,7 +55,7 @@ function updateToggledCommand(command) {
 }
 
 let micAudioProcessor = new MicAudioProcessor(audioConfig);
-let model = new SpeechResModel("RES8_NARROW");
+let model = new SpeechResModel("RES8_NARROW", commands);
 
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
