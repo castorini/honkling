@@ -2,7 +2,7 @@ function AudioInputManager() {
   this.events = {};
 
   // audio
-  this.commands_2048 = ["silence", "unknown", "left", "right", "up", "down"]; // to be replace
+  this.commands_2048 = ["silence", "unknown", "left", "right", "up", "down"];
   this.lastCommandTime = 0;
   this.commandDelay = 1000;
 
@@ -55,7 +55,7 @@ AudioInputManager.prototype.listen = function () {
     setInterval(function() {
       let offlineProcessor = new OfflineAudioProcessor(audioConfig, self.micAudioProcessor.getData());
       offlineProcessor.getMFCC().done(function(mfccData) {
-        let command = self.commands_2048[predict(mfccData, self.model)];
+        let command = predict(mfccData, self.model, self.commands_2048);
         self.processCommand(command);
       })
     }, predictionFrequency);

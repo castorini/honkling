@@ -1,4 +1,4 @@
-function predict(x, model) {
+function predict(x, model, commands) {
 	if (!(x instanceof tf.Tensor)) {
 		x = tf.tensor(x);
 	}
@@ -8,10 +8,10 @@ function predict(x, model) {
 	let output = model.predict(x.reshape(input_shape));
 
 	maxProb = output.max(axis = 1).dataSync()[0];
-	let prediction = commands.indexOf("unknown") // default
+	let index = commands.indexOf("unknown");
 	if (maxProb > predictionThreshold) {
-		prediction = output.argMax(axis).dataSync()[0];
+		index = output.argMax(axis).dataSync()[0];
 	}
 
-	return prediction;
+	return commands[index];
 }

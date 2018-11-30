@@ -61,7 +61,7 @@ micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
     let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
     offlineProcessor.getMFCC().done(function(mfccData) {
-      updateToggledCommand(commands[predict(mfccData, model)]);
+      updateToggledCommand(predict(mfccData, model, commands));
     })
   }, predictionFrequency);
 }).fail(function() {
