@@ -3,6 +3,9 @@ const serverURL = 'https://honkling.xyz:443';
 
 const commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
 
+const predictionFrequency = 350; // ms between mic audio prediction
+const predictionThreshold = 0.75;
+
 const audioConfig = {
 	'offlineSampleRate' : 16000,
 	'offlineHopSize' : 10, // in ms

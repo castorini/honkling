@@ -6,12 +6,13 @@ function predict(x, model) {
 	input_shape.unshift(-1);
 
 	let output = model.predict(x.reshape(input_shape));
-	console.log('model prediction result : ', output.dataSync());
+	let predictions = commands.indexOf("unknown");
 
-	let axis = 1;
-	let predictions = output.argMax(axis).dataSync()[0];
-
-	console.log('prediction : ', commands[predictions]);
+	maxProb = output.max(axis = 1).dataSync()[0];
+	if (maxProb > predictionThreshold) {
+		predictions = output.argMax(axis).dataSync()[0];
+		console.log('prediction : ', commands[predictions], maxProb);
+	}
 
 	return commands[predictions];
 }
