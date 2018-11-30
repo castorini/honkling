@@ -7,8 +7,7 @@ function AudioInputManager() {
   this.commandDelay = 1000;
 
   this.micAudioProcessor = new MicAudioProcessor(audioConfig);
-  // this.model = new SpeechResModel("2048", this.commands_2048);
-  this.model = new SpeechResModel("RES8_NARROW", commands);
+  this.model = new SpeechResModel("2048", this.commands_2048);
 
   this.moveMapping = {
     "up": 0, // Up
@@ -56,11 +55,7 @@ AudioInputManager.prototype.listen = function () {
     setInterval(function() {
       let offlineProcessor = new OfflineAudioProcessor(audioConfig, self.micAudioProcessor.getData());
       offlineProcessor.getMFCC().done(function(mfccData) {
-        // let command = self.commands_2048[predict(mfccData, self.model)];
-        let command = commands[predict(mfccData, self.model)];
-        if (!self.commands_2048.includes(command)) {
-          command = "unknown"
-        }
+        let command = self.commands_2048[predict(mfccData, self.model)];
         self.processCommand(command);
       })
     }, predictionFrequency);
