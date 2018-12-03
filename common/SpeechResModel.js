@@ -2,8 +2,9 @@ class SpeechResModel {
 
 	constructor(modelName, commands) {
 		this.modelName = modelName;
+		this.commands = commands;
 		this.config = modelConfig[modelName];
-		this.config['n_labels'] = commands.length;
+		this.config['n_labels'] = this.commands.length;
 
 		console.log('model name : ', this.modelName);
 
@@ -140,7 +141,6 @@ class SpeechResModel {
 
 		// preprocee weights before assignment
 		let processedWeights = {};
-
 		let weightNames = Object.keys(weights[modelName]);
 		for (var index in weightNames) {
 			let weightName = weightNames[index];
@@ -244,7 +244,7 @@ class SpeechResModel {
 		let axis = 1;
 		let output = this.model.predict(batch_x);
 		let predictions = output.argMax(axis).dataSync()[0];
-		console.log('\tprediction : ', commands[predictions]);
+		console.log('\tprediction : ', this.commands[predictions]);
 	}
 
 	predict(x) {

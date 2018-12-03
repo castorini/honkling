@@ -12,27 +12,45 @@
   <script type="text/javascript" src="../lib/jquery-3.3.1.min.js"></script>
   <script type="text/javascript" src="../lib/tfjs/tf.min.js"></script>
   <link rel="stylesheet" type="text/css" href="../css/styles.css">
+
+  <!-- for 2048 -->
+  <link href="../2048/style/main.css" rel="stylesheet" type="text/css">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+
 </head>
 <body>
   <div class="container">
     <div class="row justify-content-center" id="navBarPlaceholder"></div>
 
-    <!-- <div class="row">
-        <div class="col">
-        <p id="statusBar"class="text-center">Message</p>
-      </div>
-    </div> -->
+    <div class="row justify-content-center" id="gameBoardPlaceholder"></div>
 
     <div id="footerPlaceholder"></div>
   </div>
+
   <script src="../common/baseController.js"></script>
   <script src="../common/config.js"></script>
   <script src="../common/util.js"></script>
+  <script src="../weights/RES8_NARROW.js"></script>
   <script src="../weights/2048.js"></script>
   <script src="../common/micAudioProcessor.js"></script>
   <script src="../common/offlineAudioProcessor.js"></script>
   <script src="../common/SpeechResModel.js"></script>
   <script src="../common/model.js"></script>
   <script src="../controller/2048Controller.js"></script>
+
+  <!-- for 2048 -->
+  <script src="../2048/js/bind_polyfill.js"></script>
+  <script src="../2048/js/classlist_polyfill.js"></script>
+  <script src="../2048/js/animframe_polyfill.js"></script>
+  <script src="../2048/js/audio_input_manager.js"></script>
+  <script src="../2048/js/html_actuator.js"></script>
+  <script src="../2048/js/grid.js"></script>
+  <script src="../2048/js/tile.js"></script>
+  <script src="../2048/js/local_storage_manager.js"></script>
+  <script src="../2048/js/game_manager.js"></script>
 </body>
 </html>

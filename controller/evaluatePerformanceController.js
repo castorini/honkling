@@ -293,7 +293,7 @@ function warmUpCompuation() {
   // warming up model prediction
   warmUpProcessor = new OfflineAudioProcessor(audioConfig, audioData["no"]);
   warmUpProcessor.getMFCC().done(function(mfccData) {
-    predict(mfccData, model);
+    predict(mfccData, model, commands);
     warmUpCount--;
     if (warmUpCount != 0) {
       warmUpCompuation();

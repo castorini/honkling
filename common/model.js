@@ -1,4 +1,4 @@
-function predict(x, model) {
+function predict(x, model, commands) {
 	if (!(x instanceof tf.Tensor)) {
 		x = tf.tensor(x);
 	}
@@ -6,15 +6,12 @@ function predict(x, model) {
 	input_shape.unshift(-1);
 
 	let output = model.predict(x.reshape(input_shape));
-	let prediction = commands.indexOf("unknown");
 
 	maxProb = output.max(axis = 1).dataSync()[0];
+	let index = commands.indexOf("unknown");
 	if (maxProb > predictionThreshold) {
-		prediction = output.argMax(axis).dataSync()[0];
-		if (prediction > 2) { // if it is not silence nor unknown
-			console.log('prediction : ', commands[prediction], maxProb);
-		}
+		index = output.argMax(axis).dataSync()[0];
 	}
 
-	return commands[prediction];
+	return commands[index];
 }
