@@ -36,7 +36,8 @@ class MicAudioProcessor {
       console.group();
       console.log('User allowed microphone access.');
       micProc.micSource = micProc.audioContext.createMediaStreamSource(micStream);
-      micProc.micSource.connect(micProc.downSampleNode)
+      micProc.micSource.connect(micProc.downSampleNode);
+      micProc.downSampleNode.connect(micProc.audioContext.destination);
       micProc.permissionDeferred.resolve();
     };
 
