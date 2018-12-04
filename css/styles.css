@@ -1,5 +1,8 @@
+@import url(fonts/clear-sans.css);
+
 body {
   padding: 2rem 0;
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
 .text-center {
