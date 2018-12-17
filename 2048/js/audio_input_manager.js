@@ -2,7 +2,7 @@ function AudioInputManager() {
   this.events = {};
 
   // audio
-  this.commands_2048 = ["silence", "unknown", "left", "right", "up", "down"];
+  this.commands_2048 = ["silence", "unknown", "up", "down", "right", "left"];
   this.lastCommandTime = 0;
   this.commandDelay = 1000;
 
