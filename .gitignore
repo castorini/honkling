@@ -16,3 +16,4 @@ data/*.gz
 *.swp
 **/__pycache__
 **/node_modules
+honkling-home/Mojibar-darwin-x64
