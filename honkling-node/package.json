@@ -1,0 +1,34 @@
+{
+  "name": "honkling-node",
+  "version": "1.0.0",
+  "description": "Keyword Spotting system implemented with TensorFlow.js",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ljj7975/honkling-node.git"
+  },
+  "keywords": [
+    "Keyword",
+    "Spotting"
+  ],
+  "author": "Jaejun Lee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ljj7975/honkling-node/issues"
+  },
+  "homepage": "https://github.com/ljj7975/honkling-node#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "fs": "0.0.1-security",
+    "mocha": "^5.2.0"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^0.1.21",
+    "@tensorflow/tfjs-node-gpu": "^0.1.21",
+    "fftjs": "0.0.4",
+    "node-wav": "0.0.2"
+  }
+}

@@ -1,4 +1,4 @@
-.DS_STORE
+**/.DS_STORE
 training/.ipynb_checkpoints
 training/data
 training/sample_data/*.txt
