@@ -1,14 +1,15 @@
 import gzip
-import librosa
 import math
 import os
 import pathlib
-import pyaudio
 import random
 import tarfile
 import time
 import wave
+import pyaudio
+import librosa
 import numpy as np
+import sounddevice as sd
 
 class bcolors:
     HEADER = '\033[95m'
@@ -28,6 +29,7 @@ SAMPLE_RATE = 44100
 INITIAL_NOISE_DROP_RATE = 0.045
 INITIAL_NOISE_INDEX = math.floor(SAMPLE_RATE * INITIAL_NOISE_DROP_RATE)
 RECORD_SECONDS = 1
+sd.default.samplerate = SAMPLE_RATE
 
 POS_COUNT = 50
 NEG_COUNT = 10
@@ -36,33 +38,20 @@ KEYWORDS = ['bird', 'dog', 'eight', 'four', 'happy', 'left', 'marvin', 'no', 'on
 POS_KEYWORDS = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go']
 
 def play_audio(keyword, file_name):
-    wf = wave.open(file_name, 'rb')
-
-    p = pyaudio.PyAudio()
+    audio_data, _ = librosa.core.load(file_name, SAMPLE_RATE)
+    print(len(audio_data))
 
     print("\n--- playing recorded audio for " + keyword)
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=SAMPLE_RATE,
-                    output=True)
-
-    data = wf.readframes(CHUNK)
-
-    while data != b'':
-        stream.write(data)
-        data = wf.readframes(CHUNK)
-
-    stream.stop_stream()
-    stream.close()
-
-    p.terminate()
+    sd.play(audio_data, SAMPLE_RATE, blocking=True)
+    sd.stop()
 
 def record_audio(keyword):
     global sample
     p = pyaudio.PyAudio()
 
     print(bcolors.WARNING + "\n--- target word : " + keyword + bcolors.ENDC)
-    input("> press enter to record\n")
+    print("> press enter to record")
+    input()
     print(bcolors.FAIL + "--- recording started" + bcolors.ENDC)
     stream = p.open(format=FORMAT,
                     channels=CHANNELS,
@@ -96,7 +85,8 @@ def postprocess(keyword, index, input_file):
 
     return data
 
-name = input("> What is your name?\n")
+print("> What is your name?")
+name = input()
 
 if name == "":
     name = "Potter"
@@ -115,10 +105,11 @@ while not ready:
     wf.setframerate(SAMPLE_RATE)
     wf.writeframes(b''.join(frames))
     wf.close()
-    time.sleep(1)
+    time.sleep(0.5)
     play_audio('test', 'test.wav')
     os.remove('test.wav')
-    response = input("\n> did it capture your recording? [y/n]\n")
+    print("\n> did it capture your recording? [y/n]")
+    response = input()
     ready = response == 'y'
     if not ready:
         print("> let's try again")
@@ -154,9 +145,10 @@ for i in range(total_count):
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(b''.join(frames))
         wf.close()
-        time.sleep(1)
+        time.sleep(0.5)
         play_audio(keyword, 'temp.wav')
-        response = input("\n> did it capture your recording? [y/n]\n")
+        print("\n> did it capture your recording? [y/n]")
+        response = input()
         ready = response == 'y'
         if not ready:
             os.remove('temp.wav')
@@ -164,7 +156,7 @@ for i in range(total_count):
 
     postprocess(keyword, remaining[keyword], 'temp.wav')
     os.remove('temp.wav')
-    time.sleep(1)
+    time.sleep(0.25)
 
     remaining[keyword] -= 1
 
@@ -179,7 +171,5 @@ tar_file_name = name+"_audio"
 tar = tarfile.open(tar_file_name + ".tar.gz", "w:gz")
 tar.add(name, arcname=tar_file_name)
 tar.close()
-
-time.sleep(10)
 
 print(bcolors.OKGREEN + '\n> Congratulation! You are done!\n> please send me ' + tar_file_name + '.tar.gz. Thank you' + bcolors.ENDC)
