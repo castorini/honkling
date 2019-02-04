@@ -39,6 +39,10 @@ class MicAudioProcessor {
       micProc.micSource.connect(micProc.downSampleNode);
       micProc.downSampleNode.connect(micProc.audioContext.destination);
       micProc.permissionDeferred.resolve();
+      visualizer({
+        parent: "#waveform",
+        stream: micStream
+      });
     };
 
     var errorCallback = function (err) {

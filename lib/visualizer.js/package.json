@@ -1,0 +1,70 @@
+{
+  "_from": "visualizer.js",
+  "_id": "visualizer.js@3.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-YciFn4mJA1TPXm45b5UxuJCSlSdGNrPa1TxfRSdsJ1TPlUy+za/B1yR61dad9VuE5I9t+d81/fweTcKdAqROeA==",
+  "_location": "/visualizer.js",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "visualizer.js",
+    "name": "visualizer.js",
+    "escapedName": "visualizer.js",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/visualizer.js/-/visualizer.js-3.0.0.tgz",
+  "_shasum": "fc76589d6ed2cc9be964269ffc5c2f96336e814a",
+  "_spec": "visualizer.js",
+  "_where": "/Users/jaejunlee/Documents/master/keyword-spotting/mojibar",
+  "author": {
+    "name": "Ian Harmon"
+  },
+  "bugs": {
+    "url": "https://github.com/mreinstein/visualizer/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "clamp": "^1.0.1"
+  },
+  "deprecated": false,
+  "description": "An HTML5 audio visualizer for mic/line-in input",
+  "devDependencies": {
+    "husky": "^1.2.0",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^0.67.4",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "terser": "^3.11.0"
+  },
+  "homepage": "https://github.com/mreinstein/visualizer#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prepublishOnly"
+    }
+  },
+  "license": "MIT",
+  "main": "dist/visualizer.cjs.js",
+  "module": "dist/visualizer.esm.js",
+  "name": "visualizer.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mreinstein/visualizer.git"
+  },
+  "scripts": {
+    "build": "npm-run-all -p build:*",
+    "build:cjs": "rollup index.js -c rollup.config.js --file dist/visualizer.cjs.js --format cjs",
+    "build:esm": "rollup index.js -c rollup.config.js --file dist/visualizer.esm.js --format esm",
+    "build:global": "rollup index.js -c rollup.config.js --format iife --name visualizer --file dist/visualizer.global.js",
+    "compress": "terser dist/visualizer.global.js --compress --mangle > dist/visualizer.global.min.js",
+    "prepublishOnly": "npm-run-all -s build compress",
+    "watch": "rollup index.js --file dist/visualizer.global.js --format iife --name visualizer --watch"
+  },
+  "version": "3.0.0"
+}
