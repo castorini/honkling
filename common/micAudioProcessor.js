@@ -38,11 +38,16 @@ class MicAudioProcessor {
       micProc.micSource = micProc.audioContext.createMediaStreamSource(micStream);
       micProc.micSource.connect(micProc.downSampleNode);
       micProc.downSampleNode.connect(micProc.audioContext.destination);
-      micProc.permissionDeferred.resolve();
       visualizer({
         parent: "#waveform",
         stream: micStream
       });
+
+      if (micProc.audioContext.state == "suspended") {
+        // audio context start suspended on Chrome due to auto play policy
+        micProc.audioContext.resume();
+      }
+      micProc.permissionDeferred.resolve();
     };
 
     var errorCallback = function (err) {
