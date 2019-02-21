@@ -103,3 +103,13 @@ th {
 .github-link {
   color: inherit;
 }
+
+#waveform {
+  margin: 0 auto;
+  height: 100px;
+  width: 450px;
+}
+
+#waveformWrapper {
+  margin-top: -30px;
+}

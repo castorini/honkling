@@ -9,12 +9,12 @@ function init_view(commands) {
   });
 
   let split = Math.floor(reordered.length/2)
-  for (var i = 0; i < split; i++) {
+  for (let i = 0; i < split; i++) {
       $('#commandList1').append(
         $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
   }
 
-  for (var i = split; i < reordered.length; i++) {
+  for (let i = split; i < reordered.length; i++) {
       $('#commandList2').append(
         $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
   }
@@ -62,11 +62,11 @@ micAudioProcessor.getMicPermission().done(function() {
     let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
     offlineProcessor.getMFCC().done(function(mfccData) {
       updateToggledCommand(predict(mfccData, model, commands));
-    })
+    });
   }, predictionFrequency);
 }).fail(function() {
-  alert('mic permission is required, please enable the mic usage!')
-})
+  alert('mic permission is required, please enable the mic usage!');
+});
 
 // list initialization
 init_view(commands);
