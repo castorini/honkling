@@ -10,8 +10,15 @@ Honkling implements a residual convolutional neural network [1] and utilizes [Sp
 
 Click [here](https://castorini.github.io/honkling/) to have the keyword spotting system in your hand!
 
-## Performance Evaluation 
+## Customizing Honkling
 
+Please refer [`honkling` branch of honk](https://github.com/castorini/honk/tree/honkling#training-model-for-honkling) to customize keyword set or train a new model.
+
+Once you obtain weight file in json format using honk, move the file into `weights/` directory and append `weights[<wight_id>] =` to link it to weights object.
+
+Depending on change, [config.js](`https://github.com/castorini/honkling/blob/master/common/config.js`) has to be updated and a model object can be instantiated as `let model = new SpeechResModel(<wight_id>, commands);`
+
+## Performance Evaluation 
 
 It is possible to evaluate the in-browser neural network inference performance of your device on the [Evaluate Performance](https://castorini.github.io/honkling/view/evaluatePerformance.html) page of Honkling.
 
