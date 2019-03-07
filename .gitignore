@@ -7,5 +7,4 @@ data/*.gz
 *.swp
 **/__pycache__
 **/node_modules
-**/models
 honkling-home/Mojibar-darwin-x64

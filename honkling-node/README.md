@@ -1,10 +1,10 @@
 # Honkling-node
 
 Honkling is also available in Node.js!
-[Honkling-home](https://github.com/castorini/honkling/tree/master/honkling-home) is an JavaScript-based, customizable virtual assistants built with Honkling-node
+[Honkling-home](https://github.com/castorini/honkling/tree/master/honkling-home) is an customizable voice-enabled virtual assistants implemented with Honkling-node
 
 ## Installation
-1. First, run following command to clone submodule [honkling-model](https://github.com/castorini/honkling-models)
+1. First, run following command to clone submodule [Honkling-models](https://github.com/castorini/honkling-models)
 `git submodule update --init --recursive`
 
 2. Install necessary node packages
