@@ -1,6 +1,6 @@
 const config = require('./config');
 const matrix = require('./matrix');
-const weights = require('./weights/weights');
+const weights = require('./weights');
 const tf = require('@tensorflow/tfjs');
 
 if (process.argv[2] == 'gpu') {

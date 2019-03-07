@@ -3,7 +3,7 @@ const config = require('./config');
 const matrix = require('./matrix');
 const SpeechResModel = require('./speechResModel');
 
-function KeywordSpotter(modelName, modelType = "RES8", predThreshold = config.predictionThreshold) {
+function KeywordSpotter(modelName="RES8", modelType = "RES8", predThreshold = config.predictionThreshold) {
   this.predThreshold = predThreshold;
   if (modelName == "light") {
     this.model = new SpeechResModel(modelName, "RES8", config.lightCommands, predThreshold);

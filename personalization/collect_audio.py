@@ -39,7 +39,6 @@ POS_KEYWORDS = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop',
 
 def play_audio(keyword, file_name):
     audio_data, _ = librosa.core.load(file_name, SAMPLE_RATE)
-    print(len(audio_data))
 
     print("\n--- playing recorded audio for " + keyword)
     sd.play(audio_data, SAMPLE_RATE, blocking=True)
@@ -127,11 +126,12 @@ for keyword in KEYWORDS:
     if keyword in POS_KEYWORDS:
         remaining[keyword] = POS_COUNT
         total_count += POS_COUNT
-    else:
+    elif NEG_COUNT != 0:
         remaining[keyword] = NEG_COUNT
         total_count += NEG_COUNT
 
 print("\n> Okay! let's go! number of recording to do : ", total_count)
+print(remaining.keys())
 
 for i in range(total_count):
     keyword = list(remaining.keys())[random.randrange(len(remaining))]
