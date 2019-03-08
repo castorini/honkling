@@ -19,7 +19,6 @@ Details about Honkling-node and Honkling-assistant can be found in:
 
 * Jaejun Lee, Raphael Tang, and Jimmy Lin. 2019. Universal voice-enabled user interfaces using JavaScript. In Proceedings of the 24th International Conference on Intelligent User Interfaces: Companion (IUI '19). ACM, New York, NY, USA, 81-82. DOI: https://doi.org/10.1145/3308557.3308693
 
-
 ## Pre-trained Weights
 
 Pre-trained weights are available at [Honkling-models](https://github.com/castorini/honkling-models).
@@ -27,6 +26,14 @@ Pre-trained weights are available at [Honkling-models](https://github.com/castor
 Please run the following command to obtain pre-trained weights:
 
 `git submodule update --init --recursive`
+
+## Customizing Honkling
+
+Please refer [`honkling` branch of honk](https://github.com/castorini/honk/tree/honkling#training-model-for-honkling) to customize keyword set or train a new model.
+
+Once you obtain weight file in json format using honk, move the file into `weights/` directory and append `weights[<wight_id>] =` to link it to weights object.
+
+Depending on change, [config.js](`https://github.com/castorini/honkling/blob/master/common/config.js`) has to be updated and a model object can be instantiated as `let model = new SpeechResModel(<wight_id>, commands);`
 
 ## Performance Evaluation
 
