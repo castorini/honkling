@@ -1,23 +1,30 @@
 # Honkling-node
 
 Honkling is also available in Node.js!
-[Honkling-home](https://github.com/castorini/honkling/tree/master/honkling-home) is an customizable voice-enabled virtual assistants implemented with Honkling-node
+
+[Honkling-assistant](https://github.com/castorini/honkling/tree/master/honkling-assistant) is an customizable voice-enabled virtual assistants implemented with Honkling-node
 
 ## Installation
+
 1. First, run following command to clone submodule [Honkling-models](https://github.com/castorini/honkling-models)
+
 `git submodule update --init --recursive`
 
 2. Install necessary node packages
+
 `npm install`
 
 3. Verify that weights are being loaded correctly
+
 `npm run test`
 
 4. Link honkling-node to your project!
+
 `npm link <path to honkling-node>`
 
 
 ## Usage
+
 ```
 var KeywordSpotter = require('honkling-node')
 
@@ -33,6 +40,7 @@ let prediction = keywordSpotter.predict(raw_audio_data);
 ```
 
 `KeywordSpotter` takes in 3 arguments.
+
 | argument         | options | default | description |
 |----------------|--------------|---------|-------------|
 | `modelName`   | RES8, RES8_40, RES8_80, RES8_NARROW, RES8_NARROW_40, RES8_NARROW_80, light, mojibar       | RES8     | type of usage            |
@@ -40,11 +48,14 @@ let prediction = keywordSpotter.predict(raw_audio_data);
 | `predThreshold`   | [0,1]       | 0.85     | threshold for prediction   |
 
 ### available keywords
+
 `default` - [silence, unknown, yes, no, up, down, left, right, on, off, stop, go]
+
 `light` -  [silence, unknown, on, off, up, down]
+
 `mojibar` - [silence, unknown, workplace, volume, up, down, wikipedia, canada, list, one, two, three, four, right, left, open, top, memory]
 
-Please refer to [honkling-home](https://github.com/castorini/honkling/tree/master/honkling-home) and [our testing code](https://github.com/castorini/honkling/blob/master/honkling-node/test/test.js) for more details!
+Please refer to [honkling-assistant](https://github.com/castorini/honkling/tree/master/honkling-assistant) and [our testing code](https://github.com/castorini/honkling/blob/master/honkling-node/test/test.js) for more details!
 
 ## Customizing Honkling-node
 
