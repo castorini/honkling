@@ -8,27 +8,23 @@
 
 2. Link honkling-node to honkling-assistant
 
-`npm link ../honkling-node`
+&nbsp;&nbsp;&nbsp;&nbsp;`npm link ../honkling-node`
 
 3. Install necessary node packages
 
-`npm install`
+&nbsp;&nbsp;&nbsp;&nbsp;`npm install`
 
 4. Start up honkling-assistant!
 
-`npm start`
+&nbsp;&nbsp;&nbsp;&nbsp;`npm start`
 
 ## Usage
 
 ### Keyboard Inputs
 
-<kbd>control + shift + space</kbd><br>
+* <kbd>control + shift + space</kbd><br> - Open honkling-assistant
 
-* Open honkling-assistant
-
-<kbd>esc</kbd><br>
-
-* Exit
+* <kbd>esc</kbd><br> -  Exit
 
 ### Voice Commands
 

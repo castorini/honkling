@@ -8,19 +8,19 @@ Honkling is also available in Node.js!
 
 1. First, run following command to clone submodule [Honkling-models](https://github.com/castorini/honkling-models)
 
-`git submodule update --init --recursive`
+&nbsp;&nbsp;&nbsp;&nbsp;`git submodule update --init --recursive`
 
 2. Install necessary node packages
 
-`npm install`
+&nbsp;&nbsp;&nbsp;&nbsp;`npm install`
 
 3. Verify that weights are being loaded correctly
 
-`npm run test`
+&nbsp;&nbsp;&nbsp;&nbsp;`npm run test`
 
 4. Link honkling-node to your project!
 
-`npm link <path to honkling-node>`
+&nbsp;&nbsp;&nbsp;&nbsp;`npm link <path to honkling-node>`
 
 
 ## Usage
@@ -61,6 +61,6 @@ Please refer to [honkling-assistant](https://github.com/castorini/honkling/tree/
 
 Please refer [`honkling` branch of honk](https://github.com/castorini/honk/tree/honkling#training-model-for-honkling) to customize keyword set or train a new model.
 
-Once you obtain weight file in json format using honk, move the file into `models/honkling-node/` directory. Next, prepend `module.exports = ` to the json object and update [weights.js](https://github.com/castorini/honkling/blob/master/honkling-node/weights.js).
+Once you obtain weight file in json format using honk, move the file into `models/honkling-node/` directory. Next, prepend `module.exports =` &nbsp;to the json object and update [weights.js](https://github.com/castorini/honkling/blob/master/honkling-node/weights.js).
 
 Depending on change, [config.js](`https://github.com/castorini/honkling/blob/master/honkling-node/config.js`) must be updated as well.
