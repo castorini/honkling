@@ -58,7 +58,7 @@ displayExpectedAccGain($('#dataSizeSelect option:selected').val());
 
 $('#dataSizeSelect').change(function() {
   displayExpectedAccGain($('#dataSizeSelect option:selected').val());
-})
+});
 
 // recording
 
@@ -78,7 +78,7 @@ function record(keyword) {
   resetCountDown();
   $('#countDownText').html('Recording starts in ' + timeleft);
   showRecordingDisplay();
-  
+
   countDownInterval = setInterval(function(){
     timeleft -= 1;
     if (timeleft > 0) {
@@ -88,9 +88,7 @@ function record(keyword) {
     } else {
       clearInterval(countDownInterval);
       hideRecordingDisplay();
-
-      // TODO :: Record Audio and Play
-      recordingDeferred.resolve();
+      recordingDeferred.resolve(micAudioProcessor.getData());
     }
   }, 1000);
 
@@ -106,7 +104,7 @@ $('#startBtn').click(function() {
 
 $('#practiceBtn').click(function() {
   hideAllButtons();
-  record("honkling").done(function() {
+  record("honkling").done(function(recorded_data) {
     $('#statusBar').html("Recording was successful!<br><br>Click RECORD to start personalization and PRACTICE to practie again");
     $('#practiceBtn').show();
     $('#recordBtn').show();
@@ -118,10 +116,12 @@ $('#practiceBtn').click(function() {
 });
 
 let recordingIndex = 0;
+let processedData = [];
+let labels = [];
 
 $('#recordBtn').click(function() {
   hideAllButtons();
-  record(recordingCommands[recordingIndex]).done(function() {
+  record(recordingCommands[recordingIndex]).done(function(recorded_data) {
     recordingIndex += 1;
     if (recordingIndex < recordingCommands.length) {
       text = "Recording was successful!<br><br>";
@@ -130,6 +130,12 @@ $('#recordBtn').click(function() {
 
       $('#statusBar').html(text);
       $('#recordBtn').show();
+
+      labels.push(commands.indexOf(recordingCommands[recordingIndex]));
+      let offlineProcessor = new OfflineAudioProcessor(audioConfig, recorded_data);
+      offlineProcessor.getMFCC().done(function(mfccData) {
+        processedData.push(mfccData);
+      });
     } else {
       $('#statusBar').html("Recording was successful!<br><br>Please wait while Honkling retrains");
       // TODO :: Personalize the model
