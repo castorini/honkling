@@ -1,13 +1,4 @@
 **/.DS_STORE
-training/.ipynb_checkpoints
-training/data
-training/sample_data/*.txt
-training/*.log
-training/train_data
-training/log
-training/training_data
-training/*.tar.gz
-*.idea
 server/venv
 server/result/*.json
 data/speech_commands
@@ -16,4 +7,4 @@ data/*.gz
 *.swp
 **/__pycache__
 **/node_modules
-honkling-home/Mojibar-darwin-x64
+honkling-assistant/Mojibar-darwin-x64
