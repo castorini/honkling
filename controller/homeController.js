@@ -4,7 +4,7 @@ function init_view(commands) {
   reordered = [];
   commands.forEach(function(command) {
     if (command != "silence" && command != "unknown") {
-      reordered.push(command);
+      reordered.push(command.toUpperCase());
     }
   });
 
