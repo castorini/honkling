@@ -1,3 +1,0 @@
-librosa
-numpy
-sounddevice

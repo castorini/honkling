@@ -1,14 +1,31 @@
 # Honkling : In-Browser Keyword Spotting System
 
-
-[Honkling](https://castorini.github.io/honkling/) is a novel web application with an in-browser keyword spotting system implemented with [TensorFlow.js](https://js.tensorflow.org/). 
+[Honkling](https://castorini.github.io/honkling/) is a novel web application with an in-browser keyword spotting system implemented with [TensorFlow.js](https://js.tensorflow.org/).
 
 Honkling can efficiently identify simple commands (e.g., "stop" and "go") in-browser without a network connection. It demonstrates cross-platform speech recognition capabilities for interactive intelligent agents with its pure JavaScript implementation. For more details, please consult our writeup:
-+ Jaejun Lee, Raphael Tang, Jimmy Lin. [JavaScript Convolutional Neural Networks for Keyword Spotting in the Browser: An Experimental Analysis.](https://arxiv.org/abs/1810.12859) _arXiv:1810.12859_, October 2018.
+* Jaejun Lee, Raphael Tang, Jimmy Lin. [JavaScript Convolutional Neural Networks for Keyword Spotting in the Browser: An Experimental Analysis.](https://arxiv.org/abs/1810.12859) _arXiv:1810.12859_, October 2018.
 
 Honkling implements a residual convolutional neural network [1] and utilizes [Speech Commands Dataset](https://research.googleblog.com/2017/08/launching-speech-commands-dataset.html) for training.
 
 Click [here](https://castorini.github.io/honkling/) to have the keyword spotting system in your hand!
+
+## Honkling-node & Honkling-assistant
+
+Node.js implementation of Honkling is also available under [Honking-node](https://github.com/castorini/honkling/tree/master/honkling-node) folder.
+
+[Honkling-assistant](https://github.com/castorini/honkling/tree/master/honkling-assistant) is a customizable voice-enabled virtual assistants implemented using Honkling-node and [Electron](https://electronjs.org/).
+
+Details about Honkling-node and Honkling-assistant can be found in:
+
+* Jaejun Lee, Raphael Tang, and Jimmy Lin. 2019. Universal voice-enabled user interfaces using JavaScript. In Proceedings of the 24th International Conference on Intelligent User Interfaces: Companion (IUI '19). ACM, New York, NY, USA, 81-82. DOI: https://doi.org/10.1145/3308557.3308693
+
+## Pre-trained Weights
+
+Pre-trained weights are available at [Honkling-models](https://github.com/castorini/honkling-models).
+
+Please run the following command to obtain pre-trained weights:
+
+`git submodule update --init --recursive`
 
 ## Customizing Honkling
 
@@ -18,7 +35,7 @@ Once you obtain weight file in json format using honk, move the file into `weigh
 
 Depending on change, [config.js](`https://github.com/castorini/honkling/blob/master/common/config.js`) has to be updated and a model object can be instantiated as `let model = new SpeechResModel(<wight_id>, commands);`
 
-## Performance Evaluation 
+## Performance Evaluation
 
 It is possible to evaluate the in-browser neural network inference performance of your device on the [Evaluate Performance](https://castorini.github.io/honkling/view/evaluatePerformance.html) page of Honkling.
 
@@ -45,10 +62,8 @@ The following is the evaluation result on Macbook Pro (2017) with Firefox:
 
 ## Reference
 
-``[1]. 
-Deep Residual Learning for Small-Footprint Keyword Spotting, Raphael Tang, Jimmy Lin, ICASSP 2018`` 
+``[1].
+Deep Residual Learning for Small-Footprint Keyword Spotting, Raphael Tang, Jimmy Lin, ICASSP 2018``
 
-``[2]. 
+``[2].
 Learning Efficient Convolutional Networks through Network Slimming, Zhuang Liu, Jianguo Li, Zhiqiang Shen, Gao Huang, Shoumeng Yan, Changshui Zhang, ICCV 2017``
-
-
