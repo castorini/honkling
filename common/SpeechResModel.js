@@ -129,8 +129,9 @@ class SpeechResModel {
 			outputs: softmax,
 		});
 
+		const learningRate = 0.01;
 		this.model.compile({
-			optimizer: 'sgd',
+			optimizer: tf.train.sgd(learningRate),
 			loss: 'categoricalCrossentropy',
 			metrics: ['accuracy'],
 		});
@@ -230,21 +231,44 @@ class SpeechResModel {
 	async train(x, y) {
 		let batchSize = y.length;
 		if (x.length != batchSize) {
-			console.log('mismatching size of input. (X : ' + x.length + ', Y : ' + y.length + ')');
+			console.error('mismatching size of input. (X : ' + x.length + ', Y : ' + y.length + ')');
 		}
 		let data_shape = [batchSize].concat(this.config['input_shape']);
-		console.log('< start training; ( batch size : ' + data_shape[0] + ' ) >' );
+		console.log('< start training ( batch size : ' + data_shape[0] + ' ) >' );
 
 		x = math.reshape(x, data_shape);
 		let batch_x = tf.tensor4d(x, data_shape, 'float32');
 		let batch_y = tf.oneHot(y, this.config['n_labels']);
-		await this.model.fit(batch_x, batch_y, {batchSize: batchSize});
+		let result = {};
 
-		console.log('< training completed >');
+		// accuracy before personalization
 		let axis = 1;
 		let output = this.model.predict(batch_x);
-		let predictions = output.argMax(axis).dataSync()[0];
-		console.log('\tprediction : ', this.commands[predictions]);
+		let base_predictions = output.argMax(axis).dataSync();
+		result["base_acc"] = calculateAccuracy(base_predictions, y);
+
+		// fine tune
+		const history = await this.model.fit(batch_x, batch_y, {
+			batchSize: batchSize,
+			epochs: 25,
+			validationSplit: 0,
+			shuffle: true,
+		});
+		console.log('< training completed >', history);
+
+		// report accuracy increase
+		output = this.model.predict(batch_x);
+		let personalized_predictions = output.argMax(axis).dataSync();
+		result["personalized_acc"] = calculateAccuracy(personalized_predictions, y);
+
+		console.log('true labels :', y);
+		console.log('base_predictions :', base_predictions);
+		console.log('personalized_predictions :', personalized_predictions);
+
+		console.log("train_acc : ", history["history"]["acc"]);
+		console.log("val_acc : ", history["history"]["val_acc"]);
+
+		return result;
 	}
 
 	predict(x) {

@@ -115,6 +115,18 @@ $('#practiceBtn').click(function() {
   });
 });
 
+function displayPersonalizationResult(result) {
+  hideRecordingDisplay();
+  let base_acc = round(result.base_acc * 100);
+  let per_acc = round(result.personalized_acc * 100);
+  text = "Personalization Completed!!<br><br>";
+  text += 'Accuracy before personalization : ' + base_acc + "<br>";
+  text += 'Accuracy after personalization : ' + per_acc + "<br>";
+  text += 'Expected increase in Accuracy : ' + (per_acc - base_acc);
+  $('#statusBar').html(text);
+}
+
+let model = new SpeechResModel("RES8_NARROW", commands);
 let recordingIndex = 0;
 let processedData = [];
 let labels = [];
@@ -130,16 +142,20 @@ $('#recordBtn').click(function() {
 
       $('#statusBar').html(text);
       $('#recordBtn').show();
-
-      labels.push(commands.indexOf(recordingCommands[recordingIndex]));
-      let offlineProcessor = new OfflineAudioProcessor(audioConfig, recorded_data);
-      offlineProcessor.getMFCC().done(function(mfccData) {
-        processedData.push(mfccData);
-      });
     } else {
-      $('#statusBar').html("Recording was successful!<br><br>Please wait while Honkling retrains");
-      // TODO :: Personalize the model
+      $('#statusBar').html("Recording was successful!<br><br>Please wait while Honkling gets personalized!");
     }
+
+    labels.push(commands.indexOf(recordingCommands[recordingIndex]));
+    let offlineProcessor = new OfflineAudioProcessor(audioConfig, recorded_data);
+    offlineProcessor.getMFCC().done(function(mfccData) {
+      processedData.push(mfccData);
+      if (recordingIndex >= recordingCommands.length) {
+        model.train(processedData, labels).then(function(result) {
+          displayPersonalizationResult(result);
+        });
+      }
+    });
   }).fail(function() {
     // TODO :: Handle failing case
     $('#statusBar').html("Recording has failed. Let's try again!");

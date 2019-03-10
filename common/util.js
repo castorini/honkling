@@ -146,3 +146,16 @@ function transposeFlatten2d(arr) {
   }
   return flattened;
 }
+
+function calculateAccuracy(output, target) {
+  if (output.length != target.length) {
+    console.error('output(' + output.length + ') and target(' + target.length + ') have different size !');
+  }
+  let correct = 0;
+  for (var i = 0; i < output.length; i++) {
+    if (output[i] == target[i]) {
+      correct += 1;
+    }
+  }
+  return correct/output.length;
+}
