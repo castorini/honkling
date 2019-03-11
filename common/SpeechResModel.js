@@ -138,11 +138,28 @@ class SpeechResModel {
 
 		this.model.summary();
 
-		// weights loading
+		let cached_weight = null;
+		if (typeof(Storage) !== "undefined" && modelName == "RES8_NARROW") {
+			let cachedItem = localStorage.getItem("personalized");
+			if (cachedItem) {
+				cached_weight = JSON.parse(cachedItem);
+			}
+		}
 
+		// weights loading
+		if (cached_weight) {
+			console.log('loading personalized Honkling')
+			this.loadWeight(layers, cached_weight, false);
+		} else {
+			this.loadWeight(layers, weights[modelName]);
+		}
+	}
+
+
+	loadWeight(layers, weights, pytorch=true) {
 		// preprocee weights before assignment
 		let processedWeights = {};
-		let weightNames = Object.keys(weights[modelName]);
+		let weightNames = Object.keys(weights);
 		for (var index in weightNames) {
 			let weightName = weightNames[index];
 			let nameSplit = weightName.split(".");
@@ -151,7 +168,7 @@ class SpeechResModel {
 			if (!(layer in processedWeights)) {
 				processedWeights[layer] = {};
 			}
-			processedWeights[layer][nameSplit[1]] = weights[modelName][weightName];
+			processedWeights[layer][nameSplit[1]] = weights[weightName];
 		}
 
 		function reformatConvKernel(weight) {
@@ -183,7 +200,11 @@ class SpeechResModel {
 			if (key.includes("conv")) {
 				// weight index 0 = kernel
 				let convKernelShape = layers[key].getWeights()[0].shape;
-				let convKernel = reformatConvKernel(processedWeights[key]['weight']);
+				let convKernel = processedWeights[key]['weight'];
+
+				if (pytorch) {
+					convKernel = reformatConvKernel(processedWeights[key]['weight']);
+				}
 				w.push(tf.tensor4d(convKernel, convKernelShape, 'float32'));
 			}
 			if (key.includes("bn")) {
@@ -210,10 +231,14 @@ class SpeechResModel {
 				w.push(tf.tensor1d(processedWeights[key]['running_var'], 'float32'));
 			}
 			if (key.includes("output")) {
-
 				// weight index 0 = kernel
 				let denseKernelShape = layers[key].getWeights()[0].shape;
-				let denseKernel = transpose2d(processedWeights[key]['weight']);
+				let denseKernel = processedWeights[key]['weight'];
+
+				if (pytorch) {
+					denseKernel = transpose2d(processedWeights[key]['weight']);
+				}
+
 				w.push(tf.tensor2d(denseKernel, denseKernelShape, 'float32'));
 
 				// weight index 1 = bias
@@ -223,55 +248,90 @@ class SpeechResModel {
 		}
 	}
 
-	async save() {
-		const saveResult = await this.model.save('downloads://speech_res_model')
-		console.log('saving model has completed', saveResult);
+	storePersonalizedWeight() {
+		let processedWeights = {};
+		for (var i = 0; i < this.model.layers.length; i++) {
+			for (var j = 0; j < this.model.layers[i].getWeights().length; j++) {
+
+				// renaming to match pytorch weights
+				let weightName = this.model.layers[i].getWeights()[j].name.split('/').join('.')
+				if (weightName.includes("conv") || weightName.includes("output")) {
+					weightName = weightName.replace("kernel", "weight");
+				} else if (weightName.includes("bn")) {
+					weightName = weightName.replace("moving_mean", "running_mean");
+					weightName = weightName.replace("moving_variance", "running_var");
+				}
+
+				let dataSize = this.model.layers[i].getWeights()[j].shape;
+				let values = Array.prototype.slice.call(this.model.layers[i].getWeights()[j].dataSync());
+				processedWeights[weightName] = math.reshape(values, dataSize);
+			}
+		}
+		localStorage.setItem("personalized", JSON.stringify(processedWeights));
 	}
 
-	async train(x, y) {
+	async train(x, y, msgTag) {
 		let batchSize = y.length;
 		if (x.length != batchSize) {
 			console.error('mismatching size of input. (X : ' + x.length + ', Y : ' + y.length + ')');
 		}
-		let data_shape = [batchSize].concat(this.config['input_shape']);
-		console.log('< start training ( batch size : ' + data_shape[0] + ' ) >' );
+		let dataSize = [batchSize].concat(this.config['input_shape']);
 
-		x = math.reshape(x, data_shape);
-		let batch_x = tf.tensor4d(x, data_shape, 'float32');
-		let batch_y = tf.oneHot(y, this.config['n_labels']);
+		x = math.reshape(x, dataSize);
+		let batchX = tf.tensor4d(x, dataSize, 'float32');
+		let batchY = tf.oneHot(y, this.config['n_labels']);
 		let result = {};
 
 		// accuracy before personalization
 		let axis = 1;
-		let output = this.model.predict(batch_x);
-		let base_predictions = output.argMax(axis).dataSync();
-		result["base_acc"] = calculateAccuracy(base_predictions, y);
+		let output = this.model.predict(batchX);
+		let basePrediction = output.argMax(axis).dataSync();
+		result["baseAcc"] = calculateAccuracy(basePrediction, y);
 
 		// fine tune
-		const history = await this.model.fit(batch_x, batch_y, {
+		let epochs = 50;
+		let options = {
 			batchSize: batchSize,
-			epochs: 25,
+			epochs: epochs,
 			validationSplit: 0,
 			shuffle: true,
-		});
-		console.log('< training completed >', history);
+			callbacks: {
+		    onEpochEnd: async (epoch, logs) => {
+					text = "Please wait while Honkling gets personalized!<br><br>"
+					text += "Epoch " + (epoch+1) + "/" + epochs + " : " + Math.round(logs.acc * 100) + " %"
+					msgTag.html(text)
+		    }
+		  }
+		}
+		console.log("batchSize : ", batchSize);
+		console.log("training options : ", options);
+		const history = await this.model.fit(batchX, batchY, options);
 
 		// report accuracy increase
-		output = this.model.predict(batch_x);
-		let personalized_predictions = output.argMax(axis).dataSync();
-		result["personalized_acc"] = calculateAccuracy(personalized_predictions, y);
+		output = this.model.predict(batchX);
+		let personalizedPrediction = output.argMax(axis).dataSync();
+		result["personalizedAcc"] = calculateAccuracy(personalizedPrediction, y);
 
 		console.log('true labels :', y);
-		console.log('base_predictions :', base_predictions);
-		console.log('personalized_predictions :', personalized_predictions);
+		console.log('basePrediction :', basePrediction);
+		console.log('personalizedPrediction :', personalizedPrediction);
 
-		console.log("train_acc : ", history["history"]["acc"]);
-		console.log("val_acc : ", history["history"]["val_acc"]);
+		console.log("trainAcc : ", history["history"]["acc"]);
+		console.log("valAcc : ", history["history"]["valAcc"]);
+
+		if (typeof(Storage) !== "undefined") {
+				this.storePersonalizedWeight();
+		}
 
 		return result;
 	}
 
 	predict(x) {
 		return this.model.predict(x);
+	}
+
+	async save() {
+		const saveResult = await this.model.save('downloads://speech_res_model')
+		console.log('saving model has completed', saveResult);
 	}
 }

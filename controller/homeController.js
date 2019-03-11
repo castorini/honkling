@@ -4,19 +4,19 @@ function init_view(commands) {
   reordered = [];
   commands.forEach(function(command) {
     if (command != "silence" && command != "unknown") {
-      reordered.push(command.toUpperCase());
+      reordered.push(command);
     }
   });
 
   let split = Math.floor(reordered.length/2)
   for (let i = 0; i < split; i++) {
       $('#commandList1').append(
-        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
+        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i].toUpperCase()));
   }
 
   for (let i = split; i < reordered.length; i++) {
       $('#commandList2').append(
-        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i]));
+        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i].toUpperCase()));
   }
 
   $('#commandList3').append(

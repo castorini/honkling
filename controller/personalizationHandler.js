@@ -96,10 +96,20 @@ function record(keyword) {
 }
 
 $('#startBtn').click(function() {
-  $('#statusBar').html("Let's practice recording!");
-  $('#personalizationSettingDiv').hide();
-  hideAllButtons();
-  $('#practiceBtn').show();
+  let confirmation = true;
+  if (typeof(Storage) !== "undefined") {
+    if (localStorage.getItem("personalized")) {
+      confirmation = confirm("Honkling is already personalized.\nIt will replace existing version.\nDo you want to personalize your Honkling again?");
+    }
+  }
+
+  if (confirmation) {
+    localStorage.removeItem("personalized");
+    $('#statusBar').html("Let's practice recording!");
+    $('#personalizationSettingDiv').hide();
+    hideAllButtons();
+    $('#practiceBtn').show();
+  }
 });
 
 $('#practiceBtn').click(function() {
@@ -117,16 +127,14 @@ $('#practiceBtn').click(function() {
 
 function displayPersonalizationResult(result) {
   hideRecordingDisplay();
-  let base_acc = round(result.base_acc * 100);
-  let per_acc = round(result.personalized_acc * 100);
+  let baseAcc = Math.round(result.baseAcc * 100);
+  let perAcc = Math.round(result.personalizedAcc * 100);
   text = "Personalization Completed!!<br><br>";
-  text += 'Accuracy before personalization : ' + base_acc + "<br>";
-  text += 'Accuracy after personalization : ' + per_acc + "<br>";
-  text += 'Expected increase in Accuracy : ' + (per_acc - base_acc);
+  text += 'Accuracy before personalization : ' + baseAcc + " %<br>";
+  text += 'Accuracy after personalization : ' + perAcc + " %<br>";
   $('#statusBar').html(text);
 }
 
-let model = new SpeechResModel("RES8_NARROW", commands);
 let recordingIndex = 0;
 let processedData = [];
 let labels = [];
@@ -134,6 +142,7 @@ let labels = [];
 $('#recordBtn').click(function() {
   hideAllButtons();
   record(recordingCommands[recordingIndex]).done(function(recorded_data) {
+    labels.push(commands.indexOf(recordingCommands[recordingIndex]));
     recordingIndex += 1;
     if (recordingIndex < recordingCommands.length) {
       text = "Recording was successful!<br><br>";
@@ -146,11 +155,11 @@ $('#recordBtn').click(function() {
       $('#statusBar').html("Recording was successful!<br><br>Please wait while Honkling gets personalized!");
     }
 
-    labels.push(commands.indexOf(recordingCommands[recordingIndex]));
     let offlineProcessor = new OfflineAudioProcessor(audioConfig, recorded_data);
     offlineProcessor.getMFCC().done(function(mfccData) {
       processedData.push(mfccData);
       if (recordingIndex >= recordingCommands.length) {
+        let model = new SpeechResModel("RES8_NARROW", commands);
         model.train(processedData, labels).then(function(result) {
           displayPersonalizationResult(result);
         });
