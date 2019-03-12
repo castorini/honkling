@@ -1,6 +1,7 @@
 // mic initialization
 
 let micAudioProcessor = new MicAudioProcessor(audioConfig);
+let recordingPlayer = new AudioPlayer();
 
 micAudioProcessor.getMicPermission().done(function() {
   // Due to the dynamic load of canvas, visualizer fails if wave starts hidden
@@ -19,6 +20,8 @@ function hideAllButtons() {
   $('#startBtn').hide();
   $('#practiceBtn').hide();
   $('#recordBtn').hide();
+  $('#yesBtn').hide();
+  $('#noBtn').hide();
 }
 
 function showRecordingDisplay() {
@@ -31,8 +34,18 @@ function hideRecordingDisplay() {
   $('#waveformWrapper').hide();
 }
 
+function showYesNoBtn(onYes, onNo) {
+  $('#yesBtn').show();
+  $('#noBtn').show();
+  $('#yesBtn').unbind('click');
+  $('#noBtn').unbind('click');
+  $('#yesBtn').click(onYes);
+  $('#noBtn').click(onNo);
+}
+
 // personalization setting
 
+let practiceKeyword = "honkling";
 let defaultDataSize = '3';
 let dataSizes = ['1','3','5'];
 let expectedAccGains = [4, 5, 6];
@@ -69,11 +82,40 @@ function resetCountDown() {
   timeleft = 3;
 }
 
-let recordingDeferred = null
+let recordingDeferred = null;
+let currentRecording = null;
+
+function recordNext() {
+  $('#yesBtn').hide();
+  $('#noBtn').hide();
+  recordingDeferred.resolve(currentRecording);
+}
+
+function recordAgain() {
+  $('#yesBtn').hide();
+  $('#noBtn').hide();
+  if (recordingIndex < 0) {
+    record(practiceKeyword).done(onPracticeCompleted);
+  } else {
+    while (labels.length > recordingIndex) {
+      labels.pop();
+    }
+    record(recordingCommands[recordingIndex]).done(onRecordingCompleted);
+  }
+}
+
+function playRecordingCallBack() {
+  showYesNoBtn(recordNext, recordAgain);
+}
 
 function record(keyword) {
+  hideAllButtons();
   $('#statusBar').html("Keyword is ... " + keyword.toUpperCase());
-  let recordingDeferred = $.Deferred();
+
+  if (recordingDeferred && recordingDeferred.state() == "pending") {
+    recordingDeferred.reject();
+  }
+  recordingDeferred = $.Deferred();
 
   resetCountDown();
   $('#countDownText').html('Recording starts in ' + timeleft);
@@ -88,7 +130,10 @@ function record(keyword) {
     } else {
       clearInterval(countDownInterval);
       hideRecordingDisplay();
-      recordingDeferred.resolve(micAudioProcessor.getData());
+
+      $('#statusBar').html("Do you want to keep this recording?");
+      currentRecording = micAudioProcessor.getData();
+      recordingPlayer.play(currentRecording, playRecordingCallBack);
     }
   }, 1000);
 
@@ -112,17 +157,15 @@ $('#startBtn').click(function() {
   }
 });
 
+function onPracticeCompleted() {
+  $('#statusBar').html("Recording was successful!<br><br>Click RECORD to start personalization and PRACTICE to practie again");
+  $('#practiceBtn').show();
+  $('#recordBtn').show();
+  recordingIndex = 0;
+}
+
 $('#practiceBtn').click(function() {
-  hideAllButtons();
-  record("honkling").done(function(recorded_data) {
-    $('#statusBar').html("Recording was successful!<br><br>Click RECORD to start personalization and PRACTICE to practie again");
-    $('#practiceBtn').show();
-    $('#recordBtn').show();
-  }).fail(function() {
-    // TODO :: Handle failing case
-    $('#statusBar').html("Recording has failed. Let's try again!");
-    $('#practiceBtn').show();
-  });
+  record(practiceKeyword).done(onPracticeCompleted);
 });
 
 function displayPersonalizationResult(result) {
@@ -135,39 +178,36 @@ function displayPersonalizationResult(result) {
   $('#statusBar').html(text);
 }
 
-let recordingIndex = 0;
+let recordingIndex = -1; // practice keyword
 let processedData = [];
 let labels = [];
 
-$('#recordBtn').click(function() {
-  hideAllButtons();
-  record(recordingCommands[recordingIndex]).done(function(recorded_data) {
-    labels.push(commands.indexOf(recordingCommands[recordingIndex]));
-    recordingIndex += 1;
-    if (recordingIndex < recordingCommands.length) {
-      text = "Recording was successful!<br><br>";
-      text += 'Next keyword is ... ' + recordingCommands[recordingIndex].toUpperCase() + '<br><br>';
-      text += (recordingCommands.length - recordingIndex) +' more keywords to record';
+function onRecordingCompleted(recording) {
+  labels.push(commands.indexOf(recordingCommands[recordingIndex]));
+  recordingIndex += 1;
+  if (recordingIndex < recordingCommands.length) {
+    text = "Recording was successful!<br><br>";
+    text += 'Next keyword is ... ' + recordingCommands[recordingIndex].toUpperCase() + '<br><br>';
+    text += (recordingCommands.length - recordingIndex) +' more keywords to record';
 
-      $('#statusBar').html(text);
-      $('#recordBtn').show();
-    } else {
-      $('#statusBar').html("Recording was successful!<br><br>Please wait while Honkling gets personalized!");
-    }
-
-    let offlineProcessor = new OfflineAudioProcessor(audioConfig, recorded_data);
-    offlineProcessor.getMFCC().done(function(mfccData) {
-      processedData.push(mfccData);
-      if (recordingIndex >= recordingCommands.length) {
-        let model = new SpeechResModel("RES8_NARROW", commands);
-        model.train(processedData, labels).then(function(result) {
-          displayPersonalizationResult(result);
-        });
-      }
-    });
-  }).fail(function() {
-    // TODO :: Handle failing case
-    $('#statusBar').html("Recording has failed. Let's try again!");
+    $('#statusBar').html(text);
     $('#recordBtn').show();
+  } else {
+    $('#statusBar').html("Recording was successful!<br><br>Please wait while Honkling gets personalized!");
+  }
+
+  let offlineProcessor = new OfflineAudioProcessor(audioConfig, recording);
+  offlineProcessor.getMFCC().done(function(mfccData) {
+    processedData.push(mfccData);
+    if (recordingIndex >= recordingCommands.length) {
+      let model = new SpeechResModel("RES8_NARROW", commands);
+      model.train(processedData, labels).then(function(result) {
+        displayPersonalizationResult(result);
+      });
+    }
   });
+}
+
+$('#recordBtn').click(function() {
+  record(recordingCommands[recordingIndex]).done(onRecordingCompleted);
 });
