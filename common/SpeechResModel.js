@@ -300,8 +300,10 @@ class SpeechResModel {
 					let text = "Please wait while Honkling gets personalized!<br><br>"
 					text += "< Epoch " + (epoch+1) + " / " + epochs + " ><br><br>";
 					text += "Accuracy : " + Math.round(logs.acc * 100) + " %<br>";
-					let timeElapsed = Math.round((new Date() - startTime) / (60 * 1000), 2); // in mins
-					text += "Time elapsed : " + timeElapsed + " mins"
+					let timeElapsed = ((new Date() - startTime) / (60 * 1000)).toFixed(2); // in mins
+					text += "Time elapsed : " + timeElapsed + " mins<br>"
+					let remainingTime = timeElapsed / (epoch+1) * epochs;
+					text += "Expected remaining time : " + remainingTime + " mins";
 					msgTag.html(text);
 		    }
 		  }
@@ -310,7 +312,7 @@ class SpeechResModel {
 		console.log("training options : ", options);
 		let startTime = new Date();
 		const history = await this.model.fit(batchX, batchY, options);
-		result["trainingTime"] = Math.round((new Date() - startTime) / (60 * 1000), 2); // in mins
+		result["trainingTime"] = ((new Date() - startTime) / (60 * 1000)).toFixed(2); // in mins
 
 		// report accuracy increase
 		output = this.model.predict(batchX);
