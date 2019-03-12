@@ -16,10 +16,6 @@ micAudioProcessor.getMicPermission().done(function() {
 
 // display updates
 
-function showSettingDisplay() {
-
-}
-
 function hideAllButtons() {
   $('#startBtn').hide();
   $('#practiceBtn').hide();
@@ -49,7 +45,7 @@ function showYesNoBtn(onYes, onNo) {
 
 // personalization setting
 
-let practiceKeyword = "honkling";
+let unknownKeyword = "honkling";
 let defaultDataSize = '3';
 let dataSizes = ['1','3','5'];
 let expectedAccGains = [4, 5, 6];
@@ -66,7 +62,9 @@ function displayExpectedAccGain(dataSize) {
   $('#personalizationSettingDiv').show();
   index = dataSizes.indexOf(dataSize);
   recordingTime = Math.round(parseInt(dataSize)/2);
-  recordingCommands = shuffleArray(duplicateElements(commands.slice(2), dataSize));
+  recordingCommands = commands.slice(2);
+  recordingCommands.push(unknownKeyword);
+  recordingCommands = shuffleArray(duplicateElements(recordingCommands, dataSize));
 
   text = 'Spend ' + recordingTime + ' minutes and get extra ' + expectedAccGains[index] + '% in accuracy!<br><br>'
   text += 'Number of keywords to record : ' + recordingCommands.length;
@@ -77,6 +75,7 @@ displayExpectedAccGain($('#dataSizeSelect option:selected').val());
 
 $('#dataSizeSelect').change(function() {
   displayExpectedAccGain($('#dataSizeSelect option:selected').val());
+  $('#startBtn').show();
 });
 
 // recording
@@ -101,7 +100,7 @@ function recordAgain() {
   $('#yesBtn').hide();
   $('#noBtn').hide();
   if (recordingIndex < 0) {
-    record(practiceKeyword).done(onPracticeCompleted);
+    record(unknownKeyword).done(onPracticeCompleted);
   } else {
     while (labels.length > recordingIndex) {
       labels.pop();
@@ -191,7 +190,7 @@ function onPracticeCompleted() {
 }
 
 $('#practiceBtn').click(function() {
-  record(practiceKeyword).done(onPracticeCompleted);
+  record(unknownKeyword).done(onPracticeCompleted);
 });
 
 function displayPersonalizationResult(result) {
@@ -201,15 +200,21 @@ function displayPersonalizationResult(result) {
   text = "Personalization Completed!!<br><br>";
   text += 'Accuracy before personalization : ' + baseAcc + " %<br>";
   text += 'Accuracy after personalization : ' + perAcc + " %<br>";
+  text += 'Training took ' + result.trainingTime + " mins";
   $('#statusBar').html(text);
 }
 
 let recordingIndex = -1; // practice keyword
 let processedData = [];
 let labels = [];
+let model = null;
 
 function onRecordingCompleted(recording) {
-  labels.push(commands.indexOf(recordingCommands[recordingIndex]));
+  let label = commands.indexOf(recordingCommands[recordingIndex]);
+  if (label < 0) {
+    label = 1;
+  }
+  labels.push(label);
   recordingIndex += 1;
   if (recordingIndex < recordingCommands.length) {
     text = "Recording was successful!<br><br>";
@@ -226,8 +231,8 @@ function onRecordingCompleted(recording) {
   offlineProcessor.getMFCC().done(function(mfccData) {
     processedData.push(mfccData);
     if (recordingIndex >= recordingCommands.length) {
-      let model = new SpeechResModel("RES8_NARROW", commands);
-      model.train(processedData, labels).then(function(result) {
+      model = new SpeechResModel("RES8_NARROW", commands);
+      model.train(processedData, labels, $('#statusBar')).then(function(result) {
         displayPersonalizationResult(result);
       });
     }
