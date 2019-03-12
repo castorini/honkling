@@ -18,7 +18,8 @@ const personalizationConfig = {
 	epochs : 50,
 	validationSplit : 0,
 	shuffle: true,
-	expectedTimeRate : 0.5
+	expectedTimeRate : 0.5,
+	learningRate : 0.01
 }
 
 weights = {}; // placeholder for dynamic weights loading

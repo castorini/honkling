@@ -129,9 +129,8 @@ class SpeechResModel {
 			outputs: softmax,
 		});
 
-		const learningRate = 0.01;
 		this.model.compile({
-			optimizer: tf.train.sgd(learningRate),
+			optimizer: tf.train.sgd(personalizationConfig.learningRate),
 			loss: 'categoricalCrossentropy',
 			metrics: ['accuracy'],
 		});
@@ -270,7 +269,7 @@ class SpeechResModel {
 		localStorage.setItem("personalized", JSON.stringify(processedWeights));
 	}
 
-	async train(x, y, msgTag) {
+	async train(x, y, statusTag) {
 		let batchSize = y.length;
 		if (x.length != batchSize) {
 			console.error('mismatching size of input. (X : ' + x.length + ', Y : ' + y.length + ')');
@@ -295,17 +294,17 @@ class SpeechResModel {
 			validationSplit: personalizationConfig.validationSplit,
 			shuffle: personalizationConfig.shuffle,
 			callbacks: {
-		    onEpochEnd: async (epoch, logs) => {
-					let text = "Please wait while Honkling gets personalized!<br><br>"
+				onEpochEnd: async (epoch, logs) => {
+					let text = "Please wait while Honkling gets personalized!<br><br>";
 					text += "< Epoch " + (epoch+1) + " / " + personalizationConfig.epochs + " ><br><br>";
 					text += "Accuracy : " + Math.round(logs.acc * 100) + " %<br>";
 					let timeElapsed = ((new Date() - startTime) / (60 * 1000)).toFixed(2); // in mins
-					text += "Time elapsed : " + timeElapsed + " mins<br>"
+					text += "Time elapsed : " + timeElapsed + " mins<br>";
 					let remainingTime = (timeElapsed / (epoch+1) * personalizationConfig.epochs).toFixed(2);
 					text += "Expected remaining time : " + remainingTime + " mins";
-					msgTag.html(text);
-		    }
-		  }
+					statusTag.html(text);
+				}
+			}
 		}
 		console.log("batchSize : ", batchSize);
 		console.log("training options : ", options);
@@ -337,7 +336,7 @@ class SpeechResModel {
 	}
 
 	async save() {
-		const saveResult = await this.model.save('downloads://speech_res_model')
+		const saveResult = await this.model.save('downloads://speech_res_model');
 		console.log('saving model has completed', saveResult);
 	}
 }
