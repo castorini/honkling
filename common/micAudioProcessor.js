@@ -33,7 +33,6 @@ class MicAudioProcessor {
     this.permissionDeferred = $.Deferred();
 
     var successCallback = function (micStream) {
-      console.group();
       console.log('User allowed microphone access.');
       micProc.micSource = micProc.audioContext.createMediaStreamSource(micStream);
       micProc.micSource.connect(micProc.downSampleNode);
@@ -51,7 +50,6 @@ class MicAudioProcessor {
     };
 
     var errorCallback = function (err) {
-      console.group();
       console.log('Initializing microphone has failed. Falling back to default audio file', err);
       micProc.permissionDeferred.reject();
     };

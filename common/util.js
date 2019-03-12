@@ -6,6 +6,35 @@ function isAllZero(data) {
   return data.every(function(elem) {return elem == 0})
 }
 
+function duplicateElements(arr, times) {
+  duplicated = []
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = 0; j < times; j++) {
+      duplicated.push(arr[i]);
+    }
+  }
+  return duplicated
+}
+
+function shuffleArray(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 function printData(name, data) {
   if (data.length == 0) {
     console.log('\t', name, ' has length of 0');
@@ -116,4 +145,17 @@ function transposeFlatten2d(arr) {
     }
   }
   return flattened;
+}
+
+function calculateAccuracy(output, target) {
+  if (output.length != target.length) {
+    console.error('output(' + output.length + ') and target(' + target.length + ') have different size !');
+  }
+  let correct = 0;
+  for (var i = 0; i < output.length; i++) {
+    if (output[i] == target[i]) {
+      correct += 1;
+    }
+  }
+  return correct/output.length;
 }

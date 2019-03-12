@@ -11,21 +11,47 @@
   <script type="text/javascript" src="../lib/meyda.js"></script>
   <script type="text/javascript" src="../lib/jquery-3.3.1.min.js"></script>
   <script type="text/javascript" src="../lib/tfjs/tf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.2.3/math.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="../lib/math.min.js"></script>
+  <script src="../lib/visualizer.js/dist/visualizer.global.min.js"></script>
   <link rel="stylesheet" type="text/css" href="../css/styles.css">
 </head>
 <body>
   <div class="container">
     <div class="row justify-content-center" id="navBarPlaceholder"></div>
 
-    <!-- <div class="row">
-      <div class="col">
-        <p id="statusBar"class="text-center">Message</p>
-      </div>
-    </div> -->
-
     <div class="row">
-      <button id="train" type="button" class="btn btn-primary col-centered" enabled>CONTINUE TRAINING</button>
+      <div class="col">
+        <p id="statusBar" class="text-center">status</p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center" id="personalizationSettingDiv">
+      <div style="margin-right: 1vw">
+        <label>Recordings per keyword : </label>
+        <select id="dataSizeSelect">
+        </select>
+      </div>
+    </div>
+
+    <div class="row" id="countDownDiv" style="display:none;">
+      <div class="col">
+        <p id="countDownText" class="text-center"></p>
+      </div>
+    </div>
+
+    <div class="row" id="waveformWrapper">
+      <div class="col">
+        <div id="waveform" class="text-center"></div>
+      </div>
+    </div>
+
+    <div id="personalizedBtnDiv" class="row">
+      <button id="startBtn" type="button" class="btn btn-primary col-centered" enabled style="display:none;">PERSONALIZE</button>
+      <button id="practiceBtn" type="button" class="btn btn-primary col-centered" enabled style="display:none;">PRACTICE</button>
+      <button id="recordBtn" type="button" class="btn btn-primary col-centered" enabled style="display:none;">RECORD</button>
+      <button id="yesBtn" type="button" class="btn btn-success col-centered" enabled style="display:none;">YES</button>
+      <button id="noBtn" type="button" class="btn btn-danger col-centered" enabled style="display:none;">NO</button>
+      <button id="resetBtn" type="button" class="btn btn-danger col-centered" enabled style="display:none;">RESET</button>
     </div>
 
     <div id="footerPlaceholder"></div>
@@ -33,10 +59,11 @@
   <script src="../common/baseController.js"></script>
   <script src="../common/config.js"></script>
   <script src="../common/util.js"></script>
+  <script src="../common/micAudioProcessor.js"></script>
+  <script src="../common/offlineAudioProcessor.js"></script>
   <script src="../models/honkling/RES8_NARROW.js"></script>
   <script src="../common/SpeechResModel.js"></script>
-  <script src="../common/model.js"></script>
-  <script src="../common/offlineAudioProcessor.js"></script>
+  <script src="../common/audioPlayer.js"></script>
   <script src="../controller/personalizationHandler.js"></script>
 </body>
 </html>
