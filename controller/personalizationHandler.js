@@ -9,6 +9,7 @@ micAudioProcessor.getMicPermission().done(function() {
   setTimeout(function(){
     $('#waveformWrapper').hide();
     $('#startBtn').show();
+    displayResetBtn();
   }, 3);
 }).fail(function() {
   alert('mic permission is required, please enable the mic usage!');
@@ -22,6 +23,7 @@ function hideAllButtons() {
   $('#recordBtn').hide();
   $('#yesBtn').hide();
   $('#noBtn').hide();
+  $('#resetBtn').hide();
 }
 
 function showRecordingDisplay() {
@@ -42,6 +44,20 @@ function showYesNoBtn(onYes, onNo) {
   $('#yesBtn').click(onYes);
   $('#noBtn').click(onNo);
 }
+
+// reset personalization
+function displayResetBtn() {
+  if (typeof(Storage) !== "undefined") {
+    if (localStorage.getItem("personalized")) {
+      $('#resetBtn').show();
+    }
+  }
+}
+
+$('#resetBtn').click(function() {
+  localStorage.removeItem("personalized");
+  $('#resetBtn').hide();
+});
 
 // personalization setting
 
@@ -76,6 +92,7 @@ displayExpectedAccGain($('#dataSizeSelect option:selected').val());
 $('#dataSizeSelect').change(function() {
   displayExpectedAccGain($('#dataSizeSelect option:selected').val());
   $('#startBtn').show();
+  displayResetBtn();
 });
 
 // recording
@@ -177,6 +194,7 @@ $('#startBtn').click(function() {
     }, function() {
       displayExpectedAccGain($('#dataSizeSelect option:selected').val());
       $('#startBtn').show();
+      displayResetBtn();
     });
   } else {
     displayStartPage();

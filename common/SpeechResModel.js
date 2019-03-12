@@ -297,10 +297,10 @@ class SpeechResModel {
 			shuffle: true,
 			callbacks: {
 		    onEpochEnd: async (epoch, logs) => {
-					text = "Please wait while Honkling gets personalized!<br><br>"
+					let text = "Please wait while Honkling gets personalized!<br><br>"
 					text += "< Epoch " + (epoch+1) + " / " + epochs + " ><br><br>";
 					text += "Accuracy : " + Math.round(logs.acc * 100) + " %<br>";
-					let timeElapsed = round((new Date() - startTime) / (60 * 1000), 2); // in mins
+					let timeElapsed = Math.round((new Date() - startTime) / (60 * 1000), 2); // in mins
 					text += "Time elapsed : " + timeElapsed + " mins"
 					msgTag.html(text);
 		    }
@@ -310,7 +310,7 @@ class SpeechResModel {
 		console.log("training options : ", options);
 		let startTime = new Date();
 		const history = await this.model.fit(batchX, batchY, options);
-		result["trainingTime"] = round((new Date() - startTime) / (60 * 1000), 2); // in mins
+		result["trainingTime"] = Math.round((new Date() - startTime) / (60 * 1000), 2); // in mins
 
 		// report accuracy increase
 		output = this.model.predict(batchX);
