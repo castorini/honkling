@@ -301,7 +301,7 @@ class SpeechResModel {
 					text += "Accuracy : " + Math.round(logs.acc * 100) + " %<br>";
 					let timeElapsed = ((new Date() - startTime) / (60 * 1000)).toFixed(2); // in mins
 					text += "Time elapsed : " + timeElapsed + " mins<br>"
-					let remainingTime = timeElapsed / (epoch+1) * personalizationConfig.epochs;
+					let remainingTime = (timeElapsed / (epoch+1) * personalizationConfig.epochs).toFixed(2);
 					text += "Expected remaining time : " + remainingTime + " mins";
 					msgTag.html(text);
 		    }
