@@ -16,6 +16,10 @@ micAudioProcessor.getMicPermission().done(function() {
 
 // display updates
 
+function showSettingDisplay() {
+
+}
+
 function hideAllButtons() {
   $('#startBtn').hide();
   $('#practiceBtn').hide();
@@ -58,6 +62,8 @@ for (var i = 0; i < dataSizes.length; i++) {
 $('#dataSizeSelect').val(defaultDataSize);
 
 function displayExpectedAccGain(dataSize) {
+  hideAllButtons();
+  $('#personalizationSettingDiv').show();
   index = dataSizes.indexOf(dataSize);
   recordingTime = Math.round(parseInt(dataSize)/2);
   recordingCommands = shuffleArray(duplicateElements(commands.slice(2), dataSize));
@@ -141,25 +147,45 @@ function record(keyword) {
 }
 
 $('#startBtn').click(function() {
-  let confirmation = true;
+  let cachedPersonalization = false;
+  hideAllButtons();
+  $('#personalizationSettingDiv').hide();
+
   if (typeof(Storage) !== "undefined") {
     if (localStorage.getItem("personalized")) {
-      confirmation = confirm("Honkling is already personalized.\nIt will replace existing version.\nDo you want to personalize your Honkling again?");
+      cachedPersonalization = true;
     }
   }
 
-  if (confirmation) {
-    localStorage.removeItem("personalized");
+  function displayStartPage() {
     $('#statusBar').html("Let's practice recording!");
     $('#personalizationSettingDiv').hide();
-    hideAllButtons();
     $('#practiceBtn').show();
+    $('#yesBtn').hide();
+    $('#noBtn').hide();
+  }
+
+  if (cachedPersonalization) {
+    let text = "Honkling is already personalized<br><br>";
+    text += "It will replace existing version<br><br>";
+    text += "Do you want to personalize your Honkling again?";
+
+    $('#statusBar').html(text);
+
+    showYesNoBtn(function() {
+      localStorage.removeItem("personalized");
+      displayStartPage();
+    }, function() {
+      displayExpectedAccGain($('#dataSizeSelect option:selected').val());
+      $('#startBtn').show();
+    });
+  } else {
+    displayStartPage();
   }
 });
 
 function onPracticeCompleted() {
-  $('#statusBar').html("Recording was successful!<br><br>Click RECORD to start personalization and PRACTICE to practie again");
-  $('#practiceBtn').show();
+  $('#statusBar').html("Recording was successful!<br><br>Click RECORD to start personalization");
   $('#recordBtn').show();
   recordingIndex = 0;
 }
