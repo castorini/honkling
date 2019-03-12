@@ -289,20 +289,19 @@ class SpeechResModel {
 		result["baseAcc"] = calculateAccuracy(basePrediction, y);
 
 		// fine tune
-		let epochs = 50;
 		let options = {
 			batchSize: batchSize,
-			epochs: epochs,
-			validationSplit: 0,
-			shuffle: true,
+			epochs: personalizationConfig.epochs,
+			validationSplit: personalizationConfig.validationSplit,
+			shuffle: personalizationConfig.shuffle,
 			callbacks: {
 		    onEpochEnd: async (epoch, logs) => {
 					let text = "Please wait while Honkling gets personalized!<br><br>"
-					text += "< Epoch " + (epoch+1) + " / " + epochs + " ><br><br>";
+					text += "< Epoch " + (epoch+1) + " / " + personalizationConfig.epochs + " ><br><br>";
 					text += "Accuracy : " + Math.round(logs.acc * 100) + " %<br>";
 					let timeElapsed = ((new Date() - startTime) / (60 * 1000)).toFixed(2); // in mins
 					text += "Time elapsed : " + timeElapsed + " mins<br>"
-					let remainingTime = timeElapsed / (epoch+1) * epochs;
+					let remainingTime = timeElapsed / (epoch+1) * personalizationConfig.epochs;
 					text += "Expected remaining time : " + remainingTime + " mins";
 					msgTag.html(text);
 		    }

@@ -82,8 +82,9 @@ function displayExpectedAccGain(dataSize) {
   recordingCommands.push(unknownKeyword);
   recordingCommands = shuffleArray(duplicateElements(recordingCommands, dataSize));
 
-  text = 'Spend ' + recordingTime + ' minutes and get extra ' + expectedAccGains[index] + '% in accuracy!<br><br>'
-  text += 'Number of keywords to record : ' + recordingCommands.length;
+  text = 'Total recordings : ' + recordingCommands.length + '<br>';
+  text += 'Expected gain in Accuracy : ' + expectedAccGains[index] + ' %<br>';
+  text += 'Expected tuning time : ' + (personalizationConfig.expectedTimeRate * personalizationConfig.epochs * dataSize) + ' mins';
   $('#statusBar').html(text);
 }
 

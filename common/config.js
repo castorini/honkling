@@ -14,6 +14,13 @@ const audioConfig = {
 	'noiseThreshold' : 0.050
 }
 
+const personalizationConfig = {
+	epochs : 50,
+	validationSplit : 0,
+	shuffle: true,
+	expectedTimeRate : 0.5
+}
+
 weights = {}; // placeholder for dynamic weights loading
 
 const modelConfig = {
