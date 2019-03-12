@@ -84,7 +84,7 @@ function displayExpectedAccGain(dataSize) {
 
   text = 'Total recordings : ' + recordingCommands.length + '<br>';
   text += 'Expected gain in Accuracy : ' + expectedAccGains[index] + ' %<br>';
-  text += 'Expected tuning time : ' + (personalizationConfig.expectedTimeRate * personalizationConfig.epochs * dataSize) + ' mins';
+  text += 'Expected tuning time : ' + (personalizationConfig.expectedTimeRate * personalizationConfig.epochs * dataSize).toFixed(2) + ' mins';
   $('#statusBar').html(text);
 }
 
