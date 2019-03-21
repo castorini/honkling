@@ -4,6 +4,7 @@ RES8_80_weights = require('./models/honkling-node/RES8_80');
 RES8_NARROW_weights = require('./models/honkling-node/RES8_NARROW');
 RES8_NARROW_40_weights = require('./models/honkling-node/RES8_NARROW_40');
 RES8_NARROW_80_weights = require('./models/honkling-node/RES8_NARROW_80');
+iui_assistant = require('./models/honkling-node/iui');
 
 mojibar_weights = require('./models/honkling-node/res8_mojibar')
 light_weights = require('./models/honkling-node/res8_light')
@@ -16,5 +17,6 @@ module.exports = {
   "RES8_80" : RES8_80_weights,
   "RES8_NARROW" : RES8_NARROW_weights,
   "RES8_NARROW_40" : RES8_NARROW_40_weights,
-  "RES8_NARROW_80" : RES8_NARROW_80_weights
+  "RES8_NARROW_80" : RES8_NARROW_80_weights,
+  "iui" : iui_assistant
 };
