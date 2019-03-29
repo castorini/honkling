@@ -27,13 +27,13 @@ function CommandProcessor() {
     handler.registerProcessor(commandProcessor);
   }
 
-  registerHandler(new SearchYoutube());
-  registerHandler(new SearchGoogle());
-  registerHandler(new SearchWikipedia());
+  // registerHandler(new SearchYoutube());
+  // registerHandler(new SearchGoogle());
+  // registerHandler(new SearchWikipedia());
   registerHandler(new ControlVolume());
   registerHandler(new ListDir());
   registerHandler(new ListTop());
-  registerHandler(new ListMemory());
+  // registerHandler(new ListMemory());
   registerHandler(new OpenApp());
   // registerHandler(new ControlLight());
 

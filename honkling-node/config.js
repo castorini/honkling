@@ -3,11 +3,12 @@
 exports.modelName = "RES8_NARROW";
 
 exports.commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
-exports.mojibarCommands = ["silence", "unknown", "workplace", "volume", "up", "down", "wikipedia", "canada", "list", "one", "two", "three", "four", "right", "left", "open", "top", "memory"];
+exports.assistantCommands = ["silence", "unknown", "workspace", "volume", "up", "down", "list", "one", "two", "three", "four", "right", "left", "open", "top"];
+
 exports.lightCommands = ["silence", "unknown", "on", "off", "up", "down"];
 
 exports.predictionFrequency = 350; // ms between mic audio prediction
-exports.predictionThreshold = 0.85;
+exports.predictionThreshold = 0.90;
 exports.noiseThreshold = 0.015;
 exports.sampleRate = 16000;
 exports.meydaBufferSize = 512;
