@@ -3,8 +3,7 @@
 exports.modelName = "RES8_NARROW";
 
 exports.commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
-exports.mojibarCommands = ["silence", "unknown", "workplace", "volume", "up", "down", "wikipedia", "canada", "list", "one", "two", "three", "four", "right", "left", "open", "top", "memory"];
-exports.iuiCommands = ["silence", "unknown", "workspace", "volume", "up", "down", "list", "one", "two", "three", "four", "right", "left", "open", "top"];
+exports.assistantCommands = ["silence", "unknown", "workspace", "volume", "up", "down", "list", "one", "two", "three", "four", "right", "left", "open", "top"];
 
 exports.lightCommands = ["silence", "unknown", "on", "off", "up", "down"];
 

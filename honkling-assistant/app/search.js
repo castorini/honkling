@@ -53,7 +53,7 @@ function fetchAndUpdateLocalCache () {
 }
 
 let micProcessor = new MicAudioProcessor();
-let keywordSpotter = new KeywordSpotter("mojibar");
+let keywordSpotter = new KeywordSpotter("assistant");
 let commandProcessor = new CommandProcessor();
 
 displayManager.displayAudio();

@@ -16,7 +16,7 @@
 
 4. Start up honkling-assistant!
 
-&nbsp;&nbsp;&nbsp;&nbsp;`npm start`
+&nbsp;&nbsp;&nbsp;&nbsp;`npm run-script start`
 
 ## Usage
 
@@ -35,8 +35,6 @@
   Use `up` / `right` / `left` / `1` ~ `5` to navigate and `open` to open folder or start up application
 
 * `top` - display system resource usage of running processors
-
-* `memory` - display memory usage of running processors
 
 ## Built with
 

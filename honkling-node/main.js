@@ -7,8 +7,8 @@ function KeywordSpotter(modelName="RES8", modelType = "RES8", predThreshold = co
   this.predThreshold = predThreshold;
   if (modelName == "light") {
     this.model = new SpeechResModel(modelName, "RES8", config.lightCommands, predThreshold);
-  } else if (modelName == "mojibar") {
-    this.model = new SpeechResModel("iui", "RES8", config.iuiCommands, predThreshold);
+  } else if (modelName == "assistant") {
+    this.model = new SpeechResModel("assistant", "RES8", config.assistantCommands, predThreshold);
   } else {
     this.model = new SpeechResModel(modelType, modelType, config.commands, predThreshold);
   }
