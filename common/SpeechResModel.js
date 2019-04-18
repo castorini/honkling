@@ -325,14 +325,21 @@ class SpeechResModel {
 		console.log("valAcc : ", history["history"]["valAcc"]);
 
 		if (typeof(Storage) !== "undefined") {
-				this.storePersonalizedWeight();
+			this.storePersonalizedWeight();
 		}
 
 		return result;
 	}
 
 	predict(x) {
-		return this.model.predict(x);
+		if (!(x instanceof tf.Tensor)) {
+			x = tf.tensor(x);
+		}
+		let input_shape = this.config['input_shape'].slice();
+		input_shape.unshift(-1);
+		
+		let output = this.model.predict(x.reshape(input_shape));
+		return output.dataSync();
 	}
 
 	async save() {

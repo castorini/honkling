@@ -159,3 +159,18 @@ function calculateAccuracy(output, target) {
   }
   return correct/output.length;
 }
+
+function predictKeyword(x, model, commands) {
+  let output = model.predict(x);
+
+  let index = commands.indexOf("unknown");
+  let max_prob = 0;
+
+  for (let i = 0; i < commands.length; i++) {
+    if (output[i] > predictionThreshold && output[i] > max_prob) {
+      index = i;
+    }
+  }
+
+  return commands[index];
+}

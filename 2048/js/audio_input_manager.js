@@ -55,7 +55,7 @@ AudioInputManager.prototype.listen = function () {
     setInterval(function() {
       let offlineProcessor = new OfflineAudioProcessor(audioConfig, self.micAudioProcessor.getData());
       offlineProcessor.getMFCC().done(function(mfccData) {
-        let command = predict(mfccData, self.model, self.commands_2048);
+        let command = predictKeyword(mfccData, self.model, self.commands_2048);
         self.processCommand(command);
       })
     }, predictionFrequency);

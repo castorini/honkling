@@ -46,8 +46,17 @@ class PerformanceEvaluator {
     this.offlineProcessor = new OfflineAudioProcessor(audioConfig, data);
     this.offlineProcessor.getMFCC().done(function(mfccData) {
       evaluator.mfccCompEndTime = performance.now();
-      evaluator.prediction = predict(mfccData, model, commands);
+      let output = model.predict(mfccData);
       evaluator.endTime = performance.now();
+      let index = commands.indexOf("unknown");
+      let max_prob = 0;
+      for (let i = 0; i < commands.length; i++) {
+        if (output[i] > max_prob) {
+          index = i;
+          max_prob = output[i];
+        }
+      }
+      evaluator.prediction = commands[index];
       evaluator.audioRetrievalDeferred.resolve();
     }).fail(function(err) {
       evaluator.audioRetrievalDeferred.reject(err);
