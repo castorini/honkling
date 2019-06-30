@@ -7,7 +7,7 @@ Honkling can efficiently identify simple commands (e.g., "stop" and "go") in-bro
 
 Honkling implements a residual convolutional neural network [1] and utilizes [Speech Commands Dataset](https://research.googleblog.com/2017/08/launching-speech-commands-dataset.html) for training.
 
-Check out our [demo](https://youtu.be/NVLGJ0u-ou0) and click [here](https://castorini.github.io/honkling/) to have the keyword spotting system in your hand!
+Check out our [demo](https://youtu.be/DXK0FKSvc2Q) and click [here](https://castorini.github.io/honkling/) to have the keyword spotting system in your hand!
 
 ## Honkling-node & Honkling-assistant
 
@@ -25,7 +25,7 @@ Honkling can be personalized to individual user by recognizing the accent.
 From our experiments it is found that only 5 recordings of individual keyword can increase accuracy by up to 10\%!
 With GPU, personalization can be achieved within only 8 seconds.
 
-Record couple keywords and get Honkling personalized now! 
+Record couple keywords and get Honkling personalized now!
 
 ## Pre-trained Weights
 
