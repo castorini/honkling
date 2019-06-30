@@ -1,4 +1,4 @@
-# Honkling : In-Browser Keyword Spotting System
+# Honkling : JavaScript based Keyword Spotting System
 
 [Honkling](https://castorini.github.io/honkling/) is a novel web application with an in-browser keyword spotting system implemented with [TensorFlow.js](https://js.tensorflow.org/).
 
@@ -7,7 +7,7 @@ Honkling can efficiently identify simple commands (e.g., "stop" and "go") in-bro
 
 Honkling implements a residual convolutional neural network [1] and utilizes [Speech Commands Dataset](https://research.googleblog.com/2017/08/launching-speech-commands-dataset.html) for training.
 
-Click [here](https://castorini.github.io/honkling/) to have the keyword spotting system in your hand!
+Check out our [demo](https://youtu.be/NVLGJ0u-ou0) and click [here](https://castorini.github.io/honkling/) to have the keyword spotting system in your hand!
 
 ## Honkling-node & Honkling-assistant
 
@@ -18,6 +18,14 @@ Node.js implementation of Honkling is also available under [Honking-node](https:
 Details about Honkling-node and Honkling-assistant can be found in:
 
 * Jaejun Lee, Raphael Tang, and Jimmy Lin. 2019. Universal voice-enabled user interfaces using JavaScript. In Proceedings of the 24th International Conference on Intelligent User Interfaces: Companion (IUI '19). ACM, New York, NY, USA, 81-82. DOI: https://doi.org/10.1145/3308557.3308693
+
+## Personalization
+
+Honkling can be personalized to individual user by recognizing the accent.
+From our experiments it is found that only 5 recordings of individual keyword can increase accuracy by up to 10\%!
+With GPU, personalization can be achieved within only 8 seconds.
+
+Record couple keywords and get Honkling personalized now! 
 
 ## Pre-trained Weights
 
