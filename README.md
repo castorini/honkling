@@ -4,7 +4,7 @@
 
 Honkling can efficiently identify simple commands (e.g., "stop" and "go") in-browser without a network connection. It demonstrates cross-platform speech recognition capabilities for interactive intelligent agents with its pure JavaScript implementation. For more details, please consult our writeup:
 
-* Jaejun Lee, Raphael Tang, Jimmy Lin. [Honkling: In-Browser Personalization for Ubiquitous Keyword Spotting.](https://www.aclweb.org/anthology/D19-3016.pdf) _EMNLP-IJCNLP 2019_.
+* Jaejun Lee, Raphael Tang, Jimmy Lin. [Honkling: In-Browser Personalization for Ubiquitous Keyword Spotting.](https://www.aclweb.org/anthology/D19-3016/) _Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP): System Demonstrations_, pages 91-96.
 * Jaejun Lee, Raphael Tang, Jimmy Lin. [JavaScript Convolutional Neural Networks for Keyword Spotting in the Browser: An Experimental Analysis.](https://arxiv.org/abs/1810.12859) _arXiv:1810.12859_, October 2018.
 
 Honkling implements a residual convolutional neural network [1] and utilizes [Speech Commands Dataset](https://research.googleblog.com/2017/08/launching-speech-commands-dataset.html) for training.
@@ -17,7 +17,7 @@ Node.js implementation of Honkling is also available under [Honking-node](https:
 
 Details about Honkling-node and Honkling-assistant can be found in:
 
-* Jaejun Lee, Raphael Tang, and Jimmy Lin. 2019. Universal voice-enabled user interfaces using JavaScript. In Proceedings of the 24th International Conference on Intelligent User Interfaces: Companion (IUI '19). ACM, New York, NY, USA, 81-82. DOI: https://doi.org/10.1145/3308557.3308693
+* Jaejun Lee, Raphael Tang, and Jimmy Lin. 2019. [Universal Voice-Enabled User Interfaces Using JavaScript.](https://doi.org/10.1145/3308557.3308693) _Proceedings of the 24th International Conference on Intelligent User Interfaces: Companion (IUI '19)_, pages 81-82.
 
 ## Personalization
 
@@ -68,8 +68,5 @@ The following is the evaluation result on Macbook Pro (2017) with Firefox:
 
 ## Reference
 
-``[1].
-Deep Residual Learning for Small-Footprint Keyword Spotting, Raphael Tang, Jimmy Lin, ICASSP 2018``
-
-``[2].
-Learning Efficient Convolutional Networks through Network Slimming, Zhuang Liu, Jianguo Li, Zhiqiang Shen, Gao Huang, Shoumeng Yan, Changshui Zhang, ICCV 2017``
+1. Raphael Tang and Jimmy Lin. [Deep Residual Learning for Small-Footprint Keyword Spotting.](https://ieeexplore.ieee.org/document/8462688) _Proceedings of the 2018 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP 2018)_, pages 5484-5488.
+2.  Zhuang Liu, Jianguo Li, Zhiqiang Shen, Gao Huang, Shoumeng Yan, Changshui Zhang. [Learning Efficient Convolutional Networks through Network Slimming.](http://openaccess.thecvf.com/content_ICCV_2017/papers/Liu_Learning_Efficient_Convolutional_ICCV_2017_paper.pdf) _Proceedings of the 2017 IEEE International Conference on Computer Vision (ICCV 2017)_, pages 2755-2763.
