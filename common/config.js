@@ -1,18 +1,29 @@
 const serverURL = 'https://honkling.xyz:443';
 // const serverURL = 'http://localhost:8080';
 
-const commands = ["silence", "unknown", "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"];
+const commands = ["unknown", "hey_firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
 
-const predictionFrequency = 350; // ms between mic audio prediction
-const predictionThreshold = 0.85;
+// const predictionFrequency = 350; // ms between mic audio prediction
+// const audioConfig = {
+// 	'offlineSampleRate' : 16000,
+// 	'offlineHopSize' : 10, // in ms
+// 	'offlineWindowSize' : 30, // in ms
+// 	'micInputWaitTime' : 5, // in s
+// 	'noiseThreshold' : 0.050
+// }
 
+const predictionFrequency = 1000; // predict every second
+
+// firefox version
 const audioConfig = {
 	'offlineSampleRate' : 16000,
 	'offlineHopSize' : 10, // in ms
-	'offlineWindowSize' : 30, // in ms
+	'offlineWindowSize' : 25, // in ms
 	'micInputWaitTime' : 5, // in s
 	'noiseThreshold' : 0.050
 }
+
+const predictionThreshold = 0.85;
 
 const personalizationConfig = {
 	epochs : 50,

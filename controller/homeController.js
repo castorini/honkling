@@ -36,6 +36,7 @@ function toggleCommand(command) {
 }
 
 function updateToggledCommand(command) {
+  
   if (command == 'silence') {
     command = 'unknown';
   }
@@ -55,10 +56,11 @@ function updateToggledCommand(command) {
 }
 
 let micAudioProcessor = new MicAudioProcessor(audioConfig);
-let model = new SpeechResModel("RES8_NARROW", commands);
+let model = new SpeechResModel("RES8", commands);
 
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
+    //  micAudioProcessor.getData().length = 16324
     let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
     offlineProcessor.getMFCC().done(function(mfccData) {
       updateToggledCommand(predictKeyword(mfccData, model, commands));

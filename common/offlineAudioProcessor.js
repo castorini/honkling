@@ -38,6 +38,9 @@ class OfflineAudioProcessor {
       }
     }
 
+    // audioSourceData.length = 26240
+    // this.audioData.length = 16324
+
     // Get an AudioBufferSourceNode.
     // This is the AudioNode to use when we want to play an AudioBuffer
     this.audioSource = this.audioContext.createBufferSource();
