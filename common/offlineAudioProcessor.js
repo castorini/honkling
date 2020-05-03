@@ -6,7 +6,7 @@ class OfflineAudioProcessor {
   constructor(config, audioData) {
     offlineProc = this;
     this.offlineSampleRate = config.offlineSampleRate;
-    this.offlineHopSize = config.offlineHopSize;
+    this.meydaHopSize = this.offlineSampleRate / 1000 * config.offlineHopSize;
     this.window_size = config.window_size * config.offlineSampleRate; // convert from s to n_samples
     this.audioData = audioData;
 
@@ -16,8 +16,7 @@ class OfflineAudioProcessor {
     // which means that we have to pass in at least 32 ms
     // As a result, 32 ms length of feature is used for each 30 ms window
 
-    // mfccDataLength = window_size / meydaHopSize + 1
-    this.mfccDataLength = Math.floor(this.window_size / 512) + 1;
+    this.mfccDataLength = Math.floor(this.window_size / this.meydaHopSize) + 1;
 
     this.deferred = $.Deferred();
     this.mfcc = [];
@@ -57,15 +56,11 @@ class OfflineAudioProcessor {
       offlineProc.mfcc.push(mfcc);
     }
 
-    // var meydaHopSize = this.offlineSampleRate / 1000 * this.offlineHopSize;
-    // firefox
-    var meydaHopSize = 512;
-
     this.meyda = Meyda.createMeydaAnalyzer({
       bufferSize: this.bufferSize,
       source: this.audioSource,
       audioContext: this.audioContext,
-      hopSize: meydaHopSize,
+      hopSize: this.meydaHopSize,
       callback: postProcessing,
       sampleRate: this.offlineSampleRate,
     });

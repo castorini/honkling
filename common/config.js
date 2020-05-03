@@ -17,7 +17,7 @@ const predictionFrequency = 1000; // predict every second
 // firefox version
 const audioConfig = {
 	'offlineSampleRate' : 16000,
-	'offlineHopSize' : 10, // in ms
+	'offlineHopSize' : 12.5, // in ms (half of offlineWindowSize)
 	'offlineWindowSize' : 25, // in ms
 	'micInputWaitTime' : 5, // in s
 	'noiseThreshold' : 0.050,
@@ -195,7 +195,7 @@ const modelConfig = {
 	// // ResNet Config
 	//
 	RES8 : {
-		input_shape : [79, 80, 1],
+		input_shape : [201, 80, 1],
 		n_layers : 6,
 		n_feature_maps : 45,
 		res_pool : [3, 4],
