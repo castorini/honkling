@@ -60,7 +60,7 @@ let model = new SpeechResModel("RES8", commands);
 
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
-    //  micAudioProcessor.getData().length = 16324
+    // micAudioProcessor.getData().length = 16324 * window_size_in_sec
     let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
     offlineProcessor.getMFCC().done(function(mfccData) {
       updateToggledCommand(predictKeyword(mfccData, model, commands));

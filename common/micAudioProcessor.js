@@ -1,9 +1,12 @@
 let micProc;
 
 class MicAudioProcessor {
-  constructor() {
+  constructor(audioConfig) {
     micProc = this;
 
+    this.offlineSampleRate = audioConfig.offlineSampleRate;
+    this.window_size = audioConfig.window_size * this.offlineSampleRate; // convert from s to n_samples
+    
     if (window.hasOwnProperty('webkitAudioContext') &&
     !window.hasOwnProperty('AudioContext')) {
       window.AudioContext = webkitAudioContext;
@@ -73,7 +76,7 @@ class MicAudioProcessor {
 
   initDownSampleNode() {
     this.downSampleNode = this.audioContext.createScriptProcessor(this.srcBufferSize, 1, 1);
-    this.downSampledBufferSize = (audioConfig.offlineSampleRate / this.browserSampleRate) * this.srcBufferSize;
+    this.downSampledBufferSize = (this.offlineSampleRate / this.browserSampleRate) * this.srcBufferSize;
 
     function interpolateArray(data, fitCount) {
       var linearInterpolate = function (before, after, atPoint) {
@@ -97,10 +100,13 @@ class MicAudioProcessor {
     this.downSampleNode.onaudioprocess = function(audioProcessingEvent) {
       var inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
       var downSampledData = interpolateArray(inputData, micProc.downSampledBufferSize);
-      if (micProc.data.length > audioConfig.offlineSampleRate) {
-        micProc.data.splice(0, micProc.downSampledBufferSize);
-      }
+
       micProc.data = micProc.data.concat(downSampledData);
+
+      // always keep last window
+      if (micProc.data.length > micProc.window_size) {
+        micProc.data.splice(0, micProc.data.length - micProc.window_size);
+      }
     }
   }
 

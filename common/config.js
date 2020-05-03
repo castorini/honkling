@@ -20,7 +20,8 @@ const audioConfig = {
 	'offlineHopSize' : 10, // in ms
 	'offlineWindowSize' : 25, // in ms
 	'micInputWaitTime' : 5, // in s
-	'noiseThreshold' : 0.050
+	'noiseThreshold' : 0.050,
+	'window_size' : 2.5 // in s
 }
 
 const predictionThreshold = 0.85;
@@ -194,7 +195,7 @@ const modelConfig = {
 	// // ResNet Config
 	//
 	RES8 : {
-		input_shape : [40, 101, 1],
+		input_shape : [79, 80, 1],
 		n_layers : 6,
 		n_feature_maps : 45,
 		res_pool : [3, 4],

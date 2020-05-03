@@ -5,29 +5,34 @@ var offlineProc;
 class OfflineAudioProcessor {
   constructor(config, audioData) {
     offlineProc = this;
-    this.config = config;
+    this.offlineSampleRate = config.offlineSampleRate;
+    this.offlineHopSize = config.offlineHopSize;
+    this.window_size = config.window_size * config.offlineSampleRate; // convert from s to n_samples
     this.audioData = audioData;
 
-    this.mfccDataLength = 101;
     this.bufferSize = 512;
     // when audio features are down sampled to SR of 16000, each 30ms window will have size of 480
     // Unfortunately, minimum buffer size that meyda supports is 512.
     // which means that we have to pass in at least 32 ms
     // As a result, 32 ms length of feature is used for each 30 ms window
-    // TODO :: bufferSize and mfccDataLength can be dynamic based sampleRate & offlineWindowSize
+
+    // mfccDataLength = window_size / meydaHopSize + 1
+    this.mfccDataLength = Math.floor(this.window_size / 512) + 1;
 
     this.deferred = $.Deferred();
     this.mfcc = [];
 
-    this.audioContext = new OfflineAudioContext(1, config.offlineSampleRate + (this.bufferSize * 20), config.offlineSampleRate);
+    this.audioContext = new OfflineAudioContext(1, this.window_size + (this.bufferSize * 20), this.offlineSampleRate);
+    // (this.bufferSize * 20)
     // make length of the context long enough that mfcc always gets enough buffers to process
+    // consider the delay for starting/stopping the meyda audio context
 
     this.initBufferSourceNode();
     this.initMeydaNode();
   }
 
   initBufferSourceNode() {
-    let audioSourceBuffer = this.audioContext.createBuffer(1, this.audioContext.length, this.config.offlineSampleRate);
+    let audioSourceBuffer = this.audioContext.createBuffer(1, this.audioContext.length, this.offlineSampleRate);
     let audioSourceData = audioSourceBuffer.getChannelData(0);
 
     for (let i = 0; i < audioSourceBuffer.length; i++) {
@@ -38,8 +43,8 @@ class OfflineAudioProcessor {
       }
     }
 
-    // audioSourceData.length = 26240
-    // this.audioData.length = 16324
+    // audioSourceData.length == this.audioContext.length
+    // this.audioData.length == window_size
 
     // Get an AudioBufferSourceNode.
     // This is the AudioNode to use when we want to play an AudioBuffer
@@ -52,7 +57,9 @@ class OfflineAudioProcessor {
       offlineProc.mfcc.push(mfcc);
     }
 
-    var meydaHopSize = this.config.offlineSampleRate / 1000 * this.config.offlineHopSize;
+    // var meydaHopSize = this.offlineSampleRate / 1000 * this.offlineHopSize;
+    // firefox
+    var meydaHopSize = 512;
 
     this.meyda = Meyda.createMeydaAnalyzer({
       bufferSize: this.bufferSize,
@@ -60,7 +67,7 @@ class OfflineAudioProcessor {
       audioContext: this.audioContext,
       hopSize: meydaHopSize,
       callback: postProcessing,
-      sampleRate: this.config.offlineSampleRate,
+      sampleRate: this.offlineSampleRate,
     });
   }
 
@@ -72,9 +79,13 @@ class OfflineAudioProcessor {
       offlineProc.meyda.stop();
       offlineProc.audioSource.disconnect();
       offlineProc.mfcc = offlineProc.mfcc.slice(0, offlineProc.mfccDataLength);
+      // if data we get from meyda is shorter than what we expected
+      // due to some delays between two audio processor
       if (offlineProc.mfcc.length < offlineProc.mfccDataLength) {
         while (offlineProc.mfcc.length != offlineProc.mfccDataLength) {
-          offlineProc.mfcc.push(new Array(40).fill(0));
+          // offlineProc.mfcc.push(new Array(40).fill(0));
+          // firefox
+          offlineProc.mfcc.push(new Array(80).fill(0));
         }
       }
       offlineProc.mfcc = transposeFlatten2d(offlineProc.mfcc);
