@@ -160,17 +160,46 @@ function calculateAccuracy(output, target) {
   return correct/output.length;
 }
 
-function predictKeyword(x, model, commands) {
-  let output = model.predict(x);
+// old version
+// function predictKeyword(x, model, commands) {
+//   let output = model.predict(x);
 
-  let index = commands.indexOf("unknown");
-  let max_prob = 0;
+//   let index = commands.indexOf("unknown");
+//   let max_prob = 0;
 
-  for (let i = 0; i < commands.length; i++) {
-    if (output[i] > predictionThreshold && output[i] > max_prob) {
-      index = i;
-    }
+//   for (let i = 0; i < commands.length; i++) {
+//     if (output[i] > predictionThreshold && output[i] > max_prob) {
+//       index = i;
+//     }
+//   }
+
+//   return commands[index];
+// }
+
+class InferenceEngine {
+
+  constructor(config) {
+    this.predictionThreshold = config['predictionThreshold'];
+    this.alpha = config['alpha'];
+    this.value = 0;
   }
 
-  return commands[index];
+  infer(x, model, commands) {
+    let output = model.predict(x);
+
+    let firefox_index = commands.indexOf("hey_firefox");
+
+    let p = output[firefox_index];
+    this.value = this.value * (1 - this.alpha) + this.alpha * p
+
+    let index = 0; // unknown
+    if (this.value > this.predictionThreshold) {
+      index = 1
+    }
+
+    console.log(commands[index], this.value, p)
+
+    return commands[index]
+  }
 }
+

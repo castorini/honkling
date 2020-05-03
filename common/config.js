@@ -12,7 +12,7 @@ const commands = ["unknown", "hey_firefox", "unknown2", "unknown3", "unknown4", 
 // 	'noiseThreshold' : 0.050
 // }
 
-const predictionFrequency = 1000; // predict every second
+const predictionFrequency = 100; // predict every 100 ms
 
 // firefox version
 const audioConfig = {
@@ -24,7 +24,10 @@ const audioConfig = {
 	'window_size' : 2.5 // in s
 }
 
-const predictionThreshold = 0.85;
+const inferConfig = {
+	'predictionThreshold' : 0.93,
+	'alpha' : 0.8,
+}
 
 const personalizationConfig = {
 	epochs : 50,

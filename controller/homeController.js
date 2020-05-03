@@ -1,6 +1,7 @@
 let toggleTime = 1500;
 
 function init_view(commands) {
+  commands = ["unknown", "hey_firefox"]
   reordered = [];
   commands.forEach(function(command) {
     if (command != "silence" && command != "unknown") {
@@ -41,6 +42,10 @@ function updateToggledCommand(command) {
     command = 'unknown';
   }
 
+  if (command != 'hey_firefox') {
+    command = 'unknown';
+  }
+
   currentTime = new Date().getTime();
 
   if (command != 'unknown') {
@@ -57,13 +62,15 @@ function updateToggledCommand(command) {
 
 let micAudioProcessor = new MicAudioProcessor(audioConfig);
 let model = new SpeechResModel("RES8", commands);
+let inferenceEngine = new InferenceEngine(inferConfig);
 
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
     // micAudioProcessor.getData().length = 16324 * window_size_in_sec
     let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
     offlineProcessor.getMFCC().done(function(mfccData) {
-      updateToggledCommand(predictKeyword(mfccData, model, commands));
+      command = inferenceEngine.infer(mfccData, model, commands);
+      updateToggledCommand(command);
     });
   }, predictionFrequency);
 }).fail(function() {
