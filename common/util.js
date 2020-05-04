@@ -178,28 +178,82 @@ function calculateAccuracy(output, target) {
 
 class InferenceEngine {
 
-  constructor(config) {
+  constructor(config, commands) {
     this.predictionThreshold = config['predictionThreshold'];
     this.alpha = config['alpha'];
-    this.value = 0;
+    this.value = [];
+    for (var i = 0; i < commands.length; i++) {
+      this.value.push(0)
+    }
   }
 
   infer(x, model, commands) {
     let output = model.predict(x);
 
-    let firefox_index = commands.indexOf("hey_firefox");
+    let msg = ""
 
-    let p = output[firefox_index];
-    this.value = this.value * (1 - this.alpha) + this.alpha * p
+    for (var i = 0; i < commands.length; i++) {
+      this.value[i] = this.value[i] * (1 - this.alpha) + this.alpha * output[i]
 
-    let index = 0; // unknown
-    if (this.value > this.predictionThreshold) {
-      index = 1
+      // msg += String(output[i])
+      // if (i < commands.length-1) {
+      //   msg += ", "
+      // }
     }
 
-    console.log(commands[index], this.value, p)
+    let index = commands.indexOf("unknown");
+    let max_prob = 0;
 
-    return commands[index]
+    for (let i = 0; i < commands.length; i++) {
+      if (this.value[i] > max_prob) {
+        index = i;
+        max_prob = this.value[i]
+      }
+
+      msg += String(this.value[i])
+      if (i < commands.length-1) {
+        msg += ", "
+      }
+    }
+
+    let command = commands[index]
+
+    if (command == "hey" || command == "fire" || command == "fox") {
+
+      if (max_prob > this.predictionThreshold) {
+        console.log("%c%s: %s", "color:green", command, msg);
+      } else if (max_prob > 0.75) {
+        console.log("%c%s: %s", "color:yellowgreen", command, msg);
+      } else if (max_prob > 0.5) {
+        console.log("%c%s: %s", "color:gold", command, msg);
+      } else if (max_prob > 0.25) {
+        console.log("%c%s: %s", "color:orange", command, msg);
+      } else {
+        console.log("%c%s: %s", "color:red", command, msg);
+      }
+    } else {
+      console.log("%s: %s", command, msg);
+    }
+
+    return command
   }
 }
 
+// Function to download data to a file
+function download(data, filename, type) {
+    var file = new Blob([data], {type: type});
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        }, 0); 
+    }
+}

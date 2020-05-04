@@ -1,7 +1,8 @@
 const serverURL = 'https://honkling.xyz:443';
 // const serverURL = 'http://localhost:8080';
 
-const commands = ["unknown", "hey_firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
+// const commands = ["unknown", "hey_firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
+const commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
 
 // const predictionFrequency = 350; // ms between mic audio prediction
 // const audioConfig = {
@@ -21,7 +22,7 @@ const audioConfig = {
 	'offlineWindowSize' : 25, // in ms
 	'micInputWaitTime' : 5, // in s
 	'noiseThreshold' : 0.050,
-	'window_size' : 2.5 // in s
+	'window_size' : 0.75 // in s
 }
 
 const inferConfig = {
@@ -197,8 +198,18 @@ const modelConfig = {
 	//
 	// // ResNet Config
 	//
+	// Firefox
+	// RES8 : {
+	// 	input_shape : [201, 80, 1],
+	// 	n_layers : 6,
+	// 	n_feature_maps : 45,
+	// 	res_pool : [3, 4],
+	// 	conv_size : [3, 3],
+	// 	conv_stride : [1, 1],
+	// 	use_dilation : false
+	// },
 	RES8 : {
-		input_shape : [201, 80, 1],
+		input_shape : [61, 80, 1],
 		n_layers : 6,
 		n_feature_maps : 45,
 		res_pool : [3, 4],
