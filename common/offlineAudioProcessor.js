@@ -8,6 +8,7 @@ class OfflineAudioProcessor {
     this.offlineSampleRate = config.offlineSampleRate;
     this.meydaHopSize = this.offlineSampleRate / 1000 * config.offlineHopSize;
     this.window_size = config.window_size * config.offlineSampleRate; // convert from s to n_samples
+    this.padding_size = config.padding_size
     this.audioData = audioData;
 
     this.bufferSize = 512;
@@ -21,8 +22,7 @@ class OfflineAudioProcessor {
     this.deferred = $.Deferred();
     this.mfcc = [];
 
-    this.audioContext = new OfflineAudioContext(1, this.window_size + (this.bufferSize * 20), this.offlineSampleRate);
-    // (this.bufferSize * 20)
+    this.audioContext = new OfflineAudioContext(1, this.window_size + this.padding_size, this.offlineSampleRate);
     // make length of the context long enough that mfcc always gets enough buffers to process
     // consider the delay for starting/stopping the meyda audio context
 
@@ -86,12 +86,12 @@ class OfflineAudioProcessor {
       offlineProc.mfcc = transposeFlatten2d(offlineProc.mfcc);
 
       // // ZMUV
-      // offlineProc.mfcc.forEach(function(part, index) {
+      offlineProc.mfcc.forEach(function(part, index) {
       //   // full word
       //   // this[index] = (this[index] - (-1.8421)) / 3.8083
       //   // 4 words
-      //   this[index] = (this[index] - (-2.1863)) / 4.2837
-      // }, offlineProc.mfcc);
+        this[index] = (this[index] - (-2.1863)) / 4.2837
+      }, offlineProc.mfcc);
 
       offlineProc.deferred.resolve(offlineProc.mfcc);
 

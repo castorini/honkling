@@ -28,6 +28,8 @@ class MicAudioProcessor {
     // once audio of 44100 features is down sampled to 16000 features,
     // resulting number of features is 15953
 
+    this.padding_size = audioConfig.padding_size
+
     this.initDownSampleNode();
     this.data = [];
   }
@@ -104,8 +106,8 @@ class MicAudioProcessor {
       micProc.data = micProc.data.concat(downSampledData);
 
       // always keep last window
-      if (micProc.data.length > micProc.window_size) {
-        micProc.data.splice(0, micProc.data.length - micProc.window_size);
+      if (micProc.data.length > micProc.window_size + micProc.padding_size) {
+        micProc.data.splice(0, micProc.data.length - (micProc.window_size + micProc.padding_size));
       }
     }
   }

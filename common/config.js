@@ -22,7 +22,8 @@ const audioConfig = {
 	'offlineWindowSize' : 25, // in ms
 	'micInputWaitTime' : 5, // in s
 	'noiseThreshold' : 0.050,
-	'window_size' : 0.75 // in s
+	'window_size' : 0.75, // in s
+	'padding_size' : 6000 // in samples
 }
 
 const inferConfig = {
@@ -212,7 +213,7 @@ const modelConfig = {
 		input_shape : [61, 80, 1],
 		n_layers : 6,
 		n_feature_maps : 45,
-		res_pool : [3, 4],
+		res_pool : [4, 3],
 		conv_size : [3, 3],
 		conv_stride : [1, 1],
 		use_dilation : false
