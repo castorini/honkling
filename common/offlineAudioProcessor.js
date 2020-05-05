@@ -85,11 +85,11 @@ class OfflineAudioProcessor {
       }
       offlineProc.mfcc = transposeFlatten2d(offlineProc.mfcc);
 
-      // // ZMUV
+      // ZMUV
       offlineProc.mfcc.forEach(function(part, index) {
-      //   // full word
-      //   // this[index] = (this[index] - (-1.8421)) / 3.8083
-      //   // 4 words
+        // full word
+        // this[index] = (this[index] - (-1.8421)) / 3.8083
+        // 4 words
         this[index] = (this[index] - (-2.1863)) / 4.2837
       }, offlineProc.mfcc);
 

@@ -27,8 +27,8 @@ const audioConfig = {
 }
 
 const inferConfig = {
-	'predictionThreshold' : 0.93,
-	'alpha' : 0.8,
+	'predictionThreshold' : 0.9,
+	'alpha' : 0.9,
 }
 
 const personalizationConfig = {
@@ -210,10 +210,10 @@ const modelConfig = {
 	// 	use_dilation : false
 	// },
 	RES8 : {
-		input_shape : [61, 80, 1],
+		input_shape : [80, 61, 1],
 		n_layers : 6,
 		n_feature_maps : 45,
-		res_pool : [4, 3],
+		res_pool : [3, 4],
 		conv_size : [3, 3],
 		conv_stride : [1, 1],
 		use_dilation : false
