@@ -9,16 +9,19 @@ function init_view(commands) {
     }
   });
 
-  let split = Math.floor(reordered.length/2)
-  for (let i = 0; i < split; i++) {
+  // let split = Math.floor(reordered.length/2)
+  for (let i = 0; i < reordered.length; i++) {
       $('#commandList1').append(
         $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i].toUpperCase()));
   }
 
-  for (let i = split; i < reordered.length; i++) {
-      $('#commandList2').append(
-        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i].toUpperCase()));
-  }
+  // for (let i = split; i < reordered.length; i++) {
+  //     $('#commandList2').append(
+  //       $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i].toUpperCase()));
+  // }
+
+  $('#commandList2').append(
+    $('<li>').attr('class','list-group-item hey_fire_fox_button text-center').append("hey firefox"));
 
   $('#commandList3').append(
     $('<li>').attr('class','list-group-item unknown_button text-center').append("unknown"));
@@ -35,6 +38,21 @@ function toggleCommand(command) {
   $('.commandList .active').removeClass('active');
   $('.commandList .'+command+'_button').addClass('active');
 }
+
+function toggleFullWord() {
+  console.log("HEY FIREFOX DETECTED")
+  $('.commandList .hey_fire_fox_button').addClass('active');
+  setTimeout(function () {
+    $('.commandList .hey_fire_fox_button').removeClass('active');
+  }, 4000);
+}
+
+let status = 0;
+let detectCounter = 0;
+// status 
+// 0 = nothing
+// 1 = hey within last x frames
+// 2 = hey fire within last x frames
 
 function updateToggledCommand(command) {
   
@@ -58,6 +76,46 @@ function updateToggledCommand(command) {
     $('#statusBar').text('Say one of the following keywords');
     toggleCommand(command);
   }
+
+  if (command == "hey") {
+    if (status == 2) { // incorrect timing
+      detectCounter = 0;
+      status = 0;
+    } else if (status == 0) { // correct timing
+      status = 1;
+      detectCounter = 0;
+    }
+  } else if (command == "fire") {
+    if (detectCounter > 0 && status == 2) { // duplicated words
+      detectCounter = 0;
+      status = 0;
+    } else if (status == 0) { // incorrect timing
+      detectCounter = 0;
+      status = 0;
+    } else if (status == 1) { // correct timing
+      status = 2;
+      detectCounter = 0;
+    }
+
+  } else if (command == "fox") {
+    if (status == 2) { // correct timing
+      toggleFullWord();
+      detectCounter = 0;
+      status = 0;
+    } else { // incorrect timing
+      detectCounter = 0;
+      status = 0;
+    }
+  }
+
+  if (command == "unknown" && status != 0) {
+    detectCounter += 1;
+    if (detectCounter > detectCounterThreshold) {
+      detectCounter = 0;
+      status = 0;
+    }
+  }
+
 }
 
 let micAudioProcessor = new MicAudioProcessor(audioConfig);
