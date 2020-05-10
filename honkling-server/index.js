@@ -14,6 +14,10 @@ app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/view/index.html'));
 });
 
+app.get('/pocketsphinx', function(req, res) {
+    res.sendFile(path.join(__dirname + '/view/pocketsphinx.html'));
+});
+
 app.use(express.static(__dirname));
 
 const PORT = process.env.PORT || 8000;

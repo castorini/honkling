@@ -35,8 +35,8 @@ let lastToggleTime = 0;
 function toggleCommand(command) {
   lastCommand = command;
   lastToggleTime = new Date().getTime();
-  $('.commandList .active').removeClass('active');
-  $('.commandList .'+command+'_button').addClass('active');
+  $('.commandList1 .active').removeClass('active');
+  $('.commandList1 .'+command+'_button').addClass('active');
 }
 
 function toggleFullWord() {
@@ -44,7 +44,7 @@ function toggleFullWord() {
   $('.commandList .hey_fire_fox_button').addClass('active');
   setTimeout(function () {
     $('.commandList .hey_fire_fox_button').removeClass('active');
-  }, 4000);
+  }, 3000);
 }
 
 let status = 0;

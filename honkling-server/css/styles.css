@@ -1,0 +1,120 @@
+@import url(fonts/clear-sans.css);
+
+body {
+  padding: 2rem 0;
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.col-centered {
+  float: none;
+  margin: 0 auto;
+}
+
+.row {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.list-group-item-dark.active {
+  background-color: #d9534f !important;
+  border-color: #d43f3a !important;
+}
+
+#logo {
+  width: 100px;
+  height: 120px;
+}
+
+.nav{
+  border:1px solid #ccc;
+  border-width:1px 0;
+  list-style:none;
+  margin:0;
+  padding:0;
+  text-align:center;
+  display: block;
+}
+
+.nav li{
+  display:inline;
+}
+
+.nav a{
+  display:inline-block;
+  padding:10px;
+  color:grey;
+}
+
+.nav a:hover {
+  color:black;
+}
+
+th {
+  vertical-align: middle !important
+}
+
+.valEvaluation {
+  margin-bottom: 20px;
+}
+
+.positiveReportTableWrapper {
+  padding-top: 20px;
+}
+
+.negativeReportTableWrapper {
+  padding-top: 20px;
+}
+
+.modelSelect {
+  padding: 3px;
+  width: 200px;
+}
+
+.vertical-text-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.list-group {
+  display: list-item;
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+}
+
+.unknown_button {
+  width: 450px !important;
+}
+
+.list-group li {
+  display: inline-block;
+  padding: 2px;
+  width: 150px;
+}
+
+.github-link {
+  color: inherit;
+}
+
+#waveform {
+  margin: 0 auto;
+  height: 100px;
+  width: 450px;
+}
+
+#waveformWrapper {
+  margin-top: -30px;
+}
+
+#personalizedBtnDiv {
+  margin-left: 30%;
+  margin-right: 30%;
+}
