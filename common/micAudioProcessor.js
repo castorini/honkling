@@ -6,7 +6,7 @@ class MicAudioProcessor {
 
     this.offlineSampleRate = audioConfig.offlineSampleRate;
     this.window_size = audioConfig.window_size * this.offlineSampleRate; // convert from s to n_samples
-    
+
     if (window.hasOwnProperty('webkitAudioContext') &&
     !window.hasOwnProperty('AudioContext')) {
       window.AudioContext = webkitAudioContext;

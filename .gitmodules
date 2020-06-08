@@ -1,6 +1,4 @@
-[submodule "honkling-node/models"]
-	path = honkling-node/models
-	url = https://github.com/castorini/honkling-models.git
-[submodule "models"]
-	path = models
-	url = https://github.com/castorini/honkling-models.git
+[submodule "honkling-models"]
+	path = honkling-models
+	url = git@github.com:castorini/honkling-models.git
+	branch = firefox

@@ -6,5 +6,6 @@ data/personalized_speech_commands
 data/*.gz
 *.swp
 **/__pycache__
-**/node_modules
+/node_modules
+package-lock.json
 honkling-assistant/Mojibar-darwin-x64
