@@ -4,6 +4,7 @@ const commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unkn
 
 let detectCounterThreshold = 10;
 const predictionFrequency = 100; // predict every 100 ms
+let use_meyda = true;
 
 // firefox version
 const audioConfig = {
@@ -14,6 +15,29 @@ const audioConfig = {
 	'noiseThreshold' : 0.050,
 	'window_size' : 0.75, // in s
 	'padding_size' : 6000 // in samples
+}
+
+// firefox version
+const melSpectrogramConfig = {
+  'sample_rate' : 16000,
+  'spectrogram' : null,
+  'n_fft' : 512,
+  'hop_length' : 200,
+  'win_length' : null,
+  'window' : 'hann',
+  'center' : true,
+  'pad_mode' : 'reflect',
+  'power' : 2.0,
+  'n_mels' : 80,
+  'f_min' : 0, // 20
+  'f_max' : 8000, // 40
+  'htk': true, // librosa false
+  'norm': false // librosa true
+}
+
+const zmuvConfig = {
+  "mean": -2.0045,
+  "std": 4.0985
 }
 
 const inferConfig = {

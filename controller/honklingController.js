@@ -1,17 +1,37 @@
 let micAudioProcessor = new MicAudioProcessor(audioConfig);
 let model = new SpeechResModel("RES8", commands);
 let inferenceEngine = new InferenceEngine(inferConfig, commands);
+let melSpectrogram = new MelSpectrogram(melSpectrogramConfig);
+
+let input_length = audioConfig['offlineSampleRate'] * audioConfig["window_size"];
 
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
-    // micAudioProcessor.getData().length = 16324 * window_size_in_sec
 
-    let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
-    offlineProcessor.getMFCC().done(function(mfccData) {
+    if (use_meyda) {
+      let offlineProcessor = new OfflineAudioProcessor(audioConfig, micAudioProcessor.getData());
+      offlineProcessor.getMFCC().done(function(mfccData) {
 
-      command = inferenceEngine.infer(mfccData, model, commands);
+        command = inferenceEngine.infer(mfccData, model, commands);
+        updateToggledCommand(command);
+      });
+    } else {
+
+      if (micAudioProcessor.getData().length < input_length) {
+        return;
+      }
+
+      // micAudioProcessor.getData().length = 16324 * window_size_in_sec
+
+      let mel_spectrogram_data = melSpectrogram.extract(micAudioProcessor.getData().slice(0, input_length));
+
+      let log_mels_data = mel_spectrogram_data.add(0.0000007).log();
+
+      let zmuv_sample = log_mels_data.sub(zmuvConfig["mean"]).div(zmuvConfig["std"])
+
+      command = inferenceEngine.infer(zmuv_sample, model, commands);
       updateToggledCommand(command);
-    });
+    }
   }, predictionFrequency);
 }).fail(function() {
   alert('mic permission is required, please enable the mic usage!');

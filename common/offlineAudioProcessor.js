@@ -90,7 +90,8 @@ class OfflineAudioProcessor {
         // full word
         // this[index] = (this[index] - (-1.8421)) / 3.8083
         // 4 words
-        this[index] = (this[index] - (-2.0045)) / 4.0985
+
+        this[index] = (this[index] - (zmuvConfig["mean"])) / zmuvConfig["std"]
       }, offlineProc.mfcc);
 
       offlineProc.deferred.resolve(offlineProc.mfcc);
