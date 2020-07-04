@@ -15,20 +15,42 @@ class MelSpectrogram {
     this.htk = config['htk'];
     this.norm = config['norm'];
 
-    console.log("sample_rate: ", this.sample_rate);
-    console.log("spectrogram: ", this.spectrogram);
-    console.log("n_fft: ", this.n_fft);
-    console.log("hop_length: ", this.hop_length);
-    console.log("win_length: ", this.win_length);
-    console.log("window: ", this.window);
-    console.log("center: ", this.center);
-    console.log("pad_mode: ", this.pad_mode);
-    console.log("power: ", this.power);
-    console.log("n_mel: ", this.n_mel);
-    console.log("f_min: ", this.f_min);
-    console.log("f_max: ", this.f_max);
-    console.log("htk: ", this.htk);
-    console.log("norm: ", this.norm);
+    // console.log("sample_rate: ", this.sample_rate);
+    // console.log("spectrogram: ", this.spectrogram);
+    // console.log("n_fft: ", this.n_fft);
+    // console.log("hop_length: ", this.hop_length);
+    // console.log("win_length: ", this.win_length);
+    // console.log("window: ", this.window);
+    // console.log("center: ", this.center);
+    // console.log("pad_mode: ", this.pad_mode);
+    // console.log("power: ", this.power);
+    // console.log("n_mel: ", this.n_mel);
+    // console.log("f_min: ", this.f_min);
+    // console.log("f_max: ", this.f_max);
+    // console.log("htk: ", this.htk);
+    // console.log("norm: ", this.norm);
+
+    if (config['use_precomputed']) {
+      console.log("Using precomuted static values");
+      this.mel_basis = tf.tensor(mel_basis);
+      this.fft_window = tf.tensor(hanningWindow);
+    } else {
+      console.log("Computing static values with tfjs");
+      // Build a Mel filter
+      // build it on the fly
+      this.mel_basis = this.mel_filter(
+        this.sample_rate, // sr
+        this.n_fft, // n_fft
+        this.n_mels, // n_mels
+        this.f_min, // fmin
+        this.f_max, // fmax
+        this.htk, // fmax
+        this.norm // fmax
+      );
+
+      // fft_window
+      this.fft_window = this.get_hanning_window(this.n_fft);
+    }
   }
 
   pad_center(data, size) {
@@ -141,19 +163,12 @@ class MelSpectrogram {
   get_hanning_window(
     M
   ) {
-    M += 1
-    let fac = tf.linspace(-Math.PI, Math.PI, M);
+    M = M + 1
+    let fac = tf.range(0, M*2, 2);
+    fac = fac.mul(Math.PI).div(M-1);
 
-    let k = tf.scalar(0);
-    let a1 = tf.scalar(0.5);
-    let w1 = fac.mul(k).cos().mul(a1);
-
-    k = tf.scalar(1);
-    let a2 = tf.scalar(0.5);
-    let w2 = fac.mul(k).cos().mul(a2);
-
-    let w = w1.add(w2);
-
+    let k = tf.scalar(1);
+    let w = k.sub(fac.cos()).mul(0.5);
     w = tf.slice(w, 0, M-1);
     return w;
   }
@@ -235,11 +250,6 @@ class MelSpectrogram {
       hop_length = Math.floor(win_length / 4);
     }
 
-    let fft_window = this.get_hanning_window(win_length);
-
-    // Pad the window out to n_fft size
-    fft_window = this.pad_center(fft_window, n_fft)
-
     // Pad the time series so that frames are centered
     if (center) {
       y = this.pad_reflect(y, y.shape[0] + n_fft)
@@ -247,7 +257,7 @@ class MelSpectrogram {
 
     // Window the time series.
     let y_frames = tf.signal.frame(y, n_fft, hop_length);
-    let windowed = y_frames.mul(fft_window);
+    let windowed = y_frames.mul(this.fft_window);
     return tf.spectral.rfft(windowed);
   }
 
@@ -303,20 +313,10 @@ class MelSpectrogram {
       this.center, // center
       this.pad_mode // pad_mode
     );
+
     let S = result['S'];
     let n_fft = result['n_fft'];
 
-    // Build a Mel filter
-    let mel_basis = this.mel_filter(
-      this.sample_rate, // sr
-      this.n_fft, // n_fft
-      this.n_mels, // n_mels
-      this.f_min, // fmin
-      this.f_max, // fmax
-      this.htk, // fmax
-      this.norm // fmax
-    );
-
-    return mel_basis.dot(S);
+    return this.mel_basis.dot(S);
   }
 }

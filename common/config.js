@@ -4,7 +4,7 @@ const commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unkn
 
 let detectCounterThreshold = 10;
 const predictionFrequency = 100; // predict every 100 ms
-let use_meyda = true;
+let use_meyda = false;
 
 // firefox version
 const audioConfig = {
@@ -19,6 +19,7 @@ const audioConfig = {
 
 // firefox version
 const melSpectrogramConfig = {
+  'use_precomputed': false,
   'sample_rate' : 16000,
   'spectrogram' : null,
   'n_fft' : 512,

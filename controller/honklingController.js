@@ -5,6 +5,12 @@ let melSpectrogram = new MelSpectrogram(melSpectrogramConfig);
 
 let input_length = audioConfig['offlineSampleRate'] * audioConfig["window_size"];
 
+if (use_meyda) {
+  console.log("Using Meyda for feature extraction");
+} else {
+  console.log("Using TFJS version of feature extraction");
+}
+
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
 
