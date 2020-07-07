@@ -160,203 +160,152 @@ function calculateAccuracy(output, target) {
   return correct/output.length;
 }
 
-// old version
-// function predictKeyword(x, model, commands) {
-//   let output = model.predict(x);
-
-//   let index = commands.indexOf("unknown");
-//   let max_prob = 0;
-
-//   for (let i = 0; i < commands.length; i++) {
-//     if (output[i] > predictionThreshold && output[i] > max_prob) {
-//       index = i;
-//     }
-//   }
-
-//   return commands[index];
-// }
-
-// // ww4ff version
-// class InferenceEngine {
-//   constructor(config, commands) {
-//     this.predictionThreshold = config['predictionThreshold'];
-//     this.num_smoothing_frame = config['num_smoothing_frame'];
-//     this.num_confidence_frame = config['num_confidence_frame'];
-
-//     this.alpha = config['alpha'];
-//     this.value = [];
-//     for (var i = 0; i < commands.length; i++) {
-//       this.value.push(0)
-//     }
-//   }
-
-//   infer(x, model, commands) {
-//     let output = model.predict(x);
-
-//     let msg = ""
-
-//     for (var i = 0; i < commands.length; i++) {
-//       this.value[i] = this.value[i] * (1 - this.alpha) + this.alpha * output[i]
-
-//       // msg += String(output[i])
-//       // if (i < commands.length-1) {
-//       //   msg += ", "
-//       // }
-//     }
-
-//     let index = commands.indexOf("unknown");
-//     let max_prob = 0;
-
-//     for (let i = 0; i < commands.length; i++) {
-//       if (this.value[i] > max_prob) {
-//         index = i;
-//         max_prob = this.value[i]
-//       }
-
-//       msg += String(this.value[i])
-//       if (i < commands.length-1) {
-//         msg += ", "
-//       }
-//     }
-
-//     let command = commands[index]
-
-//     if (command == "hey" || command == "fire" || command == "fox") {
-
-//       if (max_prob > this.predictionThreshold) {
-//         console.log("%c%s: %s", "color:green", command, msg);
-//       } else if (max_prob > 0.75) {
-//         console.log("%c%s: %s", "color:yellowgreen", command, msg);
-//       } else if (max_prob > 0.5) {
-//         console.log("%c%s: %s", "color:gold", command, msg);
-//       } else if (max_prob > 0.25) {
-//         console.log("%c%s: %s", "color:orange", command, msg);
-//       } else {
-//         console.log("%c%s: %s", "color:red", command, msg);
-//       }
-//     } else {
-//       console.log("%s: %s", command, msg);
-//     }
-
-//     return command
-//   }
-// }
-
 class InferenceEngine {
   constructor(config, commands) {
     this.predictionThreshold = config['predictionThreshold'];
-    this.num_smoothing_frame = config['num_smoothing_frame'];
-    this.num_confidence_frame = config['num_confidence_frame'];
+    this.inference_window = config['inference_window'] * 1000;
+    this.tolerance_window = config['tolerance_window'] * 1000;
+    this.inference_weights = config['inference_weights'];
+    this.inference_sequence = config['inference_sequence'];
     this.commands = commands;
     this.num_class = commands.length;
 
+    if (this.num_class != this.inference_weights.length) {
+      alert('inference weights and number of commands mismatch');
+    }
+
     // posterior smoothing
     this.pred_history = [];
-    this.acum_pred_history = [];
-    for (var i = 0; i < this.num_smoothing_frame; i++) {
-      let history = [];
-      for (var j = 0; j < this.num_class; j++) {
-        history.push(0);
-      }
-      this.pred_history.push(history);
-    }
-
-    for (var j = 0; j < this.num_class; j++) {
-      this.acum_pred_history.push(0);
-    }
-
-    // confidence
     this.smoothed_history = [];
-    for (var i = 0; i < this.num_smoothing_frame; i++) {
-      let smoothed = [];
-      for (var j = 0; j < this.num_class; j++) {
-        smoothed.push(0);
-      }
-      this.smoothed_history.push(smoothed);
-    }
-
-    // to prevent iterating again upon success
-    this.final_prediction = 0;
-    this.max_pred = 0;
+    this.label_history = [];
   }
 
-  calculateConfidence(pred) {
-    let oldest_pred = this.pred_history[0];
-    this.pred_history.shift();
+  sequencePresent() {
+    var d = new Date();
+    let curr_time = d.getTime();
 
-    let oldest_conf = this.smoothed_history[0];
-    this.smoothed_history.shift();
+    this.label_history = this.dropOldEntries(curr_time, this.label_history, this.inference_window);
 
-    let smoothed = [];
+    let curr_index = -1;
+    let target_index = 0;
+    let valid_timestemp = 0;
+    let target_label = null;
+    let label = null;
+    let curr_label = null;
+    let curr_timestemp = null;
 
-    this.final_prediction = 0;
-    this.max_pred = 0;
+    for (var i = 0; i < this.label_history.length; i++) {
+      curr_timestemp = this.label_history[i][0];
+      label = this.label_history[i][1];
+      target_label = this.inference_sequence[target_index];
+      curr_label = this.inference_sequence[curr_index];
 
-    for (var i = 0; i < this.num_class; i++) {
-      this.acum_pred_history[i] -= oldest_pred[i];
-      this.acum_pred_history[i] += pred[i];
-      smoothed.push(this.acum_pred_history[i]/this.num_smoothing_frame);
+      if (curr_label == label) { // continue with the previous entry
+        valid_timestemp = curr_timestemp;
+      } else if (label == target_label) { // move to next entry
+        curr_index += 1;
+        target_index += 1;
+        valid_timestemp = curr_timestemp;
+        if (target_index == this.inference_sequence.length) { // detected if the last index
+          return true;
+        }
+      } else if (valid_timestemp + this.tolerance_window < curr_timestemp) {
+        curr_index = -1;
+        target_index = 0;
+        valid_timestemp = 0;
+      }
+    }
+    return false;
+  }
 
-      // to prevent iterating again upon success
-      if (smoothed[i] > this.max_pred) {
-        this.max_pred = smoothed[i];
-        this.final_prediction = i;
+  dropOldEntries(curr_time, history_array, window_size) {
+    let i;
+    for (i = 0; i < history_array.length; i++) {
+      if (curr_time - history_array[i][0] < window_size) {
+        break;
       }
     }
 
-    this.pred_history.push(pred);
-    this.smoothed_history.push(smoothed);
+    return history_array.slice(i, history_array.length);
+  }
 
-    // confidence score does not make sense
-    return this.max_pred;
+  accumulateArray(history_array) {
+    let accum_history = [];
+    for (var j = 0; j < this.num_class; j++) {
+      accum_history.push(0);
+    }
 
-    // let msg = '';
+    for (var i = 0; i < history_array.length; i++) {
+      for (var j = 0; j < this.num_class; j++) {
+        accum_history[j] += history_array[i][1][j];
+      }
+    }
+    return accum_history;
+  }
 
-    // let confidence = 1;
-    // for (var i = 0; i < this.num_class; i++) {
-    //   let highest_prob = 0;
-    //   for (var j = 0; j < this.num_smoothing_frame; j++) {
-    //     if (this.smoothed_history[j][i] > highest_prob) {
-    //       highest_prob = this.smoothed_history[j][i];
-    //     }
-    //   }
-    //   msg += "  " + String(highest_prob)
+  updatePredHistory(curr_time) {
+    this.pred_history = this.dropOldEntries(curr_time, this.pred_history, this.inference_window);
 
-    //   confidence *= highest_prob;
-    // }
+    let accum_history = this.accumulateArray(this.pred_history);
+    this.smoothed_history.push([curr_time, accum_history]);
+  }
 
-    // console.log(msg);
+  getPrediction(curr_time) {
+    this.smoothed_history = this.dropOldEntries(curr_time, this.smoothed_history, this.inference_window);
 
-    // return Math.pow(confidence, 1/this.num_class);
+    this.final_score = this.accumulateArray(this.smoothed_history);
+
+    let max_ind = 0;
+    let max_val = 0;
+    for (var i = 0; i < this.final_score.length; i++) {
+      if (this.final_score[i] > max_val) {
+        max_val = this.final_score[i];
+        max_ind = i;
+      }
+    }
+
+    this.label_history.push([curr_time, max_ind]);
+
+    // this._update_label_history()
+    return max_ind;
   }
 
   infer(x, model) {
     let pred = model.predict(x);
 
-    let confidence = this.calculateConfidence(pred);
+    let total = 0;
 
-    // if (confidence < this.predictionThreshold) {
-    //   this.final_prediction = this.commands.indexOf("unknown");
-    // }
-
-    let command = this.commands[this.final_prediction];
-
-    if (command == "hey" || command == "fire" || command == "fox") {
-
-      if (confidence > this.predictionThreshold) {
-        console.log("%c%s: %s (%s)", "color:green", command, this.max_pred, confidence);
-      } else if (confidence > 0.75) {
-        console.log("%c%s: %s (%s)", "color:yellowgreen", command, this.max_pred, confidence);
-      } else if (confidence > 0.5) {
-        console.log("%c%s: %s (%s)", "color:gold", command, this.max_pred, confidence);
-      } else if (confidence > 0.25) {
-        console.log("%c%s: %s (%s)", "color:orange", command, this.max_pred, confidence);
-      } else {
-        console.log("%c%s: %s (%s)", "color:red", command, this.max_pred, confidence);
-      }
-    } else {
-      // console.log("%s: %s (%s)", command, this.max_pred, confidence);
+    for (var i = 0; i < this.num_class; i++) {
+      pred[i] = pred[i] * this.inference_weights[i];
+      total += pred[i];
     }
+
+    for (var i = 0; i < this.num_class; i++) {
+      pred[i] = pred[i] / total;
+    }
+
+    var d = new Date();
+    this.pred_history.push([d.getTime(), pred]);
+    this.updatePredHistory(d.getTime());
+    let label = this.getPrediction(d.getTime());
+    let command = this.commands[label];
+
+    // if (command == "hey" || command == "firefox") {
+    //
+    //   if (this.final_score[label] > this.predictionThreshold) {
+    //     console.log("%c%s (%s)", "color:green", command, this.final_score[label]);
+    //   } else if (this.final_score[label] > 0.75) {
+    //     console.log("%c%s (%s)", "color:yellowgreen", command, this.final_score[label]);
+    //   } else if (this.final_score[label] > 0.5) {
+    //     console.log("%c%s (%s)", "color:gold", command, this.final_score[label]);
+    //   } else if (this.final_score[label] > 0.25) {
+    //     console.log("%c%s (%s)", "color:orange", command, this.final_score[label]);
+    //   } else {
+    //     console.log("%c%s (%s)", "color:red", command, this.final_score[label]);
+    //   }
+    // } else {
+    //   // console.log("%s: %s (%s)", command, this.final_score[label]);
+    // }
 
     return command
   }
@@ -376,7 +325,7 @@ function download(data, filename, type) {
         a.click();
         setTimeout(function() {
             document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-        }, 0); 
+            window.URL.revokeObjectURL(url);
+        }, 0);
     }
 }

@@ -35,8 +35,12 @@ micAudioProcessor.getMicPermission().done(function() {
 
       let zmuv_sample = log_mels_data.sub(zmuvConfig["mean"]).div(zmuvConfig["std"])
 
-      command = inferenceEngine.infer(zmuv_sample, model, commands);
+      let command = inferenceEngine.infer(zmuv_sample, model, commands);
       updateToggledCommand(command);
+
+      if (inferenceEngine.sequencePresent()) {
+        toggleFullWord();
+      }
     }
   }, predictionFrequency);
 }).fail(function() {
@@ -44,4 +48,4 @@ micAudioProcessor.getMicPermission().done(function() {
 });
 
 // list initialization
-init_view(commands);
+init_view();

@@ -144,4 +144,4 @@ try {
 }
 
 // list initialization
-init_view(commands);
+init_view();

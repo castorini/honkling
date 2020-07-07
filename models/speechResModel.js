@@ -4,6 +4,7 @@ class SpeechResModel {
 		this.modelName = modelName;
 		this.commands = commands;
 		this.config = modelConfig[modelName];
+
 		this.config['n_labels'] = this.commands.length;
 
 		console.log('model name : ', this.modelName);
@@ -132,7 +133,8 @@ class SpeechResModel {
 		this.model.summary();
 
 		// weights loading
-		this.loadWeight(layers, weights[modelName]);
+		let weightName = this.config['weight_name'];
+		this.loadWeight(layers, weights[weightName]);
 	}
 
     // load pretrained weights from json file

@@ -34,18 +34,18 @@ function updateStatus(newStatus) {
 
 let toggleTime = 1500;
 
-function init_view(commands) {
-  commands = ["unknown", "hey", "fire", "fox"]
-  reordered = [];
-  commands.forEach(function(command) {
-    if (command != "silence" && command != "unknown") {
-      reordered.push(command);
+function init_view() {
+  let target_commands = [];
+  for (var i = 0; i < inferConfig['inference_sequence'].length; i++) {
+    let command = commands[inferConfig['inference_sequence'][i]];
+    if (target_commands.indexOf(command) == -1) {
+      target_commands.push(command)
     }
-  });
+  }
 
-  for (let i = 0; i < reordered.length; i++) {
-      $('#commandList1').append(
-        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i].toUpperCase()));
+  for (let i = 0; i < target_commands.length; i++) {
+    $('#commandList1').append(
+      $('<li>').attr('class','list-group-item ' + target_commands[i] + '_button text-center').append(target_commands[i].toUpperCase()));
   }
 
   $('#commandList2').append(
@@ -68,19 +68,14 @@ function toggleCommand(command) {
 }
 
 function toggleFullWord() {
-  console.log("HEY FIREFOX DETECTED")
-  $('.commandList .hey_fire_fox_button').addClass('active');
-  setTimeout(function () {
-    $('.commandList .hey_fire_fox_button').removeClass('active');
-  }, 4000);
+  if (!$('.commandList .hey_fire_fox_button').hasClass('active')) {
+    console.log("HEY FIREFOX DETECTED")
+    $('.commandList .hey_fire_fox_button').addClass('active');
+    setTimeout(function () {
+      $('.commandList .hey_fire_fox_button').removeClass('active');
+    }, 4000);
+  }
 }
-
-let status = 0;
-let detectCounter = 0;
-// status
-// 0 = nothing
-// 1 = hey within last x frames
-// 2 = hey fire within last x frames
 
 function updateToggledCommand(command) {
 
@@ -109,44 +104,5 @@ function updateToggledCommand(command) {
     // current command is unknown
     updateStatus('Say one of the following keywords');
     toggleCommand(command);
-  }
-
-  if (command == "hey") {
-    if (status == 2) { // incorrect timing
-      detectCounter = 0;
-      status = 0;
-    } else if (status == 0) { // correct timing
-      status = 1;
-      detectCounter = 0;
-    }
-  } else if (command == "fire") {
-    if (detectCounter > 0 && status == 2) { // duplicated words
-      detectCounter = 0;
-      status = 0;
-    } else if (status == 0) { // incorrect timing
-      detectCounter = 0;
-      status = 0;
-    } else if (status == 1) { // correct timing
-      status = 2;
-      detectCounter = 0;
-    }
-
-  } else if (command == "fox") {
-    if (status == 2) { // correct timing
-      toggleFullWord();
-      detectCounter = 0;
-      status = 0;
-    } else { // incorrect timing
-      detectCounter = 0;
-      status = 0;
-    }
-  }
-
-  if (command == "unknown" && status != 0) {
-    detectCounter += 1;
-    if (detectCounter > detectCounterThreshold) {
-      detectCounter = 0;
-      status = 0;
-    }
   }
 }

@@ -1,24 +1,25 @@
-const serverURL = 'http://localhost:8000';
+let serverURL = 'http://localhost:8000';
 
-const commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
+let commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
+
 
 let detectCounterThreshold = 10;
-const predictionFrequency = 100; // predict every 100 ms
+let predictionFrequency = 100; // predict every 100 ms
 let use_meyda = false;
 
 // firefox version
-const audioConfig = {
-	'offlineSampleRate' : 16000,
-	'offlineHopSize' : 12.5, // in ms (half of offlineWindowSize)
-	'offlineWindowSize' : 32, // in ms
-	'micInputWaitTime' : 5, // in s
-	'noiseThreshold' : 0.050,
-	'window_size' : 0.75, // in s
-	'padding_size' : 6000 // in samples
+let audioConfig = {
+  'offlineSampleRate' : 16000,
+  'offlineHopSize' : 12.5, // in ms (half of offlineWindowSize)
+  'offlineWindowSize' : 32, // in ms
+  'micInputWaitTime' : 5, // in s
+  'noiseThreshold' : 0.050,
+  'window_size' : 0.75, // in s
+  'padding_size' : 6000 // in samples
 }
 
 // firefox version
-const melSpectrogramConfig = {
+let melSpectrogramConfig = {
   'use_precomputed': false,
   'sample_rate' : 16000,
   'spectrogram' : null,
@@ -36,26 +37,39 @@ const melSpectrogramConfig = {
   'norm': false // librosa true
 }
 
-const zmuvConfig = {
+let zmuvConfig = {
   "mean": -2.0045,
   "std": 4.0985
 }
 
-const inferConfig = {
-	'predictionThreshold' : 0.7,
-	'num_smoothing_frame' : 3,
-	'num_confidence_frame' : 10
+let inferConfig = {
+  'predictionThreshold' : 0.7,
+  'inference_window' : 1,
+  'tolerance_window' : 0.2,
+  'inference_weights' : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  'inference_sequence' : [0, 1, 2]
 }
 weights = {}; // placeholder for dynamic weights loading
 
-const modelConfig = {
-	RES8 : {
-		input_shape : [80, 61, 1],
-		n_layers : 6,
-		n_feature_maps : 45,
-		res_pool : [4, 3],
-		conv_size : [3, 3],
-		conv_stride : [1, 1],
-		use_dilation : false
-	}
+let modelConfig = {
+  RES8 : {
+    weight_name : "RES8_4WORDS",
+    input_shape : [80, 61, 1],
+    n_layers : 6,
+    n_feature_maps : 45,
+    res_pool : [4, 3],
+    conv_size : [3, 3],
+    conv_stride : [1, 1],
+    use_dilation : false
+  }
+}
+
+let hey_firefox = true;
+if (hey_firefox) {
+  modelConfig['RES8']['weight_name'] = "RES8_2WORDS"
+  modelConfig['RES8']['input_shape'] = [80, 81, 1];
+
+  commands = ["hey", "firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
+  audioConfig['window_size'] = 1;
+  inferConfig['inference_sequence'] = [0, 1]
 }
