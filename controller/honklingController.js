@@ -1,6 +1,6 @@
 let micAudioProcessor = new MicAudioProcessor(audioConfig);
 let model = new SpeechResModel("RES8", commands);
-let inferenceEngine = new InferenceEngine(inferConfig, commands);
+let inferenceEngine = new InferenceEngine(inferenceEngineConfig, commands);
 let melSpectrogram = new MelSpectrogram(melSpectrogramConfig);
 
 let input_length = audioConfig['offlineSampleRate'] * audioConfig["window_size"];

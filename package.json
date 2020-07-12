@@ -4,16 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon server.js"
+    "dev": "npx nodemon server.js",
+    "eval": "npx nodemon evaluation/evaluator.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tensorflow/tfjs-node-gpu": "^2.0.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "moment": "^2.25.3",
     "nodemon": "^2.0.4",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "wavefile": "^11.0.0"
   },
   "devDependencies": {}
 }

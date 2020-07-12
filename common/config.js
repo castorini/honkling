@@ -42,13 +42,15 @@ let zmuvConfig = {
   "std": 4.0985
 }
 
-let inferConfig = {
-  'predictionThreshold' : 0.7,
-  'inference_window' : 1,
-  'tolerance_window' : 0.2,
+let inferenceEngineConfig = {
+  'inference_window_ms' : 2000,
+  'smoothing_window_ms' : 1000,
+  'tolerance_window_ms' : 200,
   'inference_weights' : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  'inference_sequence' : [0, 1, 2]
+  'inference_sequence' : [0, 1],
+  'stride_size' : 250
 }
+
 weights = {}; // placeholder for dynamic weights loading
 
 let modelConfig = {
