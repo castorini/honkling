@@ -38,15 +38,20 @@ Evaluator.prototype.evaluate = function() {
   this.file_name = "";
 
   let start = false;
+  let timestemp = 0;
+
+  let audio_length = 5000; // for the first sample
 
   while (!util.isEmpty(data)) {
 
     if (start && data['file_name'] != this.file_name) {
       this.file_name = data['file_name'];
 
-      if (this.inferenceEngine.sequencePresent()) {
+      if (this.inferenceEngine.sequencePresent(timestemp, audio_length)) {
         this.detected = true;
       }
+
+      audio_length = data['audio_length_ms'];
 
       if (this.expected && this.detected) {
         metric['tp'] += 1;
@@ -72,11 +77,16 @@ Evaluator.prototype.evaluate = function() {
 
     let zmuv_sample = log_mels_data.sub(evaluationConfig['zmuvConfig']["mean"]).div(evaluationConfig['zmuvConfig']["std"])
 
-    this.inferenceEngine.infer(zmuv_sample, this.model, this.commands);
+    this.inferenceEngine.infer(zmuv_sample, this.model, timestemp);
 
     // next iteration
     data = this.dataLoader.getNextWindow();
     start = true;
+    timestemp += (evaluationConfig['dataLoaderConfig']['stride_size_seconds'] * 1000)
+  }
+
+  if (this.inferenceEngine.sequencePresent()) {
+    this.detected = true;
   }
 
   if (this.expected && this.detected) {

@@ -1,4 +1,4 @@
-const tf = require('@tensorflow/tfjs');
+const tf = require('@tensorflow/tfjs-node-gpu');
 const util = require('./util');
 
 function SpeechResModel(modelName, commands, config, modelWeights) {

@@ -2,18 +2,18 @@
 let dataLoaderConfig = {
   'sample_rate' : 16000,
   'noise_threshold' : 0.050,
-  'stride_size_seconds': 0.25,
+  'stride_size_seconds': 0.1,
   'window_size_seconds' : 0.75, // in s
   'padding_size_seconds': 0.1,
   'metadata_file' : '/data/speaker-id-split-medium/metadata-test.jsonl',
   'audio_file_path' : '/data/speaker-id-split-medium/audio/'
 }
 
-dataLoaderConfig['metaDataFile'] = '/data/speaker-id-split-medium/test.jsonl';
+// dataLoaderConfig['metadata_file'] = '/data/speaker-id-split-medium/test.jsonl';
 
 let inferenceEngineConfig = {
-  'inference_window_ms' : 2000,
-  'smoothing_window_ms' : 1000,
+  'inference_window_ms' : 1000,
+  'smoothing_window_ms' : 500,
   'tolerance_window_ms' : 200,
   'inference_weights' : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   'inference_sequence' : [0, 1, 2],

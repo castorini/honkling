@@ -45,7 +45,7 @@ class InferenceEngine {
         curr_label = this.inference_sequence[target_state-1];
         last_valid_timestamp = curr_timestemp;
 
-        if (target_label == this.inference_sequence.length) { // detected if the last index
+        if (target_state == this.inference_sequence.length) { // detected if the last index
           return true;
         }
       } else if (curr_label == label) { // continue with the previous entry

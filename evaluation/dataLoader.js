@@ -9,6 +9,7 @@ var WaveFile = require('wavefile').WaveFile;
 function DataLoader(config) {
 	this.config = config;
 	this.file_path = this.config['audio_file_path']
+  console.log("metadata_file: ", this.config['metadata_file'])
 
   let rawMetaData = fs.readFileSync(this.config['metadata_file']);
   let MetaDataJson = String(rawMetaData)
@@ -122,6 +123,7 @@ DataLoader.prototype.getNextWindow = function() {
 
   let sample = {
     'file_name': this.current_sample['file_name'],
+    'audio_length_ms': (this.current_sample['data'].length / this.sample_rate) * 1000,
     'data': sample_window,
     'transcription': this.current_sample['transcription'],
     'label': this.current_sample['label']
