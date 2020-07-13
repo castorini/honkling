@@ -4,7 +4,7 @@ let commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unknow
 
 
 let detectCounterThreshold = 10;
-let predictionFrequency = 200; // predict every 100 ms
+let predictionFrequency = 100; // predict every 100 ms
 let use_meyda = false;
 
 // firefox version
