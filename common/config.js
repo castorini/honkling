@@ -4,7 +4,7 @@ let commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unknow
 
 
 let detectCounterThreshold = 10;
-let predictionFrequency = 100; // predict every 100 ms
+let predictionFrequency = 200; // predict every 100 ms
 let use_meyda = false;
 
 // firefox version
@@ -43,12 +43,11 @@ let zmuvConfig = {
 }
 
 let inferenceEngineConfig = {
-  'inference_window_ms' : 2000,
-  'smoothing_window_ms' : 1000,
+  'inference_window_ms' : 1000,
+  'smoothing_window_ms' : 500,
   'tolerance_window_ms' : 200,
   'inference_weights' : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  'inference_sequence' : [0, 1],
-  'stride_size' : 250
+  'inference_sequence' : [0, 1, 2]
 }
 
 weights = {}; // placeholder for dynamic weights loading
@@ -73,5 +72,5 @@ if (hey_firefox) {
 
   commands = ["hey", "firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
   audioConfig['window_size'] = 1;
-  inferConfig['inference_sequence'] = [0, 1]
+  inferenceEngineConfig['inference_sequence'] = [0, 1]
 }

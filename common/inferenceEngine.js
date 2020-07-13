@@ -6,7 +6,6 @@ class InferenceEngine {
     this.tolerance_window_ms = config['tolerance_window_ms']
     this.inference_weights = config['inference_weights']
     this.inference_sequence = config['inference_sequence']
-    this.stride_size = config['stride_size']
 
     this.commands = commands;
     this.num_class = commands.length;
@@ -31,7 +30,9 @@ class InferenceEngine {
     let curr_label = null;
     let target_state = 0;
     let last_valid_timestamp = 0;
-
+    let label = null;
+    let curr_timestemp = null;
+    let target_label = null;
 
     for (var i = 0; i < this.label_history.length; i++) {
       label = this.label_history[i][1];
@@ -49,14 +50,14 @@ class InferenceEngine {
           return true;
         }
       } else if (curr_label == label) { // continue with the previous entry
-        valid_timestemp = curr_timestemp;
+        last_valid_timestamp = curr_timestemp;
       } else if (last_valid_timestamp + this.tolerance_window_ms < curr_timestemp) {
         curr_label = null;
         target_state = 0;
         last_valid_timestamp = 0;
       }
     }
-    
+
     return false;
   }
 
@@ -85,24 +86,25 @@ class InferenceEngine {
     return accum_history;
   }
 
+  argmax(array) {
+    let max_ind = 0;
+    let max_val = 0;
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] > max_val) {
+        max_val = array[i];
+        max_ind = i;
+      }
+    }
+    return max_ind;
+  }
+
   getPrediction(curr_time) {
     this.pred_history = this.dropOldEntries(curr_time, this.pred_history, this.smoothing_window_ms);
 
     this.final_score = this.accumulateArray(this.pred_history);
-
-    let max_ind = 0;
-    let max_val = 0;
-    for (var i = 0; i < this.final_score.length; i++) {
-      if (this.final_score[i] > max_val) {
-        max_val = this.final_score[i];
-        max_ind = i;
-      }
-    }
-
-    this.label_history.push([curr_time, max_ind]);
-
-    // this._update_label_history()
-    return max_ind;
+    let final_pred = this.argmax(this.final_score);
+    this.label_history.push([curr_time, final_pred]);
+    return final_pred;
   }
 
   infer(x, model) {
@@ -119,10 +121,15 @@ class InferenceEngine {
       pred[i] = pred[i] / total;
     }
 
+    console.log(pred)
+
     var d = new Date();
     this.pred_history.push([d.getTime(), pred]);
     let label = this.getPrediction(d.getTime());
     let command = this.commands[label];
+
+    let raw_pred = this.argmax(pred)
+    console.log(this.commands[raw_pred], command)
 
     return command
   }

@@ -37,7 +37,9 @@ InferenceEngine.prototype.sequencePresent = function(timestemp=null, inference_w
   let curr_label = null;
   let target_state = 0;
   let last_valid_timestamp = 0;
-
+  let label = null;
+  let curr_timestemp = null;
+  let target_label = null;
 
   for (var i = 0; i < this.label_history.length; i++) {
     label = this.label_history[i][1];
@@ -56,7 +58,7 @@ InferenceEngine.prototype.sequencePresent = function(timestemp=null, inference_w
         return true;
       }
     } else if (curr_label == label) { // continue with the previous entry
-      valid_timestemp = curr_timestemp;
+      last_valid_timestamp = curr_timestemp;
     } else if (last_valid_timestamp + this.tolerance_window_ms < curr_timestemp) {
       curr_label = null;
       target_state = 0;

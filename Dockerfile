@@ -9,6 +9,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get install -y make
 RUN apt-get install -y build-essential
+RUN apt-get install -y git
 
 # prepare data folder
 RUN mkdir /data
