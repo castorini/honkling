@@ -121,15 +121,13 @@ class InferenceEngine {
       pred[i] = pred[i] / total;
     }
 
-    console.log(pred)
-
     var d = new Date();
     this.pred_history.push([d.getTime(), pred]);
     let label = this.getPrediction(d.getTime());
     let command = this.commands[label];
 
-    let raw_pred = this.argmax(pred)
-    console.log(this.commands[raw_pred], command)
+    // let raw_pred = this.argmax(pred)
+    // console.log(this.commands[raw_pred], command)
 
     return command
   }
