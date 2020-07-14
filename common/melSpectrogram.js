@@ -255,10 +255,38 @@ class MelSpectrogram {
       y = this.pad_reflect(y, y.shape[0] + n_fft)
     }
 
+    // per frame operation (slower)
+
+    // let frames = y.dataSync();
+    // let starting_index = 0;
+    // let ending_index = n_fft;
+    // let frame = null;
+    // let windowed = null;
+    // let rfft_frame = null;
+    // let rfft_frames = [];
+    // let total_audio_length = frames.length;
+    //
+    // while (ending_index <= total_audio_length) {
+    //   frame = tf.tensor(frames.slice(starting_index, ending_index));
+    //
+    //   windowed = frame.mul(this.fft_window);
+    //   rfft_frame = tf.spectral.rfft(windowed);
+    //   rfft_frames.push(rfft_frame)
+    //
+    //   starting_index += hop_length;
+    //   ending_index += hop_length;
+    // }
+    //
+    // rfft_frames = tf.stack(rfft_frames);
+    //
+    // return rfft_frames;
+
     // Window the time series.
     let y_frames = tf.signal.frame(y, n_fft, hop_length);
-    let windowed = y_frames.mul(this.fft_window);
-    return tf.spectral.rfft(windowed);
+    let windowed_frames = y_frames.mul(this.fft_window);
+    let rfft_frames = tf.spectral.rfft(windowed_frames);
+
+    return rfft_frames;
   }
 
   spectogram(

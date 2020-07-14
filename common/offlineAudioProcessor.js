@@ -87,10 +87,6 @@ class OfflineAudioProcessor {
 
       // ZMUV
       offlineProc.mfcc.forEach(function(part, index) {
-        // full word
-        // this[index] = (this[index] - (-1.8421)) / 3.8083
-        // 4 words
-
         this[index] = (this[index] - (zmuvConfig["mean"])) / zmuvConfig["std"]
       }, offlineProc.mfcc);
 
