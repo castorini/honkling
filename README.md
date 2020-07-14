@@ -12,7 +12,9 @@ Unlike the existing implementation of Honkling, this implementation functions as
 
 * `nvidia-docker run -it -p 8000:8000 -v $(pwd):/app/src/ -v /data/kws/mozilla_processed:/data honkling` (use `docker` instead of `nvidia-docker` if GPU is missing)
 
-* `npm run dev` or `npm run eval`
+* `npm run dev` for starting up a server
+
+* `npm run eval` for running the evaluation (meyda version not supported)
 
 
 Open a browser (Firefox recommended) and navigate to `localhost:8000` for honkling-based implementation
