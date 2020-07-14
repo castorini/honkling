@@ -20,6 +20,10 @@ micAudioProcessor.getMicPermission().done(function() {
 
         command = inferenceEngine.infer(mfccData, model, commands);
         updateToggledCommand(command);
+
+        if (inferenceEngine.sequencePresent()) {
+          toggleFullWord();
+        }
       });
     } else {
 

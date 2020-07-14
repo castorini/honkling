@@ -5,7 +5,7 @@ let commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unknow
 
 let detectCounterThreshold = 10;
 let predictionFrequency = 100; // predict every 100 ms
-let use_meyda = false;
+let use_meyda = true;
 
 // firefox version
 let audioConfig = {
@@ -44,7 +44,7 @@ let zmuvConfig = {
 
 let inferenceEngineConfig = {
   'inference_window_ms' : 1000,
-  'smoothing_window_ms' : 500,
+  'smoothing_window_ms' : 300,
   'tolerance_window_ms' : 200,
   'inference_weights' : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   'inference_sequence' : [0, 1, 2]
@@ -68,6 +68,7 @@ let modelConfig = {
 let hey_firefox = true;
 if (hey_firefox) {
   modelConfig['RES8']['weight_name'] = "RES8_2WORDS"
+  modelConfig['RES8']['weight_name'] = "MEYDA"
   modelConfig['RES8']['input_shape'] = [80, 81, 1];
 
   commands = ["hey", "firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
