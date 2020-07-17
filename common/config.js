@@ -1,6 +1,6 @@
 let serverURL = 'http://localhost:8000';
 
-let commands = ["hey", "fire", "fox", "unknown", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
+let commands = ["hey", "firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
 
 
 let detectCounterThreshold = 10;
@@ -14,7 +14,7 @@ let audioConfig = {
   'offlineWindowSize' : 32, // in ms
   'micInputWaitTime' : 5, // in s
   'noiseThreshold' : 0.050,
-  'window_size' : 0.75, // in s
+  'window_size' : 1, // in s
   'padding_size' : 6000 // in samples
 }
 
@@ -47,15 +47,16 @@ let inferenceEngineConfig = {
   'smoothing_window_ms' : 300,
   'tolerance_window_ms' : 200,
   'inference_weights' : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  'inference_sequence' : [0, 1, 2]
+  'inference_sequence' : [0, 1]
 }
 
 weights = {}; // placeholder for dynamic weights loading
 
 let modelConfig = {
   RES8 : {
-    weight_name : "RES8_4WORDS",
-    input_shape : [80, 61, 1],
+    // weight_name : "TFJS",
+    weight_name : "MEYDA",
+    input_shape : [80, 81, 1],
     n_layers : 6,
     n_feature_maps : 45,
     res_pool : [4, 3],
@@ -63,14 +64,4 @@ let modelConfig = {
     conv_stride : [1, 1],
     use_dilation : false
   }
-}
-
-let hey_firefox = true;
-if (hey_firefox) {
-  modelConfig['RES8']['weight_name'] = "MEYDA"
-  modelConfig['RES8']['input_shape'] = [80, 81, 1];
-
-  commands = ["hey", "firefox", "unknown2", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"];
-  audioConfig['window_size'] = 1;
-  inferenceEngineConfig['inference_sequence'] = [0, 1]
 }
