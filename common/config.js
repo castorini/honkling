@@ -67,7 +67,6 @@ let modelConfig = {
 
 let hey_firefox = true;
 if (hey_firefox) {
-  modelConfig['RES8']['weight_name'] = "RES8_2WORDS"
   modelConfig['RES8']['weight_name'] = "MEYDA"
   modelConfig['RES8']['input_shape'] = [80, 81, 1];
 
