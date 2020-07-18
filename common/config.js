@@ -46,7 +46,7 @@ let inferenceEngineConfig = {
   'inference_window_ms' : 1000,
   'smoothing_window_ms' : 500,
   'tolerance_window_ms' : 500,
-  'inference_weights' : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  'inference_weights' : [3, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   'inference_sequence' : [0, 1]
 }
 
