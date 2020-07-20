@@ -42,13 +42,14 @@ class InferenceEngine {
 
       if (label == target_label) { // move to next entry
         target_state += 1;
+        if (target_state == this.inference_sequence.length) { // detected if the last index
+          return true;
+        }
+        
         target_label = this.inference_sequence[target_state];
         curr_label = this.inference_sequence[target_state-1];
         last_valid_timestamp = curr_timestemp;
 
-        if (target_state == this.inference_sequence.length) { // detected if the last index
-          return true;
-        }
       } else if (curr_label == label) { // continue with the previous entry
         last_valid_timestamp = curr_timestemp;
       } else if (last_valid_timestamp + this.tolerance_window_ms < curr_timestemp) {
