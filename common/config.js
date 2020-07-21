@@ -4,7 +4,7 @@ let commands = ["hey", "firefox", "unknown2", "unknown3", "unknown4", "unknown5"
 
 
 let detectCounterThreshold = 10;
-let predictionFrequency = 100; // predict every 100 ms
+let predictionFrequency = 62; // predict every 100 ms
 let use_meyda = true;
 
 // firefox version
@@ -14,7 +14,7 @@ let audioConfig = {
   'offlineWindowSize' : 32, // in ms
   'micInputWaitTime' : 5, // in s
   'noiseThreshold' : 0.050,
-  'window_size' : 1, // in s
+  'window_size' : 0.75, // in s
   'padding_size' : 6000 // in samples
 }
 
@@ -43,10 +43,10 @@ let zmuvConfig = {
 }
 
 let inferenceEngineConfig = {
-  'inference_window_ms' : 1000,
-  'smoothing_window_ms' : 500,
+  'inference_window_ms' : 2000,
+  'smoothing_window_ms' : 50,
   'tolerance_window_ms' : 500,
-  'inference_weights' : [3, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  'inference_weights' : [2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   'inference_sequence' : [0, 1]
 }
 
@@ -56,7 +56,7 @@ let modelConfig = {
   RES8 : {
     // weight_name : "TFJS",
     weight_name : "MEYDA",
-    input_shape : [80, 81, 1],
+    input_shape : [80, 61, 1],
     n_layers : 6,
     n_feature_maps : 45,
     res_pool : [4, 3],
