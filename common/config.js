@@ -54,11 +54,14 @@ let inferenceEngineConfig = {
 weights = {}; // placeholder for dynamic weights loading
 melBasis = {}; // placeholder for dynamic weights loading
 
+let input_width = audioConfig['offlineSampleRate'] * audioConfig['window_size'] / melSpectrogramConfig['hop_length'] + 1;
+let input_height = audioConfig['melBands'];
+
 let modelConfig = {
   RES8 : {
     // weight_name : "TFJS",
     weight_name : "MEYDA",
-    input_shape : [audioConfig['melBands'], 41, 1],
+    input_shape : [input_height, input_width, 1],
     n_layers : 6,
     n_feature_maps : 45,
     res_pool : [4, 3],
