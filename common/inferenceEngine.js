@@ -1,14 +1,14 @@
 
 class InferenceEngine {
-  constructor(config, commands) {
-    this.inference_window_ms = config['inference_window_ms']
-    this.smoothing_window_ms = config['smoothing_window_ms']
-    this.tolerance_window_ms = config['tolerance_window_ms']
-    this.inference_weights = config['inference_weights']
-    this.inference_sequence = config['inference_sequence']
+  constructor(config) {
+    this.inference_window_ms = config.inferenceEngineConfig.inference_window_ms
+    this.smoothing_window_ms = config.inferenceEngineConfig.smoothing_window_ms
+    this.tolerance_window_ms = config.inferenceEngineConfig.tolerance_window_ms
+    this.inference_weights = config.inferenceEngineConfig.inference_weights
+    this.inference_sequence = config.inferenceEngineConfig.inference_sequence
 
-    this.commands = commands;
-    this.num_class = commands.length;
+    this.commands = config.commands;
+    this.num_class = this.commands.length;
 
     if (this.num_class != this.inference_weights.length) {
       alert('inference weights and number of commands mismatch');

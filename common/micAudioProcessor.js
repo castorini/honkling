@@ -1,11 +1,11 @@
 let micProc;
 
 class MicAudioProcessor {
-  constructor(audioConfig) {
+  constructor(config) {
     micProc = this;
 
-    this.offlineSampleRate = audioConfig.offlineSampleRate;
-    this.window_size = audioConfig.window_size * this.offlineSampleRate; // convert from s to n_samples
+    this.sampleRate = config.sampleRate;
+    this.windowSize = config.micAudioProcessorConfig.windowSize * this.sampleRate; // convert from s to n_samples
 
     if (window.hasOwnProperty('webkitAudioContext') &&
     !window.hasOwnProperty('AudioContext')) {
@@ -22,13 +22,13 @@ class MicAudioProcessor {
 
     this.audioContext = new AudioContext();
 
-    this.browserSampleRate = this.audioContext.sampleRate;// 44100
+    this.browserSampleRate = this.audioContext.sampleRate; // 44100
     this.srcBufferSize = 1024;
     // with buffer size of 1024, we can capture 44032 features for original sample rate of 44100
     // once audio of 44100 features is down sampled to 16000 features,
     // resulting number of features is 15953
 
-    this.padding_size = audioConfig.padding_size
+    this.paddingSize = config.micAudioProcessorConfig.paddingSize
 
     this.initDownSampleNode();
     this.data = [];
@@ -78,7 +78,7 @@ class MicAudioProcessor {
 
   initDownSampleNode() {
     this.downSampleNode = this.audioContext.createScriptProcessor(this.srcBufferSize, 1, 1);
-    this.downSampledBufferSize = (this.offlineSampleRate / this.browserSampleRate) * this.srcBufferSize;
+    this.downSampledBufferSize = (this.sampleRate / this.browserSampleRate) * this.srcBufferSize;
 
     function interpolateArray(data, fitCount) {
       var linearInterpolate = function (before, after, atPoint) {
@@ -106,8 +106,8 @@ class MicAudioProcessor {
       micProc.data = micProc.data.concat(downSampledData);
 
       // always keep last window
-      if (micProc.data.length > micProc.window_size + micProc.padding_size) {
-        micProc.data.splice(0, micProc.data.length - (micProc.window_size + micProc.padding_size));
+      if (micProc.data.length > micProc.windowSize + micProc.paddingSize) {
+        micProc.data.splice(0, micProc.data.length - (micProc.windowSize + micProc.paddingSize));
       }
     }
   }

@@ -5,11 +5,10 @@ var offlineProc;
 class OfflineAudioProcessor {
   constructor(config, audioData) {
     offlineProc = this;
-    this.offlineSampleRate = config.offlineSampleRate;
-    this.meydaHopSize = this.offlineSampleRate / 1000 * config.offlineHopSize;
-    this.window_size = config.window_size * config.offlineSampleRate; // convert from s to n_samples
-    this.padding_size = config.padding_size;
-    this.melBands = config.melBands;
+    this.sampleRate = config.sampleRate;
+    this.window_size = config.micAudioProcessorConfig.windowSize * config.sampleRate; // convert from s to n_samples
+    this.padding_size = config.micAudioProcessorConfig.paddingSize
+    this.melBands = config.featureExtractionConfig.melBands;
     this.audioData = audioData;
 
     this.bufferSize = 512;
@@ -18,12 +17,13 @@ class OfflineAudioProcessor {
     // which means that we have to pass in at least 32 ms
     // As a result, 32 ms length of feature is used for each 30 ms window
 
+    this.meydaHopSize = config.featureExtractionConfig.hopSize;
     this.mfccDataLength = Math.floor(this.window_size / this.meydaHopSize) + 1;
 
     this.deferred = $.Deferred();
     this.mfcc = [];
 
-    this.audioContext = new OfflineAudioContext(1, this.window_size + this.padding_size, this.offlineSampleRate);
+    this.audioContext = new OfflineAudioContext(1, this.window_size + this.padding_size, this.sampleRate);
     // make length of the context long enough that mfcc always gets enough buffers to process
     // consider the delay for starting/stopping the meyda audio context
 
@@ -32,7 +32,7 @@ class OfflineAudioProcessor {
   }
 
   initBufferSourceNode() {
-    let audioSourceBuffer = this.audioContext.createBuffer(1, this.audioContext.length, this.offlineSampleRate);
+    let audioSourceBuffer = this.audioContext.createBuffer(1, this.audioContext.length, this.sampleRate);
     let audioSourceData = audioSourceBuffer.getChannelData(0);
 
     for (let i = 0; i < audioSourceBuffer.length; i++) {
@@ -63,7 +63,7 @@ class OfflineAudioProcessor {
       audioContext: this.audioContext,
       hopSize: this.meydaHopSize,
       callback: postProcessing,
-      sampleRate: this.offlineSampleRate,
+      sampleRate: this.sampleRate,
       melBands: this.melBands
     });
   }

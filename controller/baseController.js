@@ -36,8 +36,8 @@ let toggleTime = 1500;
 
 function init_view() {
   let target_commands = [];
-  for (var i = 0; i < inferenceEngineConfig['inference_sequence'].length; i++) {
-    let command = commands[inferenceEngineConfig['inference_sequence'][i]];
+  for (var i = 0; i < config.inferenceEngineConfig.inference_sequence.length; i++) {
+    let command = config.commands[inferenceEngineConfig.inference_sequence[i]];
     if (target_commands.indexOf(command) == -1) {
       target_commands.push(command)
     }
@@ -89,7 +89,7 @@ function updateToggledCommand(command) {
     command = 'unknown';
   }
 
-  if (!commands.includes(command)) {
+  if (!config.commands.includes(command)) {
     command = 'unknown'
   }
 

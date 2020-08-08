@@ -1,9 +1,9 @@
 class SpeechResModel {
 
-	constructor(modelName, commands) {
+	constructor(modelName, config) {
 		this.modelName = modelName;
-		this.commands = commands;
-		this.config = modelConfig[modelName];
+		this.commands = config.commands;
+		this.config = config.modelConfig;
 
 		this.config['n_labels'] = this.commands.length;
 
