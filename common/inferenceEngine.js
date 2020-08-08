@@ -133,3 +133,7 @@ class InferenceEngine {
     return command
   }
 }
+
+if (typeof module !== 'undefined') {
+  module.exports = InferenceEngine;
+}

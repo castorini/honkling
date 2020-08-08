@@ -1,22 +1,20 @@
-const precomputed_mel_basis = require('./precomputed/melBasis');
-const precomputed_hanning_window = require('./precomputed/hanningWindow');
 const tf = require('@tensorflow/tfjs');
+const precomputed = require('../common/precomputed');
 
 function MelSpectrogram(config) {
-  this.sample_rate = config['sample_rate'];
-  this.spectrogram = config['spectrogram'];
-  this.n_fft = config['n_fft'];
-  this.hop_length = config['hop_length'];
-  this.win_length = config['win_length'];
-  this.window = config['window'];
-  this.center = config['center'];
-  this.pad_mode = config['pad_mode'];
-  this.power = config['power'];
-  this.n_mels = config['n_mels'];
-  this.f_min = config['f_min'];
-  this.f_max = config['f_max'];
-  this.htk = config['htk'];
-  this.norm = config['norm'];
+  this.spectrogram = config.featureExtractionConfig.spectrogram;
+  this.n_fft = config.featureExtractionConfig.n_fft;
+  this.hop_length = config.featureExtractionConfig.hopSize;
+  this.win_length = config.featureExtractionConfig.win_length;
+  this.window = config.featureExtractionConfig.window;
+  this.center = config.featureExtractionConfig.center;
+  this.pad_mode = config.featureExtractionConfig.pad_mode;
+  this.power = config.featureExtractionConfig.power;
+  this.n_mels = config.featureExtractionConfig.melBands;
+  this.f_min = config.featureExtractionConfig.f_min;
+  this.f_max = config.featureExtractionConfig.f_max;
+  this.htk = config.featureExtractionConfig.htk;
+  this.norm = config.featureExtractionConfig.norm;
 
   // console.log("sample_rate: ", this.sample_rate);
   // console.log("spectrogram: ", this.spectrogram);
@@ -27,16 +25,16 @@ function MelSpectrogram(config) {
   // console.log("center: ", this.center);
   // console.log("pad_mode: ", this.pad_mode);
   // console.log("power: ", this.power);
-  // console.log("n_mel: ", this.n_mel);
+  // console.log("n_mels: ", this.n_mels);
   // console.log("f_min: ", this.f_min);
   // console.log("f_max: ", this.f_max);
   // console.log("htk: ", this.htk);
   // console.log("norm: ", this.norm);
 
-  if (config['use_precomputed']) {
+  if (config.featureExtractionConfig.use_precomputed) {
     console.log("Using precomuted static values");
-    this.mel_basis = tf.tensor(precomputed_mel_basis);
-    this.fft_window = tf.tensor(precomputed_hanning_window);
+    this.mel_basis = tf.tensor(precomputed['melBasis'][this.n_mels]);
+    this.fft_window = tf.tensor(precomputed['hanningWindow']);
   } else {
     console.log("Computing static values with tfjs");
     // Build a Mel filter

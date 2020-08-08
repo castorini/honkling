@@ -8,10 +8,10 @@ var WaveFile = require('wavefile').WaveFile;
 
 function DataLoader(config) {
 	this.config = config;
-	this.file_path = this.config['audio_file_path']
-  console.log("metadata_file: ", this.config['metadata_file'])
+	this.file_path = this.config.dataLoaderConfig.audio_file_path
+  console.log("metadata_file: ", this.config.dataLoaderConfig.metadata_file)
 
-  let rawMetaData = fs.readFileSync(this.config['metadata_file']);
+  let rawMetaData = fs.readFileSync(this.config.dataLoaderConfig.metadata_file);
   let MetaDataJson = String(rawMetaData)
       .replace(/\n/gi, ',')
       .slice(0, -1);
@@ -41,10 +41,10 @@ function DataLoader(config) {
   this.metadata = shuffle(this.metadata);
 
   // default values
-  this.sample_rate = this.config['sample_rate'];
-  this.window_size = this.sample_rate * this.config['window_size_seconds'];
-  this.stride_size = this.sample_rate * this.config['stride_size_seconds'];
-  this.padding_size = this.sample_rate * this.config['padding_size_seconds'];
+  this.sample_rate = this.config.sampleRate;
+  this.window_size = this.sample_rate * this.config.windowSize;
+  this.stride_size = this.sample_rate * this.config.dataLoaderConfig.stride_size_seconds;
+  this.padding_size = this.sample_rate * this.config.dataLoaderConfig.padding_size_seconds;
 
   this.total_test_data = this.metadata.length;
   this.current_frame_index = 0;
@@ -64,7 +64,7 @@ DataLoader.prototype.loadSample = function(file_name, transcription) {
 
   var padding = new Array(this.padding_size);
   for (var i = 0; i < this.padding_size; i++) {
-      padding[i] = Math.random() * this.config['noise_threshold'];
+      padding[i] = Math.random() * this.config.dataLoaderConfig.noise_threshold;
   }
 
   this.current_sample = {

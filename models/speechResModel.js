@@ -1,3 +1,18 @@
+if (typeof tf === 'undefined') {
+	// loaded by node.js
+	tf = require('@tensorflow/tfjs-node-gpu');
+}
+
+if (typeof util === 'undefined') {
+	// loaded by node.js
+	util = require('../common/util').util;
+}
+
+if (typeof weights === 'undefined') {
+	// loaded by node.js
+	weights = require('../common/weights');
+}
+
 class SpeechResModel {
 
 	constructor(modelName, config) {
@@ -218,7 +233,7 @@ class SpeechResModel {
 				let denseKernel = processedWeights[key]['weight'];
 
 				if (pytorch) {
-					denseKernel = transpose2d(processedWeights[key]['weight']);
+					denseKernel = util.transpose2d(processedWeights[key]['weight']);
 				}
 
 				w.push(tf.tensor2d(denseKernel, denseKernelShape, 'float32'));
@@ -241,3 +256,10 @@ class SpeechResModel {
 		return output.dataSync();
 	}
 }
+
+if (typeof module !== 'undefined') {
+	// loaded by node.js
+	module.exports = SpeechResModel
+	console.log(typeof SpeechResModel)
+}
+

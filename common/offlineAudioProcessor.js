@@ -6,7 +6,7 @@ class OfflineAudioProcessor {
   constructor(config, audioData) {
     offlineProc = this;
     this.sampleRate = config.sampleRate;
-    this.window_size = config.micAudioProcessorConfig.windowSize * config.sampleRate; // convert from s to n_samples
+    this.window_size = config.windowSize * config.sampleRate; // convert from s to n_samples
     this.padding_size = config.micAudioProcessorConfig.paddingSize
     this.melBands = config.featureExtractionConfig.melBands;
     this.audioData = audioData;
@@ -85,7 +85,7 @@ class OfflineAudioProcessor {
           offlineProc.mfcc.push(new Array(80).fill(0));
         }
       }
-      offlineProc.mfcc = transposeFlatten2d(offlineProc.mfcc);
+      offlineProc.mfcc = util.transposeFlatten2d(offlineProc.mfcc);
 
       // ZMUV
       offlineProc.mfcc.forEach(function(part, index) {

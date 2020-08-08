@@ -1,4 +1,4 @@
-let hanningWindow = [
+const hanningWindow = [
     0.0,
     3.764033317565918e-05,
     0.00015059113502502441,
@@ -512,3 +512,10 @@ let hanningWindow = [
     0.00015059113502502441,
     3.764033317565918e-05
 ]
+
+if (typeof module !== 'undefined') {
+  // loaded by node.js
+  module.exports = hanningWindow;
+} else {
+ precomputed['hanningWindow'] = hanningWindow;
+}

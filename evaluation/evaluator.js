@@ -1,25 +1,27 @@
-const SpeechResModel = require('./speechResModel');
-const evaluationConfig = require('./config');
 const DataLoader = require('./dataLoader');
 const MelSpectrogram = require('./melSpectrogram');
-const InferenceEngine = require('./inferenceEngine');
-const util = require('./util');
+const InferenceEngine = require('../common/inferenceEngine');
+const SpeechResModel = require('../models/speechResModel');
+const config = require('../common/config');
+const util = require('../common/util').util;
+
 
 function Evaluator() {
-  console.logevalua
-  this.model = new SpeechResModel(
-    "RES8", 
-    evaluationConfig['commands'], 
-    evaluationConfig['modelConfig'], 
-    evaluationConfig['modelWeights']);
+  // this.model = new SpeechResModel(
+  //   "RES8", 
+  //   evaluationConfig['commands'], 
+  //   evaluationConfig['modelConfig'], 
+  //   evaluationConfig['modelWeights']);
 
-  this.dataLoader = new DataLoader(evaluationConfig['dataLoaderConfig']);
+  this.dataLoader = new DataLoader(config);
 
-  this.melSpectrogram = new MelSpectrogram(evaluationConfig['melSpectrogramConfig']);
+  this.melSpectrogram = new MelSpectrogram(config);
 
-  this.inferenceEngine = new InferenceEngine(evaluationConfig['inferenceEngineConfig'], evaluationConfig['commands']);
+  this.inferenceEngine = new InferenceEngine(config);
 
-  this.input_length = evaluationConfig['dataLoaderConfig']["sample_rate"] * evaluationConfig['dataLoaderConfig']["window_size_seconds"];
+  this.model = new SpeechResModel("RES8", config)
+
+  this.input_length = config.sampleRate * config.windowSize;
 }
 
 Evaluator.prototype.evaluate = function() {
@@ -71,18 +73,19 @@ Evaluator.prototype.evaluate = function() {
 
     this.expected = data['label'];
 
-    let mel_spectrogram_data = this.melSpectrogram.extract(data['data'].slice(0, this.input_length));
+    // let mel_spectrogram_data = this.melSpectrogram.extract(data['data'].slice(0, this.input_length));
+    let mel_spectrogram_data = this.melSpectrogram.extract(data['data']);
 
     let log_mels_data = mel_spectrogram_data.add(0.0000007).log();
 
-    let zmuv_sample = log_mels_data.sub(evaluationConfig['zmuvConfig']["mean"]).div(evaluationConfig['zmuvConfig']["std"])
+    let zmuv_sample = log_mels_data.sub(config.zmuvConfig.mean).div(config.zmuvConfig.std)
 
     this.inferenceEngine.infer(zmuv_sample, this.model, timestemp);
 
     // next iteration
     data = this.dataLoader.getNextWindow();
     start = true;
-    timestemp += (evaluationConfig['dataLoaderConfig']['stride_size_seconds'] * 1000)
+    timestemp += (config.dataLoaderConfig.stride_size_seconds * 1000)
   }
 
   if (this.inferenceEngine.sequencePresent()) {

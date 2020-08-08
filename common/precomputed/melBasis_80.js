@@ -1,4 +1,4 @@
-melBasis['80'] = [
+const melBasis_80 = [
     [
         -0.0,
         0.5998989939689636,
@@ -20720,3 +20720,10 @@ melBasis['80'] = [
         0.0
     ]
 ]
+
+if (typeof module !== 'undefined') {
+    // loaded by node.js
+  module.exports = melBasis_80;
+} else {
+  precomputed['melBasis']['80'] = melBasis_80;
+}

@@ -1,12 +1,29 @@
-function isNumeric(str) {
+if (typeof tf === 'undefined') {
+  // loaded by node.js
+  const tf = require('@tensorflow/tfjs-node-gpu');
+}
+
+var util = {}
+
+util.extendObj = function extendObj(obj1, obj2){
+  for (var key in obj2){
+    if(obj2.hasOwnProperty(key)){
+      obj1[key] = obj2[key];
+    }
+  }
+
+  return obj1;
+}
+
+util.isNumeric = function isNumeric(str) {
   return !isNaN(str)
 }
 
-function isAllZero(data) {
+util.isAllZero = function isAllZero(data) {
   return data.every(function(elem) {return elem == 0})
 }
 
-function duplicateElements(arr, times) {
+util.duplicateElements = function duplicateElements(arr, times) {
   duplicated = []
   for (let i = 0; i < arr.length; i++) {
     for (let j = 0; j < times; j++) {
@@ -16,7 +33,7 @@ function duplicateElements(arr, times) {
   return duplicated
 }
 
-function shuffleArray(array) {
+util.shuffleArray = function shuffleArray(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
 
   // While there remain elements to shuffle...
@@ -35,7 +52,7 @@ function shuffleArray(array) {
   return array;
 }
 
-function printData(name, data) {
+util.printData = function printData(name, data) {
   if (data.length == 0) {
     console.log('\t', name, ' has length of 0');
   } else if (this.isAllZero(data)) {
@@ -75,19 +92,19 @@ function printData(name, data) {
   console.log('\tlast non zero element : ', i, ' - ', data[i]);
 }
 
-function roundTo(num, place) {
+util.roundTo = function roundTo(num, place) {
   return +(Math.round(num + "e+" + place)  + "e-"+place);
 }
 
-function numberWithCommas(num) {
+util.numberWithCommas = function numberWithCommas(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function sortNumberArray(arr) {
-  arr.sort(function (a, b) { return a - b; });
+util.sortNumberArray = function sortNumberArray(arr) {
+  util.sort = arr.sort(function (a, b) { return a - b; });
 }
 
-function percentile(arr, p) {
+util.percentile = function percentile(arr, p) {
   if (arr.length === 0) return 0;
   if (typeof p !== 'number') throw new TypeError('p must be a number');
   if (p <= 0) return arr[0];
@@ -102,7 +119,7 @@ function percentile(arr, p) {
   return arr[lower] * (1 - weight) + arr[upper] * weight;
 }
 
-function transpose2d(arr) {
+util.transpose2d = function transpose2d(arr) {
   let row = arr.length;
   let col = arr[0].length;
 
@@ -119,7 +136,7 @@ function transpose2d(arr) {
   return transposed;
 }
 
-function flatten2d(arr) {
+util.flatten2d = function flatten2d(arr) {
   let row = arr.length;
   let col = arr[0].length;
 
@@ -133,7 +150,7 @@ function flatten2d(arr) {
   return flattened;
 }
 
-function transposeFlatten2d(arr) {
+util.transposeFlatten2d = function transposeFlatten2d(arr) {
   let row = arr.length;
   let col = arr[0].length;
 
@@ -147,7 +164,7 @@ function transposeFlatten2d(arr) {
   return flattened;
 }
 
-function calculateAccuracy(output, target) {
+util.calculateAccuracy = function calculateAccuracy(output, target) {
   if (output.length != target.length) {
     console.error('output(' + output.length + ') and target(' + target.length + ') have different size !');
   }
@@ -161,7 +178,7 @@ function calculateAccuracy(output, target) {
 }
 
 // Function to download data to a file
-function download(data, filename, type) {
+util.download = function download(data, filename, type) {
     var file = new Blob([data], {type: type});
     if (window.navigator.msSaveOrOpenBlob) // IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
@@ -178,3 +195,18 @@ function download(data, filename, type) {
         }, 0);
     }
 }
+
+util.isEmpty = function isEmpty(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+
+    return true;
+}
+
+if (typeof module !== 'undefined') {
+  // loaded by node.js
+  module.exports.util = util;
+}
+
