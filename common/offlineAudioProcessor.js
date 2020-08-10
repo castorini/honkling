@@ -138,8 +138,8 @@ class OfflineAudioProcessor {
       });
     }
 
-    // this.audioSource.connect(this.featureExtractionNode);
-    // this.featureExtractionNode.connect(this.audioContext.destination);
+    this.audioSource.connect(this.featureExtractionNode);
+    this.featureExtractionNode.connect(this.audioContext.destination);
   }
 
 
@@ -148,23 +148,23 @@ class OfflineAudioProcessor {
       offlineProc.mfcc.push(mfcc);
     }
 
-    this.meyda = Meyda.createMeydaAnalyzer({
-      bufferSize: this.bufferSize,
-      source: this.audioSource,
-      audioContext: this.audioContext,
-      hopSize: this.meydaHopSize,
-      callback: postProcessing,
-      sampleRate: this.sampleRate,
-      melBands: this.melBands
-    });
+    // this.meyda = Meyda.createMeydaAnalyzer({
+    //   bufferSize: this.bufferSize,
+    //   source: this.audioSource,
+    //   audioContext: this.audioContext,
+    //   hopSize: this.meydaHopSize,
+    //   callback: postProcessing,
+    //   sampleRate: this.sampleRate,
+    //   melBands: this.melBands
+    // });
   }
 
   getMFCC() {
-    this.meyda.start("mfcc");
+    // this.meyda.start("mfcc");
     this.audioSource.start();
 
     this.audioContext.startRendering().then(function(renderedBuffer) {
-      offlineProc.meyda.stop();
+      // offlineProc.meyda.stop();
       offlineProc.audioSource.disconnect();
       offlineProc.mfcc = offlineProc.mfcc.slice(0, offlineProc.mfccDataLength);
       // if data we get from meyda is shorter than what we expected
@@ -176,6 +176,7 @@ class OfflineAudioProcessor {
           offlineProc.mfcc.push(new Array(80).fill(0));
         }
       }
+
       var flattened_mfcc = util.transposeFlatten2d(offlineProc.mfcc);
 
       // ZMUV

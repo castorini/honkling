@@ -1,12 +1,11 @@
 let micAudioProcessor = new MicAudioProcessor(config);
 let model = new SpeechResModel("RES8", config);
 let inferenceEngine = new InferenceEngine(config);
-let featureExtractor = new FeatureExtractor(config);
 
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
 
-    // var mfccData = featureExtractor.extract(micAudioProcessor.getData())
+    // var mfccData = micAudioProcessor.getData();
 
     // command = inferenceEngine.infer(mfccData, model, config.commands);
     // updateToggledCommand(command);

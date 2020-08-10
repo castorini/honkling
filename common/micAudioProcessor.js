@@ -35,6 +35,7 @@ class MicAudioProcessor {
     // this.paddingSize = 512;
 
     this.initDownSampleNode();
+    // this.featureExtractor = new FeatureExtractor(config);
     this.data = [];
   }
 
@@ -107,6 +108,8 @@ class MicAudioProcessor {
       var inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
       var downSampledData = interpolateArray(inputData, micProc.downSampledBufferSize);
 
+      // micProc.featureExtractor.appendData(downSampledData);
+
       micProc.data = micProc.data.concat(downSampledData);
 
       // always keep last window
@@ -117,6 +120,7 @@ class MicAudioProcessor {
   }
 
   getData() {
+    // return this.featureExtractor.extract();
     return this.data;
   }
 }

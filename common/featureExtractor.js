@@ -1,5 +1,9 @@
+var _featureExtractor;
+
 class FeatureExtractor {
   constructor(config) {
+
+    _featureExtractor = this;
 
     this.power = config.featureExtractionConfig.power;
     this.n_fft = config.featureExtractionConfig.n_fft
@@ -13,6 +17,13 @@ class FeatureExtractor {
     this.std = config.zmuvConfig["std"]
 
     this.spectogram = new Spectogram(config);
+
+    this.previousInputData = [];
+    this.processed = [];
+
+    while (this.processed.length != this.input_width) {
+      this.processed.push(new Array(this.melBands).fill(0));
+    }
   }
 
   frame(buffer, frameLength, hopLength) {
@@ -64,32 +75,42 @@ class FeatureExtractor {
     return loggedMelBandsArray
   }
 
-  extract(data) {
-    var frames = this.frame(data, this.n_fft, this.hopSize);
-    var processed = [];
-
-  	for (var i = 0; i < frames.length; i++) {
-  		processed.push(this.compute_mel_spetogram(frames[i]));
-  	}
-
-    processed = processed.slice(0, this.input_width);
-
-    // if data we get from meyda is shorter than what we expected
-    // due to some delays between two audio processor
-    if (processed.length < this.input_width) {
-      while (processed.length != this.input_width) {
-        processed.push(new Array(this.melBands).fill(0));
-      }
+  appendData(inputData) {
+    if (inputData < this.hopSize) {
+      console.err("mic input frame size must be greater than hopsize");
     }
-    processed = util.transposeFlatten2d(processed);
 
+    // make sure enough data is loaded for the first time
+    if (this.previousInputData.length < this.n_fft) {
+      this.previousInputData = this.previousInputData.concat(inputData);
+      console.log(inputData.length, this.previousInputData.length)
+      return;
+    }
+
+    var buffer = new Float32Array(this.previousInputData.length + inputData.length - this.hopSize);
+    buffer.set(this.previousInputData.slice(this.hopSize)); // drop first hopsize
+    buffer.set(inputData, this.previousInputData.length - this.hopSize); // fill the rest with new data
+
+    this.previousInputData = inputData
+
+    var frames = this.frame(buffer, this.n_fft, this.hopSize);
+
+    frames.forEach(function (f) {
+      _featureExtractor.processed.push(_featureExtractor.compute_mel_spetogram(f));
+    });
+  }
+
+  extract() {
+    this.processed = this.processed.slice(this.processed.length - this.input_width);
+    var flattened = util.transposeFlatten2d(this.processed);
+    
     // ZMUV
-  	for (var i = 0; i < processed.length; i++) {
-  		processed[i] = (processed[i] - this.mean) / this.std
-  	}
+    flattened.forEach(function(part, index) {
+      this[index] = (this[index] - _featureExtractor.mean) / _featureExtractor.std
+    }, flattened);
 
-    return processed
 
+    return flattened
   }
 
 }
