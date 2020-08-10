@@ -15,6 +15,16 @@ util.extendObj = function extendObj(obj1, obj2){
   return obj1;
 }
 
+util.arrPower = function arrPower(arr, power){
+
+  for (var i = 0; i < arr.length; i++) {
+    arr[i] = Math.pow(arr[i], power)
+  }
+
+  return arr;
+}
+
+
 util.isNumeric = function isNumeric(str) {
   return !isNaN(str)
 }
@@ -50,6 +60,16 @@ util.shuffleArray = function shuffleArray(array) {
   }
 
   return array;
+}
+
+util.pointwiseBufferMult = function pointwiseBufferMult(a, b) {
+  var c = [];
+
+  for (var i = 0; i < Math.min(a.length, b.length); i++) {
+    c[i] = a[i] * b[i];
+  }
+
+  return c;
 }
 
 util.printData = function printData(name, data) {

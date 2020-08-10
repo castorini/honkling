@@ -28,7 +28,11 @@ class MicAudioProcessor {
     // once audio of 44100 features is down sampled to 16000 features,
     // resulting number of features is 15953
 
+
     this.paddingSize = config.micAudioProcessorConfig.paddingSize
+
+    // To be used when meyda is removed
+    // this.paddingSize = 512;
 
     this.initDownSampleNode();
     this.data = [];

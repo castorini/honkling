@@ -29,6 +29,66 @@ class OfflineAudioProcessor {
 
     this.initBufferSourceNode();
     this.initMeydaNode();
+
+    this.power = config.featureExtractionConfig.power;
+    this.n_fft = config.featureExtractionConfig.n_fft
+
+
+    this.spectogram = new Spectogram(config);
+    this.melFilterBank = precomputed.melBasis[config.featureExtractionConfig.melBands.toString()];
+
+    this.initFeatureExtractionNode();
+
+  }
+
+  frame(buffer, frameLength, hopLength) {
+    if (buffer.length < frameLength) {
+      throw new Error('Buffer is too short for frame length');
+    }
+
+    if (hopLength < 1) {
+      throw new Error('Hop length cannot be less that 1');
+    }
+
+    if (frameLength < 1) {
+      throw new Error('Frame length cannot be less that 1');
+    }
+
+    var numFrames = 1 + Math.floor((buffer.length - frameLength) / hopLength);
+    return new Array(numFrames).fill(0).map(function (_, i) {
+      return buffer.slice(i * hopLength, i * hopLength + frameLength);
+    });
+  }
+
+
+  compute(data) {
+    let spectogram = offlineProc.spectogram.compute(data);
+
+    var powSpec = util.arrPower(spectogram, offlineProc.power);
+    var numFilters = offlineProc.melFilterBank.length;
+
+    var filtered = Array(numFilters);
+
+    var loggedMelBands = new Float32Array(numFilters);
+
+    for (var i = 0; i < numFilters; i++) {
+      filtered[i] = new Float32Array(offlineProc.n_fft / 2 + 1);
+      loggedMelBands[i] = 0;
+
+      for (var j = 0; j < filtered[i].length; j++) {
+        //point-wise multiplication between power spectrum and filterbanks.
+        filtered[i][j] = offlineProc.melFilterBank[i][j] * powSpec[j]; //summing up all of the coefficients into one array
+
+        loggedMelBands[i] += filtered[i][j];
+      } //log positive coefficient.
+
+
+      loggedMelBands[i] = Math.log(loggedMelBands[i] + 1e-7);
+    }
+
+    var loggedMelBandsArray = Array.prototype.slice.call(loggedMelBands);
+
+    return loggedMelBandsArray
   }
 
   initBufferSourceNode() {
@@ -48,9 +108,40 @@ class OfflineAudioProcessor {
 
     // Get an AudioBufferSourceNode.
     // This is the AudioNode to use when we want to play an AudioBuffer
+
     this.audioSource = this.audioContext.createBufferSource();
     this.audioSource.buffer = audioSourceBuffer;
   }
+
+  initFeatureExtractionNode() {
+    this.srcBufferSize = 512;
+    this.featureExtractionNode = this.audioContext.createScriptProcessor(this.srcBufferSize, 1, 1);
+
+    this.featureExtractionNode.onaudioprocess = function(audioProcessingEvent) {
+      var inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+
+      var buffer = inputData;
+
+      if (offlineProc.previousInputData) {
+        buffer = new Float32Array(offlineProc.previousInputData.length + inputData.length - offlineProc.meydaHopSize);
+        buffer.set(offlineProc.previousInputData.slice(offlineProc.meydaHopSize)); // drop first hopsize
+        buffer.set(inputData, offlineProc.previousInputData.length - offlineProc.meydaHopSize); // fill the rest with new data
+      }
+
+      offlineProc.previousInputData = inputData
+
+      var frames = offlineProc.frame(buffer, offlineProc.bufferSize, offlineProc.meydaHopSize);
+
+      frames.forEach(function (f) {
+        var features = offlineProc.compute(f);
+        offlineProc.mfcc.push(features);
+      });
+    }
+
+    // this.audioSource.connect(this.featureExtractionNode);
+    // this.featureExtractionNode.connect(this.audioContext.destination);
+  }
+
 
   initMeydaNode() {
     let postProcessing = function(mfcc) {
@@ -85,14 +176,14 @@ class OfflineAudioProcessor {
           offlineProc.mfcc.push(new Array(80).fill(0));
         }
       }
-      offlineProc.mfcc = util.transposeFlatten2d(offlineProc.mfcc);
+      var flattened_mfcc = util.transposeFlatten2d(offlineProc.mfcc);
 
       // ZMUV
-      offlineProc.mfcc.forEach(function(part, index) {
+      flattened_mfcc.forEach(function(part, index) {
         this[index] = (this[index] - (zmuvConfig["mean"])) / zmuvConfig["std"]
-      }, offlineProc.mfcc);
+      }, flattened_mfcc);
 
-      offlineProc.deferred.resolve(offlineProc.mfcc);
+      offlineProc.deferred.resolve(flattened_mfcc);
 
     }).catch(function(err) {
       console.log('Offline processing failed: ' + err);
