@@ -1,5 +1,6 @@
 const tf = require('@tensorflow/tfjs');
 const precomputed = require('../common/precomputed');
+const Spectogram = require('../common/spectogram');
 
 function MelSpectrogram(config) {
   this.spectrogram = config.featureExtractionConfig.spectrogram;
@@ -52,6 +53,8 @@ function MelSpectrogram(config) {
     // fft_window
     this.fft_window = this.get_hanning_window(this.n_fft);
   }
+
+  this.spectogram = new Spectogram(config);
 }
 
 MelSpectrogram.prototype.pad_center = function(data, size) {
@@ -259,10 +262,18 @@ MelSpectrogram.prototype.stft = function(
   // Window the time series.
   let y_frames = tf.signal.frame(y, n_fft, hop_length);
   let windowed = y_frames.mul(this.fft_window);
-  return tf.spectral.rfft(windowed);
+
+  let raw_data = windowed.arraySync();
+  let fft_result = []
+
+  for (var i = 0; i < raw_data.length; i++) {
+    fft_result.push(this.spectogram.compute(raw_data[i]));
+  }
+
+  return tf.stack(fft_result);
 }
 
-MelSpectrogram.prototype.spectogram = function(
+MelSpectrogram.prototype.compute_spectogram = function(
   y=null,
   S=null,
   n_fft=2048,
@@ -303,7 +314,7 @@ MelSpectrogram.prototype.extract = function(x) {
     x = tf.tensor(x).toFloat();
   }
 
-  let result = this.spectogram(
+  let result = this.compute_spectogram(
     x, // y
     null, // S
     this.n_fft, // n_fft
