@@ -1,9 +1,8 @@
-
 class InferenceEngine {
   constructor(config) {
-    this.inference_window_ms = config.inferenceEngineConfig.inference_window_ms
+    this.inference_window_ms = config.inferenceEngineConfig.inference_window_ms // how much we look for phrase detection
     this.smoothing_window_ms = config.inferenceEngineConfig.smoothing_window_ms
-    this.tolerance_window_ms = config.inferenceEngineConfig.tolerance_window_ms
+    this.tolerance_window_ms = config.inferenceEngineConfig.tolerance_window_ms // time period where false detections are acceptable for
     this.inference_weights = config.inferenceEngineConfig.inference_weights
     this.inference_sequence = config.inferenceEngineConfig.inference_sequence
 
@@ -127,10 +126,7 @@ class InferenceEngine {
     let label = this.getPrediction(d.getTime());
     let command = this.commands[label];
 
-    // let raw_pred = this.argmax(pred)
-    // console.log(this.commands[raw_pred], command)
-
-    return command
+    return command;
   }
 }
 

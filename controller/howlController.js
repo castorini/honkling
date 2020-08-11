@@ -4,16 +4,6 @@ let inferenceEngine = new InferenceEngine(config);
 
 micAudioProcessor.getMicPermission().done(function() {
   setInterval(function() {
-
-    // var mfccData = micAudioProcessor.getData();
-
-    // command = inferenceEngine.infer(mfccData, model, config.commands);
-    // updateToggledCommand(command);
-
-    // if (inferenceEngine.sequencePresent()) {
-    //   toggleFullWord();
-    // }
-
     let offlineProcessor = new OfflineAudioProcessor(config, micAudioProcessor.getData());
     offlineProcessor.getMFCC().done(function(mfccData) {
 
@@ -24,7 +14,7 @@ micAudioProcessor.getMicPermission().done(function() {
         toggleFullWord();
       }
     });
-  }, config.predictionFrequency);
+  }, config.predictionFrequency * 1000);
 }).fail(function() {
   alert('mic permission is required, please enable the mic usage!');
 });

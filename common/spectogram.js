@@ -8,6 +8,7 @@ if (typeof util === 'undefined') {
 	util = require('./util').util;
 }
 
+// in-browser implementation uses meyda but the implementation are the same
 class Spectogram {
   constructor(config) {
   	this.n_fft = config.featureExtractionConfig.n_fft

@@ -4,12 +4,12 @@ if (typeof util === 'undefined') {
 }
 
 // in-browser related configs
+// units are all in seconds unless specified otherwise
 
 var config = {
   'commands': ["hey", "fire", "fox", "unknown3", "unknown4", "unknown5", "unknown6", "unknown7", "unknown8", "unknown9"],
-  'predictionFrequency': 62,
-  'hopSize' : 12.5,
-  'windowSize' : 0.5, // in s
+  'predictionFrequency': 0.062, // 62 ms
+  'windowSize' : 0.5, // 500 ms
   'sampleRate': 16000
 }
 
@@ -22,7 +22,7 @@ config['micAudioProcessorConfig'] = micAudioProcessorConfig
 
 var featureExtractionConfig = {
   'melBands': 40, // n_mels (only used for Meyda) 
-  'hopSize': config.sampleRate / 1000 * config.hopSize
+  'hopSize': config.sampleRate * 0.0125 // hop by 12.5 ms
 }
 
 

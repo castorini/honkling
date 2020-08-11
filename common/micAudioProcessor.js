@@ -1,8 +1,8 @@
-let micProc;
+let _micProc;
 
 class MicAudioProcessor {
   constructor(config) {
-    micProc = this;
+    _micProc = this;
 
     this.sampleRate = config.sampleRate;
     this.windowSize = config.windowSize * this.sampleRate; // convert from s to n_samples
@@ -21,21 +21,14 @@ class MicAudioProcessor {
     }
 
     this.audioContext = new AudioContext();
-
     this.browserSampleRate = this.audioContext.sampleRate; // 44100
+    this.paddingSize = config.micAudioProcessorConfig.paddingSize
     this.srcBufferSize = 1024;
     // with buffer size of 1024, we can capture 44032 features for original sample rate of 44100
     // once audio of 44100 features is down sampled to 16000 features,
     // resulting number of features is 15953
 
-
-    this.paddingSize = config.micAudioProcessorConfig.paddingSize
-
-    // To be used when meyda is removed
-    // this.paddingSize = 512;
-
     this.initDownSampleNode();
-    // this.featureExtractor = new FeatureExtractor(config);
     this.data = [];
   }
 
@@ -44,24 +37,24 @@ class MicAudioProcessor {
 
     var successCallback = function (micStream) {
       console.log('User allowed microphone access.');
-      micProc.micSource = micProc.audioContext.createMediaStreamSource(micStream);
-      micProc.micSource.connect(micProc.downSampleNode);
-      micProc.downSampleNode.connect(micProc.audioContext.destination);
+      _micProc.micSource = _micProc.audioContext.createMediaStreamSource(micStream);
+      _micProc.micSource.connect(_micProc.downSampleNode);
+      _micProc.downSampleNode.connect(_micProc.audioContext.destination);
       visualizer({
         parent: "#waveform",
         stream: micStream
       });
 
-      if (micProc.audioContext.state == "suspended") {
+      if (_micProc.audioContext.state == "suspended") {
         // audio context start suspended on Chrome due to auto play policy
-        micProc.audioContext.resume();
+        _micProc.audioContext.resume();
       }
-      micProc.permissionDeferred.resolve();
+      _micProc.permissionDeferred.resolve();
     };
 
     var errorCallback = function (err) {
       console.log('Initializing microphone has failed. Falling back to default audio file', err);
-      micProc.permissionDeferred.reject();
+      _micProc.permissionDeferred.reject();
     };
 
     try {
@@ -106,21 +99,18 @@ class MicAudioProcessor {
 
     this.downSampleNode.onaudioprocess = function(audioProcessingEvent) {
       var inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
-      var downSampledData = interpolateArray(inputData, micProc.downSampledBufferSize);
+      var downSampledData = interpolateArray(inputData, _micProc.downSampledBufferSize);
 
-      // micProc.featureExtractor.appendData(downSampledData);
+      _micProc.data = _micProc.data.concat(downSampledData);
 
-      micProc.data = micProc.data.concat(downSampledData);
-
-      // always keep last window
-      if (micProc.data.length > micProc.windowSize + micProc.paddingSize) {
-        micProc.data.splice(0, micProc.data.length - (micProc.windowSize + micProc.paddingSize));
+      // always keep the last window
+      if (_micProc.data.length > _micProc.windowSize + _micProc.paddingSize) {
+        _micProc.data.splice(0, _micProc.data.length - (_micProc.windowSize + _micProc.paddingSize));
       }
     }
   }
 
   getData() {
-    // return this.featureExtractor.extract();
     return this.data;
   }
 }

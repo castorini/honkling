@@ -6,13 +6,9 @@ const config = require('../common/config');
 const util = require('../common/util').util;
 
 
-function Evaluator() {
-  // this.model = new SpeechResModel(
-  //   "RES8", 
-  //   evaluationConfig['commands'], 
-  //   evaluationConfig['modelConfig'], 
-  //   evaluationConfig['modelWeights']);
+// Node js implementation which supports loading audio files from local.
 
+function Evaluator() {
   this.dataLoader = new DataLoader(config);
 
   this.melSpectrogram = new MelSpectrogram(config);
