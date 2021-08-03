@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="logo/Logomark-github-opt.png?raw=true" width="250">
+  <hr/>
+</p>
+
 # Honkling : JavaScript based Keyword Spotting System
 
 [Honkling](https://castorini.github.io/honkling/) is a novel web application with an in-browser keyword spotting system implemented with [TensorFlow.js](https://js.tensorflow.org/).
