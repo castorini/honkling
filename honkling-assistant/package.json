@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "electron": "^9.4.0",
-    "electron-packager": "^12.2.0",
+    "electron-packager": "^16.0.0",
     "standard": "^12.0.1"
   },
   "scripts": {
